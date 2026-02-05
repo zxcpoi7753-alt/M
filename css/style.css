@@ -1,0 +1,38 @@
+:root { --brand: #059669; --brand-dark: #064e3b; --accent: #fbbf24; }
+body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; overflow-x: hidden; }
+
+/* الحاوية */
+#app-container { transform-origin: top center; width: 100%; min-height: 100vh; }
+
+/* العناصر العامة */
+.news-card { border-top: 6px solid var(--brand); border-radius: 1.5rem; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1rem; position: relative; }
+.schedule-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
+.schedule-table th { background-color: var(--brand); color: white; padding: 10px; font-weight: 900; }
+.schedule-table td { padding: 8px; text-align: center; border-bottom: 1px solid #f1f5f9; font-weight: 700; color: #1e293b; }
+.halqa-accordion { background: white; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 1rem; display: flex; justify-content: space-between; items-center; font-weight: 900; color: var(--brand-dark); cursor: pointer; margin-bottom: 8px; transition: all 0.2s; }
+.halqa-accordion.active { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); }
+
+/* أزرار ركن الطالب (الذهبية) */
+.student-btn { width: 100%; padding: 1.2rem; border-radius: 1.5rem; background: white; border: 2px solid var(--brand); color: var(--brand); font-weight: 900; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.student-btn:active { transform: scale(0.98); }
+.student-btn.active { background: var(--brand); color: white; }
+
+/* تصميم الميزات الجديدة (داخل الأزرار) */
+.feature-box { background: white; padding: 15px; border-radius: 15px; border: 1px solid #e5e7eb; animation: fadeIn 0.3s ease; margin-bottom: 15px; }
+.quran-text { font-family: 'Amiri', serif; line-height: 2.4; font-size: 1.4rem; color: #1f2937; text-align: center; direction: rtl; }
+.sebha-circle { width: 150px; height: 150px; border-radius: 50%; border: 8px solid var(--brand); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--brand); margin: 20px auto; cursor: pointer; background: #f0fdf4; user-select: none; }
+.sebha-circle:active { background: #dcfce7; transform: scale(0.95); }
+
+/* نصوص وأيقونات */
+.font-amiri { font-family: 'Amiri', serif; }
+.text-brand { color: var(--brand); }
+.bg-brand { background-color: var(--brand); }
+
+/* رسائل وتنبيهات */
+.toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 300; display: flex; flex-col gap-2; width: 90%; max-width: 400px; }
+.toast { background: #333; color: white; padding: 12px 24px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; text-align: center; animation: slideUp 0.4s ease-out; }
+.offline-bar { background: #ef4444; color: white; text-align: center; font-size: 10px; font-weight: bold; padding: 4px; }
+
+/* حركات */
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
