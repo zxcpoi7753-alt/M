@@ -1,17 +1,21 @@
 /* =========================================
    ملف التطبيق: js/app.js
-   الوظيفة: تشغيل واجهة الزوار والطلاب (بدون أدمن)
+   الوظيفة: تشغيل واجهة الزوار وربط الميزات
    ========================================= */
 
 const { useState, useEffect } = React;
 
-// استيراد المكونات التي بنيناها في features.js
+// استيراد المكونات من features.js
+// تأكد أن هذه الأسماء مطابقة لما في ملف features.js
+const CalcEffort = window.CalcEffort;
+const CalcTime = window.CalcTime;
 const TestHifz = window.TestHifz;
 const QuranReader = window.QuranReader;
 const AzkarApp = window.AzkarApp;
 
-// البيانات الافتراضية (في حال عدم وجود إنترنت لأول مرة)
+// البيانات الافتراضية
 const initialConfig = {
+    settings: { layoutScale: 1 },
     texts: {
         siteTitle: 'حلقات الثريا',
         heroTitle: 'أهلاً بكم في حلقات الثريا',
@@ -34,95 +38,59 @@ const App = () => {
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     
-    // تحكم الميزات (الأكورديون)
-    const [activeFeature, setActiveFeature] = useState(null); // للتحكم بفتح وإغلاق أدوات الطالب
-    const [expandedSch, setExpandedSch] = useState(null);     // للجداول
-    
-    // حاسبات الطالب (القديمة)
-    const [calc1, setCalc1] = useState({ days: '', amount: '', completed: '', result: null });
-    const [calc2, setCalc2] = useState({ y: '', m: '', d: '', result: null });
-    const [quranToast, setQuranToast] = useState(false); // تنبيه الحد الأقصى
+    // التحكم بفتح القوائم (الأكورديون)
+    const [activeFeature, setActiveFeature] = useState(null); 
+    const [expandedSch, setExpandedSch] = useState(null);
 
-    // التأكد من جاهزية بيانات JSON
+    // حالة تحميل البيانات (JSON)
     const [dataReady, setDataReady] = useState(window.APP_DATA?.isReady || false);
 
-    // --- الاستماع للأحداث ---
+    // --- التأثيرات (Effects) ---
     useEffect(() => {
-        // الاستماع لتحميل بيانات JSON
-        window.addEventListener('data-ready', () => setDataReady(true));
+        // 1. الاستماع لحدث جاهزية البيانات
+        const handleDataReady = () => setDataReady(true);
+        window.addEventListener('data-ready', handleDataReady);
         if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
 
-        // جلب البيانات من Firebase
+        // 2. الاتصال بقاعدة بيانات Firebase (لجلب الأخبار والنصوص)
         if (window.db && window.onSnapshot && window.doc) {
             const unsub = window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                 if (doc.exists()) {
-                    setConfig(doc.data());
-                    // تحديث حجم الموقع
-                    const scale = doc.data().settings?.layoutScale || 1;
-                    document.documentElement.style.setProperty('--layout-scale', scale);
+                    setConfig(prev => ({ ...prev, ...doc.data() }));
+                    // تطبيق حجم الخط/الموقع
+                    if(doc.data().settings?.layoutScale) {
+                        document.documentElement.style.setProperty('--layout-scale', doc.data().settings.layoutScale);
+                    }
                 }
             });
             return () => unsub();
         }
+
+        return () => window.removeEventListener('data-ready', handleDataReady);
     }, []);
 
-    // --- دوال الحاسبة (المنطق القديم مع القيود) ---
-    const runCalc1 = () => {
-        const d = parseFloat(calc1.days)||0, a = parseFloat(calc1.amount)||0, c = parseFloat(calc1.completed)||0;
-        if (!d || !a) return;
-        
-        // القيود
-        if (d > 7) return alert('⚠️ أيام الحفظ لا تتجاوز 7 أيام');
-        if (c > 30) return alert('⚠️ الأجزاء لا تتجاوز 30 جزءاً');
-        if (a > 1812) { 
-            setQuranToast(true); 
-            setTimeout(() => setQuranToast(false), 3000); 
-            return; 
-        }
-
-        const rem = 604 - (c * 20);
-        if (rem <= 0) return alert('مبارك! لقد أتممت الحفظ 🎉');
-        
-        const days = (rem / (d * a)) * 7;
-        
-        if (days < 1) {
-            setCalc1(prev => ({ ...prev, result: { type: 'hours', val: Math.ceil(days * 24) } }));
+    // دالة تبديل الأكورديون (فتح/إغلاق)
+    const toggleFeature = (featureName) => {
+        if (activeFeature === featureName) {
+            setActiveFeature(null); // إغلاق إذا كان مفتوحاً
         } else {
-            setCalc1(prev => ({ ...prev, result: { type: 'date', y: Math.floor(days/365), m: Math.floor((days%365)/30), d: Math.floor((days%365)%30) } }));
+            setActiveFeature(featureName); // فتح الجديد
         }
     };
 
-    const runCalc2 = () => {
-        const y = parseFloat(calc2.y)||0, m = parseFloat(calc2.m)||0, d = parseFloat(calc2.d)||0;
-        const totalDays = (y * 365) + (m * 30) + d;
-        if (totalDays > 0) {
-            setCalc2(prev => ({ ...prev, result: (604 / totalDays).toFixed(1) }));
-        } else {
-            alert('الرجاء إدخال مدة صحيحة');
-        }
-    };
-
-    const sendWhatsappAnswer = () => {
-        if (!studentName) {
-            alert('يرجى تسجيل اسمك في صفحة "بطاقتي" أولاً');
+    // إرسال الإجابة واتساب
+    const sendWhatsapp = () => {
+        if(!studentName) {
+            alert("يرجى تسجيل اسمك في صفحة 'بطاقتي' أولاً");
             setPage('card');
             return;
         }
-        window.open(`https://wa.me/${config.texts.contact.phone}?text=الطالب: ${studentName} - إجابة السؤال`, '_blank');
+        window.open(`https://wa.me/${config.texts.contact.phone}?text=الطالب: ${studentName} - إجابة السؤال الأسبوعي`, '_blank');
     };
 
     return (
         <div id="app-container">
-            {/* تنبيه الختمة السريعة */}
-            {quranToast && (
-                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/90 text-white p-6 rounded-2xl z-50 text-center animate-in">
-                    <h3 className="text-xl font-bold text-amber-400 mb-2">🛑 تنبيه</h3>
-                    <p>الحد الأقصى اليومي هو 3 ختمات (1812 صفحة)</p>
-                    <p className="text-sm text-gray-400 mt-2">﴿ وَلَا تَعْجَلْ بِالْقُرْآنِ ﴾</p>
-                </div>
-            )}
-
-            {/* الهيدر */}
+            {/* --- الهيدر --- */}
             <header>
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
@@ -130,12 +98,12 @@ const App = () => {
                 </div>
                 <div className="flex gap-2">
                     <button onClick={() => window.location.reload()} className="p-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600">🔄 تحديث</button>
-                    {/* زر الذهاب للأدمن (يفتح صفحة منفصلة) */}
-                    <a href="admin.html" className="p-2 rounded-xl text-gray-300 hover:text-emerald-600 transition text-xl">🔒</a>
+                    {/* رابط صفحة الأدمن (يفتح في نافذة جديدة أو ينتقل إليها) */}
+                    <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 transition text-xl">🔒</a>
                 </div>
             </header>
 
-            {/* القائمة العلوية */}
+            {/* --- شريط التنقل --- */}
             <nav>
                 {['home','student_corner','teachers','students','schedules','about','card'].map(t => (
                     <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
@@ -144,7 +112,9 @@ const App = () => {
                 ))}
             </nav>
 
-            <main className="p-4 animate-in">
+            {/* --- المحتوى الرئيسي --- */}
+            <main className="p-4 animate-in pb-20">
+                
                 {/* 1. الصفحة الرئيسية */}
                 {page === 'home' && (
                     <div className="space-y-6">
@@ -157,8 +127,8 @@ const App = () => {
 
                         <div className="bg-white p-6 rounded-3xl border-r-[8px] border-amber-400 shadow-sm">
                             <h3 className="font-black text-lg mb-2 text-emerald-900">⭐ سؤال الأسبوع</h3>
-                            <p className="mb-4 text-gray-700 font-bold">{config.texts.weeklyQuestion}</p>
-                            <button onClick={sendWhatsappAnswer} className="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold flex justify-center items-center gap-2 shadow-md hover:bg-green-600 transition">
+                            <p className="mb-4 text-gray-700 font-bold leading-relaxed">{config.texts.weeklyQuestion}</p>
+                            <button onClick={sendWhatsapp} className="w-full bg-[#25D366] text-white py-3 rounded-xl font-bold flex justify-center items-center gap-2 shadow-md hover:bg-green-600 transition">
                                 💬 إرسال الإجابة واتساب
                             </button>
                         </div>
@@ -169,10 +139,10 @@ const App = () => {
                                 {config.news.filter(n => !n.hidden).map(n => (
                                     <div key={n.id} className="news-card">
                                         <div className="flex justify-end text-[10px] font-bold text-gray-400 mb-2">{n.date}</div>
-                                        <h3 className="text-xl font-black mb-2" style={{ color: n.colors?.title || '#1e293b' }}>{n.title}</h3>
-                                        <p className="text-sm leading-loose mb-3 text-gray-600" style={{ color: n.colors?.content || '#64748b' }}>{n.content}</p>
+                                        <h3 className="text-xl font-black mb-2" style={{ color: n.colors?.title }}>{n.title}</h3>
+                                        <p className="text-sm leading-loose mb-3 text-gray-600" style={{ color: n.colors?.content }}>{n.content}</p>
                                         {n.link?.url && (
-                                            <a href={n.link.url} target="_blank" className="inline-flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition" style={{ color: n.colors?.link || '#2563eb' }}>
+                                            <a href={n.link.url} target="_blank" className="inline-flex items-center gap-2 text-xs font-bold px-4 py-2 rounded-xl bg-gray-50 hover:bg-gray-100 transition" style={{ color: n.colors?.link }}>
                                                 🔗 {n.link.text || 'التفاصيل'}
                                             </a>
                                         )}
@@ -183,87 +153,51 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 2. ركن الطالب (المحدث) */}
+                {/* 2. ركن الطالب (التحديث الكبير) */}
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
                         <h2 className="text-center font-black text-2xl text-emerald-900 mb-6">🎓 ركن الطالب المتميز</h2>
                         
-                        {/* رسالة المشرف للطالب */}
                         <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center mb-4 shadow-sm">
                             <p className="text-amber-900 font-bold leading-relaxed text-sm">{config.texts.studentMsg}</p>
                             <div className="text-emerald-600 font-black mt-2 text-xs">{config.texts.aboutAyah}</div>
                         </div>
 
-                        {/* --- الأزرار القديمة (الحاسبات) --- */}
-                        <div onClick={() => setActiveFeature(activeFeature === 'calc' ? null : 'calc')} className={`student-btn ${activeFeature === 'calc' ? 'active' : ''}`}>
-                            <span>📊 حاسبة الحفظ والختم</span><span>{activeFeature === 'calc' ? '➖' : '➕'}</span>
+                        {/* زر 1: خطة ختمي (بجهدي) */}
+                        <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}>
+                            <span>📅 خطة ختمي (بجهدي)</span><span>{activeFeature === 'effort' ? '➖' : '➕'}</span>
                         </div>
-                        {activeFeature === 'calc' && (
-                            <div className="feature-container">
-                                {/* حاسبة 1: بجهدي */}
-                                <div className="mb-6 pb-6 border-b border-gray-100">
-                                    <h4 className="text-center font-bold text-emerald-800 mb-3 text-sm">📅 متى أختم (حسب جهدي)؟</h4>
-                                    <div className="space-y-2">
-                                        <input type="number" placeholder="كم يوماً تحفظ في الأسبوع؟ (ماكس 7)" className="w-full p-3 bg-gray-50 rounded-xl border text-sm font-bold" value={calc1.days} onChange={e => setCalc1({...calc1, days:e.target.value})} />
-                                        <input type="number" placeholder="كم صفحة تحفظ في اليوم؟" className="w-full p-3 bg-gray-50 rounded-xl border text-sm font-bold" value={calc1.amount} onChange={e => setCalc1({...calc1, amount:e.target.value})} />
-                                        <input type="number" placeholder="كم جزءاً حفظت سابقاً؟ (ماكس 30)" className="w-full p-3 bg-gray-50 rounded-xl border text-sm font-bold" value={calc1.completed} onChange={e => setCalc1({...calc1, completed:e.target.value})} />
-                                        <button onClick={runCalc1} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md mt-2">احسب النتيجة</button>
-                                        
-                                        {calc1.result && (
-                                            <div className="bg-emerald-50 p-3 rounded-xl text-center mt-2 border border-emerald-100 animate-in">
-                                                {calc1.result.type === 'hours' ? 
-                                                    <p className="font-bold text-emerald-800">تحتاج فقط <span className="text-xl">{calc1.result.val}</span> ساعة! ما شاء الله</p> : 
-                                                    <p className="font-bold text-emerald-800">تختم خلال: <span className="text-emerald-600">{calc1.result.y} سنة</span> و <span className="text-emerald-600">{calc1.result.m} شهر</span> و <span className="text-emerald-600">{calc1.result.d} يوم</span></p>
-                                                }
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
+                        {activeFeature === 'effort' && <CalcEffort />}
 
-                                {/* حاسبة 2: بوقتي */}
-                                <div>
-                                    <h4 className="text-center font-bold text-amber-800 mb-3 text-sm">🎯 كم أحفظ (حسب وقتي)؟</h4>
-                                    <div className="flex gap-2 mb-3">
-                                        <input type="number" placeholder="سنة" className="w-1/3 p-2 bg-gray-50 rounded-lg border text-center font-bold" onChange={e => setCalc2({...calc2, y:e.target.value})} />
-                                        <input type="number" placeholder="شهر" className="w-1/3 p-2 bg-gray-50 rounded-lg border text-center font-bold" onChange={e => setCalc2({...calc2, m:e.target.value})} />
-                                        <input type="number" placeholder="يوم" className="w-1/3 p-2 bg-gray-50 rounded-lg border text-center font-bold" onChange={e => setCalc2({...calc2, d:e.target.value})} />
-                                    </div>
-                                    <button onClick={runCalc2} className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold shadow-md">احسب الورد اليومي</button>
-                                    {calc2.result && (
-                                        <div className="bg-amber-50 p-3 rounded-xl text-center mt-3 border border-amber-100 animate-in">
-                                            <p className="font-bold text-amber-900">عليك قراءة <span className="text-2xl text-amber-600">{calc2.result}</span> صفحة يومياً</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
+                        {/* زر 2: دليل الختم (بوقتي) */}
+                        <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}>
+                            <span>🎯 دليل الختم (بوقتي)</span><span>{activeFeature === 'time' ? '➖' : '➕'}</span>
+                        </div>
+                        {activeFeature === 'time' && <CalcTime />}
 
-                        {/* --- الأزرار الجديدة (الميزات) --- */}
-                        
-                        {/* 1. اختبار الحفظ */}
-                        <div onClick={() => setActiveFeature(activeFeature === 'test' ? null : 'test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}>
-                            <span>🧠 اختبر حفظك (الممتحن الآلي)</span><span>{activeFeature === 'test' ? '➖' : '➕'}</span>
+                        {/* زر 3: اختبر حفظك */}
+                        <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}>
+                            <span>🧠 اختبر حفظك (الممتحن)</span><span>{activeFeature === 'test' ? '➖' : '➕'}</span>
                         </div>
                         {activeFeature === 'test' && (
-                            dataReady ? <TestHifz /> : <div className="text-center p-6 text-gray-400 font-bold bg-white rounded-xl border">⏳ جاري تجهيز بنك الأسئلة...</div>
+                            dataReady ? <TestHifz /> : <div className="text-center p-4 bg-white rounded-xl border text-gray-400 text-sm">⏳ جاري تحميل بنك الأسئلة...</div>
                         )}
 
-                        {/* 2. المصحف */}
-                        <div onClick={() => setActiveFeature(activeFeature === 'quran' ? null : 'quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}>
-                            <span>📖 الختمة (المصحف الشريف)</span><span>{activeFeature === 'quran' ? '➖' : '➕'}</span>
+                        {/* زر 4: المصحف الشريف */}
+                        <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}>
+                            <span>📖 المصحف الشريف (القارئ)</span><span>{activeFeature === 'quran' ? '➖' : '➕'}</span>
                         </div>
                         {activeFeature === 'quran' && (
-                            dataReady ? <QuranReader /> : <div className="text-center p-6 text-gray-400 font-bold bg-white rounded-xl border">⏳ جاري تحميل المصحف...</div>
+                            dataReady ? <QuranReader /> : <div className="text-center p-4 bg-white rounded-xl border text-gray-400 text-sm">⏳ جاري تحميل المصحف...</div>
                         )}
 
-                        {/* 3. الأذكار */}
-                        <div onClick={() => setActiveFeature(activeFeature === 'azkar' ? null : 'azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}>
-                            <span>📿 الأذكار والسبحة الذكية</span><span>{activeFeature === 'azkar' ? '➖' : '➕'}</span>
+                        {/* زر 5: الأذكار والسبحة */}
+                        <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}>
+                            <span>📿 الأذكار والسبحة</span><span>{activeFeature === 'azkar' ? '➖' : '➕'}</span>
                         </div>
                         {activeFeature === 'azkar' && (
-                            dataReady ? <AzkarApp /> : <div className="text-center p-6 text-gray-400 font-bold bg-white rounded-xl border">⏳ جاري تحميل الأذكار...</div>
+                            dataReady ? <AzkarApp /> : <div className="text-center p-4 bg-white rounded-xl border text-gray-400 text-sm">⏳ جاري تحميل الأذكار...</div>
                         )}
-
                     </div>
                 )}
 
@@ -367,17 +301,17 @@ const App = () => {
                             <p className="text-gray-500 font-bold text-sm border-t pt-4">{config.texts.aboutFooter}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <a href={`tel:${config.texts.contact.phone}`} className="social-box bg-green-50 text-green-600 border border-green-200 p-4 rounded-2xl flex flex-col items-center shadow-sm">
+                            <a href={`tel:${config.texts.contact.phone}`} className="bg-green-50 text-green-600 border border-green-200 p-4 rounded-2xl flex flex-col items-center shadow-sm font-bold">
                                 <span className="text-3xl mb-2">📞</span><span>اتصل بنا</span>
                             </a>
-                            <a href={config.texts.contact.location} target="_blank" className="social-box bg-blue-50 text-blue-600 border border-blue-200 p-4 rounded-2xl flex flex-col items-center shadow-sm">
+                            <a href={config.texts.contact.location} target="_blank" className="bg-blue-50 text-blue-600 border border-blue-200 p-4 rounded-2xl flex flex-col items-center shadow-sm font-bold">
                                 <span className="text-3xl mb-2">📍</span><span>موقعنا</span>
                             </a>
                         </div>
-                        <div className="flex justify-center gap-4 mt-4">
-                            {config.texts.contact.youtube && <a href={config.texts.contact.youtube} className="text-red-600 text-3xl">▶️</a>}
-                            {config.texts.contact.facebook && <a href={config.texts.contact.facebook} className="text-blue-600 text-3xl">facebook</a>}
-                            {config.texts.contact.instagram && <a href={config.texts.contact.instagram} className="text-pink-600 text-3xl">📸</a>}
+                        <div className="flex justify-center gap-6 mt-4">
+                            {config.texts.contact.youtube && <a href={config.texts.contact.youtube} className="text-red-600 text-4xl hover:scale-110 transition">▶️</a>}
+                            {config.texts.contact.facebook && <a href={config.texts.contact.facebook} className="text-blue-600 text-4xl hover:scale-110 transition">f</a>}
+                            {config.texts.contact.instagram && <a href={config.texts.contact.instagram} className="text-pink-600 text-4xl hover:scale-110 transition">📸</a>}
                         </div>
                     </div>
                 )}
@@ -402,20 +336,19 @@ const App = () => {
                 )}
             </main>
 
-            <footer className="p-6 text-center bg-white border-t text-[10px] text-gray-400 font-bold uppercase tracking-widest fixed bottom-0 w-full z-30">
-                &copy; 2026 {config.texts.siteTitle} | الإصدار الشامل V6
+            <footer className="p-4 text-center bg-white border-t text-[10px] text-gray-400 font-bold uppercase tracking-widest fixed bottom-0 w-full z-30 shadow-inner">
+                &copy; 2026 {config.texts.siteTitle} | الإصدار الشامل
             </footer>
         </div>
     );
 };
 
-// تشغيل التطبيق
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
 
 // تفعيل Service Worker
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
+        navigator.serviceWorker.register('sw.js').catch(e => console.log(e));
     });
 }
