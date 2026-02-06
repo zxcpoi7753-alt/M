@@ -1,5 +1,5 @@
 /* =========================================
-   المكون: الصفحة الرئيسية
+   المكون: الصفحة الرئيسية (محدث)
    المسار: js/components/app/HomeSection.js
    ========================================= */
 const HomeSection = ({ config, studentName, showGlobalAlert, setPage }) => {
@@ -13,7 +13,7 @@ const HomeSection = ({ config, studentName, showGlobalAlert, setPage }) => {
             </section>
 
             {/* سؤال الأسبوع */}
-            <div className="bg-white p-6 rounded-3xl border-r-[8px] border-amber-400 shadow-sm">
+            <div className="bg-white p-6 rounded-3xl border-r-[8px] border-amber-400 shadow-sm relative overflow-hidden">
                 <h3 className="font-black text-lg mb-2 text-emerald-900">⭐ سؤال الأسبوع</h3>
                 <p className="mb-4 text-gray-700 font-bold">{config.texts?.weeklyQuestion}</p>
                 <button onClick={()=>{ 
@@ -23,6 +23,19 @@ const HomeSection = ({ config, studentName, showGlobalAlert, setPage }) => {
                     💬 إرسال الإجابة
                 </button>
             </div>
+
+            {/* 🏆 الفائز السابق (تصميم احترافي جديد) */}
+            {config.texts?.previousWinner && (
+                <div className="bg-gradient-to-r from-amber-100 to-yellow-50 p-4 rounded-3xl border-2 border-amber-200 shadow-sm flex items-center gap-4 animate-pulse-slow">
+                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-2xl shadow-inner border border-amber-100">
+                        🏆
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">الفائز في السؤال السابق</p>
+                        <h3 className="text-lg font-black text-amber-800">{config.texts.previousWinner}</h3>
+                    </div>
+                </div>
+            )}
 
             {/* الأخبار */}
             <div className="flex flex-col gap-4">
