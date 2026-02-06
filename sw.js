@@ -3,7 +3,7 @@
    الوظيفة: التخزين المؤقت (Cache) للعمل أوفلاين
    ========================================= */
 
-const CACHE_NAME = 'thuraya-v11-gold';
+const CACHE_NAME = 'thuraya-v12-gold';
 
 // قائمة الملفات التي يجب حفظها في ذاكرة الهاتف
 const ASSETS_TO_CACHE = [
