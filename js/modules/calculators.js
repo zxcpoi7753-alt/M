@@ -20,9 +20,10 @@ window.CalcEffort = () => {
     };
     const calculate = () => {
         const val = parseFloat(amount);
-        if (!days || !val) return alert("أكمل البيانات");
+        // التعديل هنا: استخدام النافذة الأنيقة بدلاً من alert
+        if (!days || !val) return window.showGlobalAlert("تنبيه", "الرجاء إكمال جميع البيانات");
         const remaining = 604 - (skippedParts * 20);
-        if (remaining <= 0) return alert("مبارك! أنت خاتم.");
+        if (remaining <= 0) return window.showGlobalAlert("مبارك", "أنت خاتم للقرآن الكريم! 🎉");
         const weekly = val * days;
         const weeks = remaining / weekly;
         const years = Math.floor(weeks / 52);
@@ -46,7 +47,14 @@ window.CalcTime = () => {
             <h4 className="font-bold text-amber-800 mb-2 text-center text-sm">🎯 حدد المدة</h4>
             <div className="flex gap-1 mb-2"><select className="flex-1 p-2 border rounded text-xs font-bold text-center" value={y} onChange={e=>setY(e.target.value)}>{[...Array(16).keys()].map(i=><option value={i}>{i} سنة</option>)}</select><select className="flex-1 p-2 border rounded text-xs font-bold text-center" value={m} onChange={e=>setM(e.target.value)}>{[...Array(13).keys()].map(i=><option value={i}>{i} شهر</option>)}</select><select className="flex-1 p-2 border rounded text-xs font-bold text-center" value={d} onChange={e=>setD(e.target.value)}>{[...Array(32).keys()].map(i=><option value={i}>{i} يوم</option>)}</select></div>
             <div className="mb-3"><select className="w-full p-2 border rounded-xl text-center font-bold bg-gray-50 text-sm" value={skippedParts} onChange={(e) => setSkippedParts(e.target.value)}>{[...Array(31).keys()].map(i => <option key={i} value={i}>تخطي {i} جزء محفوظ</option>)}</select></div>
-            <button onClick={()=>{const totalDays=(y*365)+(parseInt(m)*30)+parseInt(d); if(totalDays<=0) return alert("حدد المدة"); const rem=604-(skippedParts*20); if(rem<=0) return alert("أنت خاتم!"); setRes({daily:(rem/totalDays).toFixed(1), totalDays, rem});}} className="w-full bg-amber-500 text-white py-2 rounded-xl font-bold shadow">احسب خطتي</button>
+            <button onClick={()=>{
+                const totalDays=(y*365)+(parseInt(m)*30)+parseInt(d); 
+                // التعديل هنا أيضاً
+                if(totalDays<=0) return window.showGlobalAlert("تنبيه", "حدد المدة المستهدفة أولاً"); 
+                const rem=604-(skippedParts*20); 
+                if(rem<=0) return window.showGlobalAlert("ما شاء الله", "أنت خاتم أصلاً!"); 
+                setRes({daily:(rem/totalDays).toFixed(1), totalDays, rem});
+            }} className="w-full bg-amber-500 text-white py-2 rounded-xl font-bold shadow">احسب خطتي</button>
             {res && (<div className="mt-3 bg-gradient-to-br from-amber-50 to-white p-3 rounded-xl border border-amber-200 text-center animate-in"><p className="text-xl font-black text-amber-800 mt-1">📖 {res.daily} صفحة يومياً</p></div>)}
         </div>
     );
