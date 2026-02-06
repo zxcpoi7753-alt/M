@@ -1,5 +1,5 @@
 /* =========================================
-   ملف الإدارة الرئيسي: js/admin.js (مع المنصات الديناميكية)
+   ملف الإدارة الرئيسي: js/admin.js (إضافة واتساب كمنصة تواصل)
    ========================================= */
 
 const { useState, useEffect } = React;
@@ -16,22 +16,22 @@ const AdminSection = ({ id, title, activeTab, setActiveTab, children }) => (
 );
 
 const AdminApp = () => {
-    // 1. هيكل البيانات المحدث (يدعم الإخفاء والإظهار لكل منصة)
     const [config, setConfig] = useState({
         settings: { layoutScale: 1 },
         texts: { 
             siteTitle: '', heroTitle: '', previousWinner: '', 
             contact: { 
-                // كل منصة لها: رابط (url) وحالة (active)
+                // الهاتف أصبح للاتصال، والواتساب أصبح منصة مستقلة
                 phone: { val: '', active: true },
                 location: { val: '', active: true },
+                whatsapp: { val: '', active: false }, // جديد
                 youtube: { val: '', active: false },
                 facebook: { val: '', active: false },
                 instagram: { val: '', active: false },
-                twitter: { val: '', active: false }, // جديد
-                tiktok: { val: '', active: false },  // جديد
-                telegram: { val: '', active: false }, // جديد
-                snapchat: { val: '', active: false }  // جديد
+                twitter: { val: '', active: false },
+                tiktok: { val: '', active: false },
+                telegram: { val: '', active: false },
+                snapchat: { val: '', active: false }
             },
             studentMsg: '', weeklyQuestion: '', aboutMain: '', aboutAyah: '', aboutFooter: ''
         },
@@ -42,21 +42,19 @@ const AdminApp = () => {
     const [activeTab, setActiveTab] = useState(null);
     const [toast, setToast] = useState(null);
 
-    // 2. الاتصال (مع معالجة البيانات القديمة لضمان عدم حدوث أخطاء)
     useEffect(() => {
         if (!window.db) { setStatus('خطأ اتصال'); return; }
         const unsub = window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (d) => {
             if (d.exists()) {
                 const data = d.data();
-                // دمج ذكي: إذا كانت البيانات القديمة لا تحتوي على الهيكل الجديد، نقوم بتحديثها
-                // هذا يمنع الأخطاء عند الانتقال من النظام القديم للجديد
                 const safeContact = {
                     phone: typeof data.texts?.contact?.phone === 'object' ? data.texts.contact.phone : { val: data.texts?.contact?.phone || '', active: true },
                     location: typeof data.texts?.contact?.location === 'object' ? data.texts.contact.location : { val: data.texts?.contact?.location || '', active: true },
+                    // إضافة الواتساب الآمنة
+                    whatsapp: data.texts?.contact?.whatsapp || { val: '', active: false },
                     youtube: typeof data.texts?.contact?.youtube === 'object' ? data.texts.contact.youtube : { val: data.texts?.contact?.youtube || '', active: false },
                     facebook: typeof data.texts?.contact?.facebook === 'object' ? data.texts.contact.facebook : { val: data.texts?.contact?.facebook || '', active: false },
                     instagram: typeof data.texts?.contact?.instagram === 'object' ? data.texts.contact.instagram : { val: data.texts?.contact?.instagram || '', active: false },
-                    // المنصات الجديدة
                     twitter: data.texts?.contact?.twitter || { val: '', active: false },
                     tiktok: data.texts?.contact?.tiktok || { val: '', active: false },
                     telegram: data.texts?.contact?.telegram || { val: '', active: false },
@@ -83,7 +81,6 @@ const AdminApp = () => {
         setTimeout(() => setToast(null), 2500);
     };
 
-    // دوال التحكم
     const addItem = (list, item) => setConfig(prev => ({ ...prev, [list]: [item, ...prev[list]] }));
     const updateItem = (list, id, key, val) => setConfig(prev => ({ ...prev, [list]: prev[list].map(i => i.id === id ? { ...i, [key]: val } : i) }));
     const updateDeepItem = (list, id, parentKey, key, val) => setConfig(prev => ({ ...prev, [list]: prev[list].map(i => i.id === id ? { ...i, [parentKey]: { ...i[parentKey], [key]: val } } : i) }));
@@ -100,9 +97,7 @@ const AdminApp = () => {
             {toast && <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full font-bold shadow-2xl z-[60] animate-bounce text-sm flex items-center gap-2 border border-gray-700">{toast}</div>}
 
             <AdminSection id="sets" title="🛠️ الإعدادات والنصوص" activeTab={activeTab} setActiveTab={setActiveTab}>
-                <script type="text/babel" src="js/components/admin/SettingsAdmin.js"></script>
-                {/* ملاحظة: هنا نمرر المكون، ولكن في بيئة المتصفح React المباشرة نعتمد على التحميل في html.
-                    لذا تأكد أن SettingsAdmin محدث في الكود أدناه */}
+                {/* ملاحظة: SettingsAdmin سيتم تحديثه في الكود التالي */}
                 <SettingsAdmin config={config} setConfig={setConfig} />
             </AdminSection>
 
