@@ -1,14 +1,10 @@
 /* =========================================
-   ملف الإدارة الرئيسي: js/admin.js (الهيكلة الجديدة)
+   ملف الإدارة الرئيسي: js/admin.js (محدث)
    ========================================= */
 
 const { useState, useEffect } = React;
 const { db, doc, onSnapshot, setDoc } = window;
 
-// استيراد المكونات الفرعية (يفترض أنك أضفتها في admin.html)
-// NewsAdmin, TeachersAdmin, SchedulesAdmin, HalaqatAdmin, SettingsAdmin
-
-// مكون القسم القابل للطي (مشترك)
 const AdminSection = ({ id, title, activeTab, setActiveTab, children }) => (
     <div className="bg-white border border-gray-200 mb-4 rounded-xl shadow-sm overflow-hidden animate-in">
         <div onClick={() => setActiveTab(activeTab === id ? null : id)} className={`p-4 flex justify-between items-center cursor-pointer transition-colors ${activeTab === id ? 'bg-emerald-50 text-emerald-900 border-b border-emerald-100' : 'hover:bg-gray-50'}`}>
@@ -20,10 +16,10 @@ const AdminSection = ({ id, title, activeTab, setActiveTab, children }) => (
 );
 
 const AdminApp = () => {
-    // 1. هيكل البيانات
+    // 1. هيكل البيانات (تمت إضافة previousWinner)
     const [config, setConfig] = useState({
         settings: { layoutScale: 1 },
-        texts: { siteTitle: '', contact: {} },
+        texts: { siteTitle: '', heroTitle: '', previousWinner: '', contact: {} },
         news: [], teachers: [], halaqat: [], schedules: []
     });
     
@@ -48,13 +44,12 @@ const AdminApp = () => {
         setStatus('جاري الحفظ...');
         try {
             await window.setDoc(window.doc(window.db, "appData", "mainConfig"), config);
-            setToast('✅ تم الحفظ');
+            setToast('✅ تم الحفظ بنجاح');
             setStatus('متصل ✅');
-        } catch (e) { setToast('❌ فشل'); setStatus('خطأ'); }
-        setTimeout(() => setToast(null), 2000);
+        } catch (e) { setToast('❌ فشل الحفظ'); setStatus('خطأ'); }
+        setTimeout(() => setToast(null), 2500);
     };
 
-    // --- دوال التحكم العامة ---
     const addItem = (list, item) => setConfig(prev => ({ ...prev, [list]: [item, ...prev[list]] }));
     const updateItem = (list, id, key, val) => setConfig(prev => ({ ...prev, [list]: prev[list].map(i => i.id === id ? { ...i, [key]: val } : i) }));
     const updateDeepItem = (list, id, parentKey, key, val) => setConfig(prev => ({ ...prev, [list]: prev[list].map(i => i.id === id ? { ...i, [parentKey]: { ...i[parentKey], [key]: val } } : i) }));
@@ -68,7 +63,10 @@ const AdminApp = () => {
                 <button onClick={handleSave} className="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold shadow hover:bg-emerald-700">💾 حفظ</button>
             </div>
             
-            {toast && <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full font-bold shadow-2xl z-50 animate-bounce">{toast}</div>}
+            {/* التنبيه يظهر الآن في الأعلى */}
+            {toast && <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full font-bold shadow-2xl z-[60] animate-bounce text-sm flex items-center gap-2 border border-gray-700">
+                {toast}
+            </div>}
 
             <AdminSection id="sets" title="🛠️ الإعدادات والنصوص" activeTab={activeTab} setActiveTab={setActiveTab}>
                 <SettingsAdmin config={config} setConfig={setConfig} />
