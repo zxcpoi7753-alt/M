@@ -1,6 +1,5 @@
 /* =========================================
-   ملف التطبيق الرئيسي: js/app.js (نسخة الهيكلة الجديدة)
-   الوظيفة: مدير التوجيه (Router & Data Manager)
+   ملف التطبيق الرئيسي: js/app.js (النسخة الكاملة والمحدثة)
    ========================================= */
 
 const { useState, useEffect } = React;
@@ -11,40 +10,43 @@ const CalcTime = window.CalcTime;
 const TestHifz = window.TestHifz;
 const QuranReader = window.QuranReader;
 const AzkarApp = window.AzkarApp;
-const FeelingsPharmacy = window.FeelingsPharmacy;
-const CardMaker = window.CardMaker;
 const CustomModal = window.CustomModal;
 
-// 2. استيراد مكونات الصفحات (الجديدة)
-// (سنقوم بتحميلها في index.html لكي يتعرف عليها هذا الملف)
-// HomeSection, TeachersSection, SchedulesSection, AboutSection
+// 2. استيراد مكونات الصفحات (Components)
+const HomeSection = window.HomeSection;
+const TeachersSection = window.TeachersSection;
+const SchedulesSection = window.SchedulesSection;
+const AboutSection = window.AboutSection;
 
 const App = () => {
     // --- الحالة (State) ---
-    const [config, setConfig] = useState({ 
-        texts: { siteTitle: '...', contact: {} }, 
-        news: [], teachers: [], halaqat: [], schedules: [] 
+    const [config, setConfig] = useState({
+        texts: { siteTitle: '...', contact: {} },
+        news: [], teachers: [], halaqat: [], schedules: []
     });
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
     const [dataReady, setDataReady] = useState(false);
-    
+
     // بيانات الطالب
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
 
     // النافذة العامة
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
-    
+
     // --- التأثيرات (Effects) ---
     useEffect(() => {
+        // تفعيل النافذة العامة
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
-        
+
+        // الاستماع لحدث جاهزية البيانات
         window.addEventListener('data-ready', () => setDataReady(true));
         if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
-        
+
+        // جلب الإعدادات من Firebase
         if (window.db && window.onSnapshot && window.doc) {
-            window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => { 
+            window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                 if (doc.exists()) {
                     setConfig(prev => ({...prev, ...doc.data()}));
                     if(doc.data().settings?.layoutScale) document.documentElement.style.setProperty('--layout-scale', doc.data().settings.layoutScale);
@@ -57,10 +59,12 @@ const App = () => {
 
     return (
         <div id="app-container">
+            {/* النافذة العامة */}
             <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}>
                 <p className="font-bold text-gray-700 leading-relaxed">{modal.msg}</p>
             </CustomModal>
 
+            {/* الهيدر */}
             <header>
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
@@ -77,8 +81,8 @@ const App = () => {
                 {['home','student_corner','extras','teachers','students','schedules','about','card'].map(t => (
                     <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
                         {{
-                            home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار', 
-                            teachers:'المعلمون', students:'الأوائل', schedules:'الجداول', 
+                            home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار',
+                            teachers:'المعلمون', students:'الأوائل', schedules:'الجداول',
                             about:'من نحن', card:'بطاقتي'
                         }[t]}
                     </button>
@@ -89,7 +93,7 @@ const App = () => {
                 {/* 1. الرئيسية */}
                 {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
 
-                {/* 2. ركن الطالب (لم نفصله بعد، سنتركه هنا للآن أو نفصله لاحقاً) */}
+                {/* 2. ركن الطالب */}
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
                         <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>{activeFeature === 'effort' && <CalcEffort />}
@@ -100,12 +104,24 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 3. واحة الزوار */}
+                {/* 3. واحة الزوار (محدث) */}
                 {page === 'extras' && (
                     <div className="space-y-4 max-w-lg mx-auto">
-                        <h2 className="text-center font-black text-2xl text-emerald-800 mb-6">🌱 واحة الزوار</h2>
-                        <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>{activeFeature === 'feeling' && <FeelingsPharmacy />}
-                        <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>{activeFeature === 'card' && <CardMaker />}
+                        <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
+                        
+                        {/* المكونات الجديدة تظهر دائماً */}
+                        {dataReady ? (
+                           <>
+                             {window.VirtuousTimesWidget && <window.VirtuousTimesWidget />}
+                             {window.GlobalKhatmaCounter && <window.GlobalKhatmaCounter />}
+                           </>
+                        ) : null}
+
+                        <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
+                        {activeFeature === 'feeling' && <window.FeelingsPharmacy />}
+                        
+                        <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
+                        {activeFeature === 'card' && <window.CardMaker />}
                     </div>
                 )}
 
@@ -115,7 +131,7 @@ const App = () => {
                 {/* 5. الجداول */}
                 {page === 'schedules' && <SchedulesSection schedules={config.schedules} />}
 
-                {/* 6. الأوائل (بقي داخل الملف لصغره، يمكن فصله لاحقاً) */}
+                {/* 6. الأوائل */}
                 {page === 'students' && (
                     <div className="space-y-6">
                         {config.halaqat.filter(h => !h.hidden).map(h => (
