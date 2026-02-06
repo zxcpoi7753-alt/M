@@ -1,10 +1,9 @@
 /* =========================================
-   الوحدة: واحة الزوار (Visitors Oasis)
+   الوحدة: واحة الزوار (نوافذ أنيقة)
    المسار: js/modules/visitors.js
    ========================================= */
 const { useState } = React;
 
-// صيدلية القلوب
 window.FeelingsPharmacy = () => {
     const [selected, setSelected] = useState(null);
     const data = [
@@ -26,15 +25,20 @@ window.FeelingsPharmacy = () => {
     );
 };
 
-// صانع البطاقات
 window.CardMaker = () => {
     const [text, setText] = useState('اللهم اجعل القرآن ربيع قلوبنا');
     const [color, setColor] = useState('from-emerald-600 to-emerald-900');
     const colors = ['from-emerald-600 to-emerald-900', 'from-blue-600 to-blue-900', 'from-amber-500 to-amber-800', 'from-slate-700 to-slate-900'];
+    
+    // استخدام النافذة العامة بدلاً من alert
+    const handleSave = () => {
+        if(window.showGlobalAlert) window.showGlobalAlert('قريباً 🚧', 'سيتم تفعيل ميزة تحميل الصور بجودة عالية قريباً إن شاء الله.');
+    };
+
     return (
         <div className="animate-in space-y-4">
             <div className={`aspect-square rounded-2xl flex items-center justify-center p-6 text-center shadow-lg relative overflow-hidden bg-gradient-to-br ${color}`}><div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div><div><p className="font-amiri text-2xl text-white font-bold leading-relaxed drop-shadow-md">{text}</p><p className="absolute bottom-4 left-0 w-full text-center text-[10px] text-white/80">تصميم: حلقات الثريا</p></div></div>
-            <div className="bg-white p-4 rounded-2xl border border-gray-100 space-y-3"><input value={text} onChange={e => setText(e.target.value)} className="w-full p-3 border rounded-xl text-center text-sm font-bold" placeholder="اكتب النص..." maxLength="80" /><div className="flex justify-center gap-2">{colors.map((c, i) => (<button key={i} onClick={() => setColor(c)} className={`w-8 h-8 rounded-full bg-gradient-to-br ${c} border-2 border-white ring-1 ring-gray-200`}></button>))}</div><button onClick={() => alert('قريباً')} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow">💾 حفظ التصميم</button></div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 space-y-3"><input value={text} onChange={e => setText(e.target.value)} className="w-full p-3 border rounded-xl text-center text-sm font-bold" placeholder="اكتب النص..." maxLength="80" /><div className="flex justify-center gap-2">{colors.map((c, i) => (<button key={i} onClick={() => setColor(c)} className={`w-8 h-8 rounded-full bg-gradient-to-br ${c} border-2 border-white ring-1 ring-gray-200`}></button>))}</div><button onClick={handleSave} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow">💾 حفظ التصميم</button></div>
         </div>
     );
 };
