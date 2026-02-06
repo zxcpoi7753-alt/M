@@ -1,12 +1,13 @@
 /* =========================================
-   المكون: من نحن (يدعم جميع المنصات)
+   المكون: من نحن (اتصال + واتساب منفصل)
    المسار: js/components/app/AboutSection.js
    ========================================= */
 const AboutSection = ({ texts }) => {
     const contact = texts?.contact || {};
 
-    // قائمة تعريف المنصات (ألوان وأيقونات)
+    // قائمة المنصات (تمت إضافة واتساب هنا)
     const platformsDef = [
+        { id: 'whatsapp', label: 'واتساب', bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-600', icon: '💬', hover: 'hover:border-green-500' }, // جديد
         { id: 'youtube', label: 'يوتيوب', bg: 'bg-red-50', border: 'border-red-100', text: 'text-red-600', icon: '▶️', hover: 'hover:border-red-500' },
         { id: 'facebook', label: 'فيسبوك', bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-600', icon: 'f', hover: 'hover:border-blue-600' },
         { id: 'instagram', label: 'انستقرام', bg: 'bg-pink-50', border: 'border-pink-100', text: 'text-pink-600', icon: '📸', hover: 'hover:border-pink-500' },
@@ -25,12 +26,12 @@ const AboutSection = ({ texts }) => {
                 <p className="text-xs text-gray-400 mt-2">{texts?.aboutFooter}</p>
             </div>
             
-            {/* الأساسيات (واتساب وموقع) - تظهر فقط إذا كانت مفعلة */}
+            {/* الأزرار العلوية: اتصل بي + الموقع */}
             <div className="grid grid-cols-2 gap-3">
                 {contact.phone?.active !== false && (
                     <a href={`tel:${contact.phone?.val || contact.phone}`} className="flex flex-col items-center justify-center p-4 bg-green-50 border-2 border-green-200 rounded-2xl shadow-sm hover:bg-green-100 transition">
                         <span className="text-2xl mb-1">📞</span>
-                        <span className="font-bold text-green-700">واتساب</span>
+                        <span className="font-bold text-green-700">اتصل بي</span>
                     </a>
                 )}
                 {contact.location?.active !== false && (
@@ -41,10 +42,9 @@ const AboutSection = ({ texts }) => {
                 )}
             </div>
 
-            {/* باقي المنصات (ديناميكية) */}
+            {/* باقي المنصات (واتساب وغيرها) */}
             <div className="grid grid-cols-3 gap-3 mt-2">
                 {platformsDef.map(p => {
-                    // التحقق مما إذا كانت المنصة مفعلة في البيانات
                     const platformData = contact[p.id];
                     if (platformData && platformData.active === true && platformData.val) {
                         return (
