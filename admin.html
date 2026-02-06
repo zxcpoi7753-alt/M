@@ -2,41 +2,53 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم - حلقات الثريا</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - تشخيص</title>
     
     <script>
-        (function() {
-            if (sessionStorage.getItem('thuraya_admin_auth') !== 'true') {
-                var pass = prompt("🔐 منطقة المشرفين (Admin Area)\nأدخل كلمة المرور للمتابعة:");
-                if (pass === '12345') {
-                    sessionStorage.setItem('thuraya_admin_auth', 'true');
-                } else {
-                    window.location.href = 'index.html';
-                }
+        window.onerror = function(msg, url, line, col, error) {
+            var box = document.getElementById('error-box');
+            if(box) {
+                box.style.display = 'block';
+                box.innerHTML += "<b>خطأ:</b> " + msg + "<br><small>" + url + " (سطر: " + line + ")</small><br><hr>";
             }
-        })();
+            // إخفاء شاشة التحميل إذا حدث خطأ
+            var loader = document.getElementById('loader');
+            if(loader) loader.style.display = 'none';
+        };
+    </script>
+
+    <script>
+        if (sessionStorage.getItem('thuraya_admin_auth') !== 'true') {
+            var pass = prompt("أدخل كلمة المرور (12345):");
+            if (pass === '12345') sessionStorage.setItem('thuraya_admin_auth', 'true');
+            else { window.location.href = 'index.html'; throw new Error("Stop"); }
+        }
     </script>
 
     <link rel="stylesheet" href="css/style.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
 
     <script type="module" src="js/firebase.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-900 select-none">
+<body class="bg-gray-50 text-gray-900">
 
-    <div id="admin-root">
-        <div style="height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Cairo'; font-weight: bold; color: #059669;">
-            جاري تحميل لوحة التحكم...
-        </div>
+    <div id="error-box" style="display:none; background:#fee2e2; color:#991b1b; padding:20px; margin:20px; border:2px solid red; border-radius:10px; font-family:sans-serif; direction:ltr; text-align:left;">
+        <h3 style="font-weight:bold; margin-bottom:10px;">⚠️ حدثت مشكلة تمنع تشغيل الأدمن:</h3>
+    </div>
+
+    <div id="admin-root"></div>
+
+    <div id="loader" style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <div style="font-size:20px; font-weight:bold; color:#059669; margin-bottom:10px;">جاري تشغيل النظام...</div>
+        <div style="font-size:12px; color:gray;">إذا بقيت هذه الشاشة طويلاً، فهناك خطأ في الملفات.</div>
     </div>
 
     <script type="text/babel" src="js/admin.js"></script>
+
 </body>
 </html>
