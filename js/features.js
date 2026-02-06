@@ -353,11 +353,134 @@ window.TestHifz = () => {
 };
 
 // ============================================================
-// 4. المصحف الشريف (كما هو)
+// 4. المصحف الشريف (إصلاح الشاشة البيضاء)
 // ============================================================
-window.QuranReader = window.QuranReader; 
+window.QuranReader = () => {
+    // التأكد من أن البيانات موجودة قبل الرندر
+    if (!window.APP_DATA || !window.APP_DATA.quran) return <div className="p-4 text-center text-gray-500">جاري تحميل المصحف...</div>;
+
+    const [view, setView] = useState('list');
+    const [activeSurah, setActiveSurah] = useState(null);
+    const [search, setSearch] = useState('');
+    const [bg, setBg] = useState('white');
+    const [fs, setFs] = useState(1.8); // Font Size
+
+    // قائمة السور المفلترة
+    const surahKeys = Object.keys(window.APP_DATA.quran);
+    const filtered = surahKeys.filter(k => window.APP_DATA.quran[k].name.includes(search));
+
+    const open = (id) => {
+        setActiveSurah({ id, ...window.APP_DATA.quran[id] });
+        setView('reader');
+    };
+
+    return (
+        <div className="feature-container p-0 h-[500px] flex flex-col bg-white border">
+            {view === 'list' && (
+                <div className="p-4 flex-1 overflow-hidden flex flex-col">
+                    <input className="w-full p-2 border rounded-lg mb-2 text-sm" placeholder="بحث..." value={search} onChange={e=>setSearch(e.target.value)} />
+                    <div className="grid grid-cols-3 gap-2 overflow-y-auto flex-1 content-start">
+                        {filtered.map(id => (
+                            <button key={id} onClick={() => open(id)} className="p-2 border rounded bg-gray-50 hover:bg-emerald-50 text-xs font-bold">
+                                <div className="text-[10px] text-gray-400">{id}</div>
+                                {window.APP_DATA.quran[id].name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+            {view === 'reader' && activeSurah && (
+                <div className="flex flex-col h-full">
+                    <div className="p-2 border-b flex justify-between items-center bg-gray-100 shadow-sm z-10">
+                        <button onClick={()=>setView('list')} className="px-3 py-1 bg-white border rounded text-xs font-bold">فهرس</button>
+                        <span className="font-bold text-sm text-emerald-800">{activeSurah.name}</span>
+                        <div className="flex gap-1">
+                            <button onClick={()=>setBg(bg==='white'?'#fffbf0':'white')} className="w-6 h-6 rounded-full border bg-amber-100 text-[10px]">🎨</button>
+                            <button onClick={()=>setFs(s=>Math.min(3,s+0.2))} className="w-6 h-6 rounded-full border bg-white font-bold">+</button>
+                            <button onClick={()=>setFs(s=>Math.max(1,s-0.2))} className="w-6 h-6 rounded-full border bg-white font-bold">-</button>
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 leading-loose text-justify" style={{backgroundColor: bg, fontSize: `${fs}rem`}} dir="rtl">
+                        {activeSurah.id !== "1" && activeSurah.id !== "9" && <div className="text-center font-amiri mb-4 text-emerald-800 text-lg">بسم الله الرحمن الرحيم</div>}
+                        <div className="font-amiri text-gray-800">
+                            {activeSurah.ayahs.map(a => (
+                                <span key={a.num}>
+                                    {a.text} <span className="text-emerald-600 text-[0.6em] border border-emerald-500 rounded-full px-1 mx-1 select-none">{a.num}</span> 
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
 
 // ============================================================
-// 5. الأذكار (كما هي)
+// 5. الأذكار (النسخة القديمة - Cards)
 // ============================================================
-window.AzkarApp = window.AzkarApp;
+window.AzkarApp = () => {
+    const [view, setView] = useState('cats');
+    const [selCat, setSelCat] = useState(null);
+    const [counts, setCounts] = useState({});
+
+    // استخراج الأقسام بأمان
+    const categories = useMemo(() => {
+        if (!window.APP_DATA.azkar) return [];
+        return [...new Set(window.APP_DATA.azkar.map(z => z.category))];
+    }, []);
+
+    useEffect(() => {
+        if (window.APP_DATA.azkar) {
+            const init = {};
+            window.APP_DATA.azkar.forEach((z, i) => init[i] = z.count || 1);
+            setCounts(init);
+        }
+    }, []);
+
+    const click = (i) => {
+        if (counts[i] > 0) {
+            setCounts(p => ({...p, [i]: p[i]-1}));
+            if(navigator.vibrate) navigator.vibrate(30);
+        }
+    };
+
+    return (
+        <div className="feature-container p-4">
+            {view === 'cats' && (
+                <div className="grid grid-cols-2 gap-3">
+                    {categories.map(c => (
+                        <button key={c} onClick={()=>{setSelCat(c); setView('list')}} className="p-4 bg-white border rounded-xl shadow-sm font-bold text-emerald-800 text-sm flex flex-col items-center">
+                            <span className="text-2xl mb-1">📿</span> {c}
+                        </button>
+                    ))}
+                    <button onClick={()=>setView('sebha')} className="col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl font-bold text-amber-800">السبحة الحرة</button>
+                </div>
+            )}
+            {view === 'list' && (
+                <div>
+                    <button onClick={()=>setView('cats')} className="mb-2 text-xs text-gray-500 font-bold">⬅️ رجوع</button>
+                    <h3 className="text-center font-black text-emerald-800 mb-3 bg-emerald-50 p-2 rounded">{selCat}</h3>
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                        {window.APP_DATA.azkar.map((z, i) => {
+                            if(z.category !== selCat) return null;
+                            return (
+                                <div key={i} onClick={()=>click(i)} className={`p-4 bg-white border-r-4 rounded-xl shadow-sm cursor-pointer ${counts[i]===0 ? 'border-gray-300 opacity-50' : 'border-emerald-500'}`}>
+                                    <div className="flex justify-between mb-2"><span className="text-xs bg-gray-100 px-2 rounded font-bold">{counts[i]===0 ? 'تم ✅' : `باقي: ${counts[i]}`}</span></div>
+                                    <p className="font-amiri text-lg">{z.zekr}</p>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )}
+            {view === 'sebha' && (
+                <div className="text-center py-10">
+                    <button onClick={()=>setView('cats')} className="absolute top-4 right-4 text-xs font-bold text-gray-500">خروج</button>
+                    <div className="sebha-circle mx-auto" onClick={(e)=>{e.target.innerText = parseInt(e.target.innerText)+1; if(navigator.vibrate) navigator.vibrate(30);}}>0</div>
+                    <button onClick={(e)=>e.target.previousElementSibling.innerText=0} className="mt-4 text-red-500 font-bold text-xs">تصفير</button>
+                </div>
+            )}
+        </div>
+    );
+};
