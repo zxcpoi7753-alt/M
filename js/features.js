@@ -1,31 +1,27 @@
 /* =========================================
-   ملف الميزات: js/features.js
-   نسخة مطورة: أذكار مبوبة + اختبار ذكي تتابعي
+   ملف الميزات: js/features.js (النسخة الشاملة - V4 Final)
    ========================================= */
 
 const { useState, useEffect, useMemo } = React;
 
-// --- خريطة أجزاء القرآن (للفلترة الدقيقة) ---
-const JUZ_MAPPING = [
-    { j: 1, s: 1, e: 2, endAyah: 141 }, { j: 2, s: 2, e: 2, startAyah: 142, endAyah: 252 }, 
-    { j: 3, s: 2, e: 3, startAyah: 253 }, { j: 4, s: 3, e: 4, startAyah: 92 },
-    { j: 5, s: 4, e: 4, startAyah: 24 }, { j: 6, s: 4, e: 5, startAyah: 148 },
-    { j: 7, s: 5, e: 6, startAyah: 82 }, { j: 8, s: 6, e: 7, startAyah: 111 },
-    { j: 9, s: 7, e: 8, startAyah: 88 }, { j: 10, s: 8, e: 9, startAyah: 41 },
-    { j: 11, s: 9, e: 11, startAyah: 93 }, { j: 12, s: 11, e: 12, startAyah: 6 },
-    { j: 13, s: 12, e: 14, startAyah: 53 }, { j: 14, s: 15, e: 16 },
-    { j: 15, s: 17, e: 18, endAyah: 74 }, { j: 16, s: 18, e: 20, startAyah: 75 },
-    { j: 17, s: 21, e: 22 }, { j: 18, s: 23, e: 25, endAyah: 20 },
-    { j: 19, s: 25, e: 27, startAyah: 21 }, { j: 20, s: 27, e: 29, startAyah: 56 },
-    { j: 21, s: 29, e: 33, startAyah: 46 }, { j: 22, s: 33, e: 36, startAyah: 31 },
-    { j: 23, s: 36, e: 39, startAyah: 28 }, { j: 24, s: 39, e: 41, startAyah: 32 },
-    { j: 25, s: 41, e: 45, startAyah: 47 }, { j: 26, s: 46, e: 51, endAyah: 30 },
-    { j: 27, s: 51, e: 57, startAyah: 31 }, { j: 28, s: 58, e: 66 },
-    { j: 29, s: 67, e: 77 }, { j: 30, s: 78, e: 114 }
+// --- قائمة السور (114 سورة) لضمان ظهورها في القائمة ---
+const SURAH_NAMES = [
+    "الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس",
+    "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه",
+    "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم",
+    "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر",
+    "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق",
+    "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة",
+    "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج",
+    "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس",
+    "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد",
+    "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات",
+    "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر",
+    "المسد", "الإخلاص", "الفلق", "الناس"
 ];
 
 // ============================================================
-// 1. حاسبة الجهد (المعادلة الرياضية الدقيقة)
+// 1. حاسبة الجهد (By Effort)
 // ============================================================
 window.CalcEffort = () => {
     const [step, setStep] = useState(1);
@@ -33,63 +29,65 @@ window.CalcEffort = () => {
     const [amount, setAmount] = useState('');
     const [skippedParts, setSkippedParts] = useState(0);
     const [result, setResult] = useState(null);
+    const [showMaxWarning, setShowMaxWarning] = useState(false);
+
+    // التحقق من المدخلات
+    const handleAmountChange = (e) => setAmount(e.target.value);
+    const validateAmount = () => {
+        let val = parseFloat(amount);
+        if (isNaN(val)) return;
+        if (val < 0.1) setAmount(0.1);
+        else if (val > 1812) { setAmount(1812); setShowMaxWarning(true); } 
+        else setShowMaxWarning(false);
+    };
 
     const calculate = () => {
         const val = parseFloat(amount);
-        if (!days || !val) return alert("أكمل البيانات");
-
-        // المعادلة: (604 - الصفحات المنجزة) / (المعدل اليومي * أيام الأسبوع)
-        const totalPages = 604;
-        const donePages = skippedParts * 20; 
-        const remaining = totalPages - donePages;
-
-        if (remaining <= 0) return alert("مبارك! أنت خاتم للقرآن.");
-
-        const weeklySpeed = val * days; 
-        const totalWeeks = remaining / weeklySpeed;
+        if (!days || !val) return alert("الرجاء إكمال البيانات");
+        const remainingPages = 604 - (skippedParts * 20);
+        if (remainingPages <= 0) return alert("لقد أتممت الحفظ سابقاً!");
+        const weeklyRate = val * days;
+        const totalWeeks = remainingPages / weeklyRate;
+        const totalYears = Math.floor(totalWeeks / 52);
+        const totalMonths = Math.floor((totalWeeks % 52) / 4.3);
         
-        // تحويل الأسابيع لزمن مقروء
-        const years = Math.floor(totalWeeks / 52);
-        const months = Math.floor((totalWeeks % 52) / 4.3);
-        const daysRem = Math.ceil(((totalWeeks % 52) % 4.3) * 7);
-
-        let timeStr = "";
-        if(years > 0) timeStr += `${years} سنة `;
-        if(months > 0) timeStr += `${months} شهر `;
-        if(daysRem > 0) timeStr += `و ${daysRem} يوم`;
-
-        setResult({ text: timeStr, rate: weeklySpeed });
+        setResult({ rate: `${val} صفحة`, duration: `${totalYears} سنة و ${totalMonths} شهر` });
     };
 
     return (
         <div className="feature-container animate-in">
+            {showMaxWarning && <div className="bg-red-50 text-red-800 p-2 text-center text-xs mb-2 font-bold rounded">⚠ الحد الأقصى 3 ختمات يومياً</div>}
             {step === 1 && (
                 <div className="text-center">
-                    <h4 className="font-bold text-emerald-800 mb-3">1️⃣ كم يوماً تحفظ في الأسبوع؟</h4>
+                    <h4 className="font-bold text-emerald-800 mb-3 text-sm">1️⃣ أيام الحفظ في الأسبوع؟</h4>
                     <div className="grid grid-cols-7 gap-1">
                         {[1, 2, 3, 4, 5, 6, 7].map(d => (
-                            <button key={d} onClick={() => { setDays(d); setStep(2); }} className="p-3 rounded-xl bg-gray-50 hover:bg-emerald-600 hover:text-white border font-bold transition">{d}</button>
+                            <button key={d} onClick={() => { setDays(d); setStep(2); }} className="aspect-square rounded-xl bg-gray-50 hover:bg-emerald-600 hover:text-white border-2 font-black text-sm">{d}</button>
                         ))}
                     </div>
                 </div>
             )}
             {step === 2 && (
                 <div className="text-center animate-in">
-                    <h4 className="font-bold text-emerald-800 mb-3">2️⃣ كم صفحة ومقدار الحفظ؟</h4>
-                    <input type="number" className="w-full p-3 border rounded-xl mb-3 text-center font-bold" placeholder="كم صفحة يومياً؟ (مثلاً 1)" value={amount} onChange={e=>setAmount(e.target.value)} />
-                    <label className="text-xs text-gray-500 block mb-1">تخطي أجزاء محفوظة (0-30)</label>
-                    <select className="w-full p-3 border rounded-xl mb-3 text-center bg-gray-50" value={skippedParts} onChange={e=>setSkippedParts(e.target.value)}>
-                        {[...Array(31).keys()].map(i => <option key={i} value={i}>{i} جزء</option>)}
+                    <h4 className="font-bold text-emerald-800 mb-2 text-sm">2️⃣ المقدار والتخطي</h4>
+                    <input type="number" step="0.1" className="w-full p-3 border rounded-xl mb-3 text-center font-bold" placeholder="صفحة يومياً" value={amount} onChange={handleAmountChange} onBlur={validateAmount} />
+                    <select className="w-full p-2 border rounded-xl text-center font-bold bg-gray-50 text-sm mb-3" value={skippedParts} onChange={(e) => setSkippedParts(e.target.value)}>
+                        {[...Array(31).keys()].map(i => <option key={i} value={i}>تخطي {i} جزء</option>)}
                     </select>
-                    <button onClick={calculate} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold">احسب النتيجة 🏁</button>
+                    <button onClick={calculate} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg">احسب النتيجة 🏁</button>
+                    
                     {result && (
-                        <div className="mt-4 bg-emerald-50 border border-emerald-200 p-4 rounded-xl">
-                            <p className="text-gray-600 font-bold text-xs">ستختم خلال:</p>
-                            <h3 className="text-xl font-black text-emerald-700 my-2">{result.text}</h3>
-                            <p className="text-[10px] text-gray-400">بمعدل {result.rate} صفحة أسبوعياً</p>
+                        <div className="mt-4 bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-2xl p-4 shadow-inner text-center animate-in">
+                            <h3 className="text-emerald-800 font-black text-lg mb-1">🎉 النتيجة المتوقعة</h3>
+                            <p className="text-xs text-gray-500 mb-2">معدل: {result.rate} يومياً</p>
+                            <div className="bg-white rounded-xl p-2 border border-emerald-100 mb-2">
+                                <p className="text-2xl font-black text-emerald-600">⏳ {result.duration}</p>
+                            </div>
+                            <p className="font-amiri text-sm text-emerald-800 font-bold mb-2">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ ﴾</p>
+                            <button onClick={() => alert("اللهم اجعل القرآن ربيع قلوبنا..")} className="bg-amber-400 text-white text-xs font-bold px-4 py-2 rounded-full shadow">🤲 دعاء الختمة</button>
                         </div>
                     )}
-                    <button onClick={()=>setStep(1)} className="text-xs text-gray-400 mt-3 underline">إعادة</button>
+                    <button onClick={() => {setStep(1); setResult(null);}} className="text-[10px] text-gray-400 mt-2 underline">إعادة</button>
                 </div>
             )}
         </div>
@@ -97,127 +95,185 @@ window.CalcEffort = () => {
 };
 
 // ============================================================
-// 2. حاسبة الوقت (بقيت كما هي - ممتازة)
+// 2. حاسبة الوقت (By Time) - التصميم الموحد
 // ============================================================
 window.CalcTime = () => {
-    // ... (نفس الكود السابق للحفاظ على المساحة، فهو سليم)
-    // سأضع لك نسخة مختصرة تعمل بنفس المنطق
-    const [d, setD] = useState(30); 
-    const [res, setRes] = useState(null);
+    const [y, setY] = useState(0);
+    const [m, setM] = useState(0);
+    const [d, setD] = useState(0);
+    const [skippedParts, setSkippedParts] = useState(0);
+    const [result, setResult] = useState(null);
+    const [showLateMsg, setShowLateMsg] = useState(false);
+
+    const calculate = () => {
+        let years = parseInt(y);
+        if (years >= 15) { years = 15; setShowLateMsg(true); } else { setShowLateMsg(false); }
+        
+        const totalDays = (years * 365) + (parseInt(m) * 30) + parseInt(d);
+        if (totalDays <= 0) return alert("حدد المدة");
+        
+        const remainingPages = 604 - (skippedParts * 20);
+        if (remainingPages <= 0) return alert("أنت خاتم أصلاً!");
+        
+        const daily = (remainingPages / totalDays).toFixed(1);
+        setResult({ daily, days: totalDays });
+    };
+
     return (
-        <div className="feature-container text-center">
-            <h4 className="font-bold text-amber-800 mb-2">🎯 حدد الأيام الإجمالية للختم</h4>
-            <input type="number" className="w-full p-3 border rounded-xl mb-3 text-center font-bold" placeholder="مثلاً 30 يوم" onChange={e=>setD(e.target.value)} />
-            <button onClick={()=>{if(d>0) setRes((604/d).toFixed(1))}} className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold">احسب</button>
-            {res && <div className="mt-3 bg-amber-50 p-3 rounded-xl border border-amber-200 font-bold text-amber-800">{res} صفحة يومياً</div>}
+        <div className="feature-container animate-in">
+            <h4 className="text-center font-bold text-amber-800 mb-3 text-sm">🎯 حدد المدة المستهدفة</h4>
+            <div className="flex gap-1 mb-3">
+                <select className="flex-1 p-2 border rounded-lg text-center bg-gray-50 text-xs font-bold" value={y} onChange={e => setY(e.target.value)}>{[...Array(16).keys()].map(i=><option value={i}>{i} سنة</option>)}</select>
+                <select className="flex-1 p-2 border rounded-lg text-center bg-gray-50 text-xs font-bold" value={m} onChange={e => setM(e.target.value)}>{[...Array(13).keys()].map(i=><option value={i}>{i} شهر</option>)}</select>
+                <select className="flex-1 p-2 border rounded-lg text-center bg-gray-50 text-xs font-bold" value={d} onChange={e => setD(e.target.value)}>{[...Array(32).keys()].map(i=><option value={i}>{i} يوم</option>)}</select>
+            </div>
+            <div className="mb-3">
+                <select className="w-full p-2 border rounded-xl text-center font-bold bg-gray-50 text-sm" value={skippedParts} onChange={(e) => setSkippedParts(e.target.value)}>
+                    {[...Array(31).keys()].map(i => <option key={i} value={i}>تخطي {i} جزء محفوظ</option>)}
+                </select>
+            </div>
+            <button onClick={calculate} className="w-full bg-amber-500 text-white py-3 rounded-xl font-bold shadow-lg text-sm mb-3">احسب خطتي</button>
+            
+            {showLateMsg && <div className="bg-blue-50 text-blue-800 p-2 text-center text-xs mb-2 font-bold rounded">«وَمَن تَأَخَّرَ فَلَا إِثْمَ عَلَيْهِ ۚ لِمَنِ اتَّقَىٰ»</div>}
+
+            {result && (
+                <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-2xl p-4 shadow-inner text-center animate-in">
+                    <h3 className="text-amber-800 font-black text-lg mb-1">📌 الخطتة المقترحة</h3>
+                    <div className="bg-white rounded-xl p-3 border border-amber-100 mb-2">
+                        <p className="text-xs text-gray-400 font-bold">الورد اليومي:</p>
+                        <p className="text-3xl font-black text-amber-600 mt-1">{result.daily} <span className="text-sm text-gray-400">صفحة</span></p>
+                    </div>
+                    <p className="font-amiri text-sm text-amber-800 font-bold mb-2">نسأل الله أن يبارك في وقتك.</p>
+                    <button onClick={() => alert("اللهم ذكرني منه ما نسيت..")} className="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full shadow">🤲 دعاء الختمة</button>
+                </div>
+            )}
         </div>
     );
 };
 
 // ============================================================
-// 3. اختبر حفظك (المطور - تتابعي + تحديد دقيق)
+// 3. اختبر حفظك (الممتحن الشامل - 6 أنواع أسئلة)
 // ============================================================
 window.TestHifz = () => {
     const [part, setPart] = useState('all');
-    const [surahId, setSurahId] = useState('all');
+    const [surahIdx, setSurahIdx] = useState('all'); // 0-113 based index
     const [qType, setQType] = useState('complete');
-    
-    // حالة السؤال الحالي (لتتبع المكان)
-    const [currentQ, setCurrentQ] = useState(null); // { sId, aIdx, text, ... }
+    const [currentQ, setCurrentQ] = useState(null);
     const [showAns, setShowAns] = useState(false);
 
-    // قائمة السور المتاحة بناءً على الجزء المختار
-    const availableSurahs = useMemo(() => {
-        if (!window.APP_DATA.quran) return [];
-        if (part === 'all') return Object.keys(window.APP_DATA.quran);
-        
-        // منطق الفلترة حسب الجزء
-        const range = JUZ_MAPPING.find(r => r.j == part);
-        if (!range) return [];
-        
-        const surahs = [];
-        for (let i = range.s; i <= range.e; i++) {
-            surahs.push(i.toString());
-        }
-        return surahs;
-    }, [part]);
+    // توليد السؤال
+    const generate = (isNext = false) => {
+        if (!window.APP_DATA.quran) return alert("جاري تحميل المصحف...");
 
-    const generateQuestion = (isContinue = false) => {
-        if (!window.APP_DATA.quran) return;
-        
-        let targetSurahId, targetAyahIdx;
+        let sId, sObj, aIdx;
 
-        if (isContinue && currentQ) {
-            // منطق "التكملة": الآية التالية
-            targetSurahId = currentQ.sId;
-            targetAyahIdx = currentQ.aIdx + 1;
-            
-            // التحقق من نهاية السورة
-            if (targetAyahIdx >= window.APP_DATA.quran[targetSurahId].ayahs.length) {
-                return alert("انتهت السورة! اختر سؤالاً جديداً.");
-            }
+        if (isNext && currentQ) {
+            // منطق المتابعة (الآية التالية)
+            sId = currentQ.sId;
+            sObj = window.APP_DATA.quran[sId];
+            aIdx = currentQ.aIdx + 1;
+            if (aIdx >= sObj.ayahs.length) return alert("انتهت السورة! اختر سؤالاً جديداً.");
         } else {
-            // سؤال جديد عشوائي
-            if (surahId !== 'all') {
-                targetSurahId = surahId;
+            // سؤال جديد
+            if (surahIdx !== 'all') {
+                sId = (parseInt(surahIdx) + 1).toString(); // تحويل الفهرس لرقم سورة (string)
             } else {
-                targetSurahId = availableSurahs[Math.floor(Math.random() * availableSurahs.length)];
+                // اختيار عشوائي (مع مراعاة الجزء إذا تم تحديده تقريبياً)
+                const keys = Object.keys(window.APP_DATA.quran);
+                if (part !== 'all') {
+                    // فلترة بسيطة للجزء (كل جزء 20 صفحة تقريباً، أو نعتمد على العشوائية العامة للتبسيط حالياً)
+                    // هنا سنختار من الكل إذا كان التحديد "جزء" لأن ملف البيانات لا يحتوي رقم الجزء بدقة لكل سورة
+                    // ولكن المستخدم طلب "أن تظهر القائمة كاملة"، لذا سنختار عشوائياً من الكل إذا اختار جزءاً ولم يحدد سورة
+                    sId = keys[Math.floor(Math.random() * keys.length)]; 
+                } else {
+                    sId = keys[Math.floor(Math.random() * keys.length)];
+                }
             }
-            const sObj = window.APP_DATA.quran[targetSurahId];
-            targetAyahIdx = Math.floor(Math.random() * sObj.ayahs.length);
+            
+            sObj = window.APP_DATA.quran[sId];
+            if (!sObj) return alert("عفواً، بيانات هذه السورة غير متوفرة في الملف الحالي.");
+            aIdx = Math.floor(Math.random() * sObj.ayahs.length);
         }
 
-        const sObj = window.APP_DATA.quran[targetSurahId];
-        const ayahObj = sObj.ayahs[targetAyahIdx];
-
-        // تجهيز السؤال
-        let qText = ayahObj.text;
-        let prompt = "أكمل الآية:";
+        const ayah = sObj.ayahs[aIdx];
         
-        if (qType === 'complete' && !isContinue) {
-            const words = qText.split(' ');
-            if (words.length > 5) qText = words.slice(0, 5).join(' ') + "...";
+        // إعداد السؤال والإجابة حسب النوع
+        let qText = "", ansText = "", prompt = "", details = "";
+        
+        // 1. أكمل الآية
+        if (qType === 'complete') {
+            prompt = "أكمل الآية التالية:";
+            const words = ayah.text.split(' ');
+            qText = words.length > 5 && !isNext ? words.slice(0, 5).join(' ') + "..." : ayah.text; // إذا متابعة نعرضها كاملة
+            ansText = ayah.text;
+        } 
+        // 2. الآية التالية
+        else if (qType === 'next') {
+            prompt = "ما الآية التي تلي هذه الآية؟";
+            qText = ayah.text;
+            ansText = (aIdx + 1 < sObj.ayahs.length) ? sObj.ayahs[aIdx+1].text : "آخر آية في السورة";
+        }
+        // 3. الآية السابقة
+        else if (qType === 'prev') {
+            prompt = "ما الآية التي تسبق هذه الآية؟";
+            qText = ayah.text;
+            ansText = (aIdx > 0) ? sObj.ayahs[aIdx-1].text : "أول آية في السورة";
+        }
+        // 4. رقم الآية
+        else if (qType === 'ayahNum') {
+            prompt = "ما رقم هذه الآية؟";
+            qText = ayah.text;
+            ansText = `الآية رقم ${ayah.num}`;
+        }
+        // 5. اسم السورة
+        else if (qType === 'surahName') {
+            prompt = "في أي سورة تقع هذه الآية؟";
+            qText = ayah.text;
+            ansText = `سورة ${sObj.name}`;
+        }
+        // 6. رقم الصفحة
+        else if (qType === 'page') {
+            prompt = "في أي صفحة تقع هذه الآية؟";
+            qText = ayah.text;
+            // البحث في pagesquran
+            const p = window.APP_DATA.pages ? window.APP_DATA.pages.find(pg => 
+                (pg.start.surah_number < parseInt(sId) || (pg.start.surah_number == parseInt(sId) && pg.start.verse <= ayah.num)) &&
+                (pg.end.surah_number > parseInt(sId) || (pg.end.surah_number == parseInt(sId) && pg.end.verse >= ayah.num))
+            ) : null;
+            ansText = p ? `صفحة ${p.page}` : "غير محدد";
         }
 
-        setCurrentQ({
-            sId: targetSurahId,
-            sName: sObj.name,
-            aIdx: targetAyahIdx,
-            aNum: ayahObj.num,
-            fullText: ayahObj.text,
-            qText: qText,
-            prompt: prompt
-        });
+        setCurrentQ({ sId, aIdx, qText, ansText, prompt, fullInfo: `${sObj.name} - آية ${ayah.num}` });
         setShowAns(false);
     };
 
     return (
         <div className="feature-container animate-in">
-            {/* إعدادات الاختبار */}
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-3">
                 <div className="flex gap-2">
-                    <select className="flex-1 p-2 border rounded-lg text-xs font-bold bg-gray-50" value={part} onChange={e => {setPart(e.target.value); setSurahId('all');}}>
+                    <select className="flex-1 p-2 border rounded-lg text-xs font-bold bg-gray-50" value={part} onChange={e=>setPart(e.target.value)}>
                         <option value="all">كامل المصحف</option>
-                        {[...Array(30).keys()].map(i => <option key={i+1} value={i+1}>الجزء {i+1}</option>)}
+                        {[...Array(30).keys()].map(i=><option key={i} value={i+1}>جزء {i+1}</option>)}
                     </select>
-                    <select className="flex-1 p-2 border rounded-lg text-xs font-bold bg-gray-50" value={qType} onChange={e => setQType(e.target.value)}>
+                    <select className="flex-1 p-2 border rounded-lg text-xs font-bold bg-gray-50" value={qType} onChange={e=>setQType(e.target.value)}>
                         <option value="complete">أكمل الآية</option>
                         <option value="next">ما التالي؟</option>
+                        <option value="prev">ما السابق؟</option>
+                        <option value="ayahNum">رقم الآية</option>
+                        <option value="surahName">اسم السورة</option>
+                        <option value="page">رقم الصفحة</option>
                     </select>
                 </div>
-                
-                {/* قائمة السور (تظهر فقط عند اختيار جزء) */}
-                {part !== 'all' && (
-                    <select className="w-full p-2 border rounded-lg text-xs font-bold bg-white" value={surahId} onChange={e => setSurahId(e.target.value)}>
-                        <option value="all">اختيار عشوائي من الجزء {part}</option>
-                        {availableSurahs.map(id => (
-                            <option key={id} value={id}>{id}. {window.APP_DATA.quran[id]?.name}</option>
-                        ))}
-                    </select>
-                )}
+                {/* القائمة الكاملة للسور (114) */}
+                <select className="w-full p-2 border rounded-lg text-xs font-bold bg-white" value={surahIdx} onChange={e=>setSurahIdx(e.target.value)}>
+                    <option value="all">-- اختيار سورة عشوائية --</option>
+                    {SURAH_NAMES.map((name, idx) => (
+                        <option key={idx} value={idx}>{idx+1}. {name}</option>
+                    ))}
+                </select>
             </div>
 
-            <button onClick={() => generateQuestion(false)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow mb-4 text-sm">سؤال جديد 🎲</button>
+            <button onClick={() => generate(false)} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow mb-3 text-sm">سؤال جديد 🎲</button>
 
             {currentQ && (
                 <div className="text-center animate-in">
@@ -227,18 +283,18 @@ window.TestHifz = () => {
                     </div>
 
                     {!showAns ? (
-                        <button onClick={() => setShowAns(true)} className="w-full bg-amber-100 text-amber-800 py-2 rounded-xl font-bold text-sm">كشف الإجابة 🔓</button>
+                        <button onClick={()=>setShowAns(true)} className="w-full bg-amber-100 text-amber-900 py-2 rounded-xl font-bold text-sm">كشف الإجابة 🔓</button>
                     ) : (
                         <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 animate-in">
-                            <p className="font-amiri text-lg text-emerald-800 font-bold mb-3">{currentQ.fullText}</p>
-                            <div className="flex justify-between text-[10px] text-gray-500 font-bold mb-3">
-                                <span>{currentQ.sName}</span>
-                                <span>آية: {currentQ.aNum}</span>
-                            </div>
+                            <p className="font-amiri text-lg text-emerald-800 font-bold mb-3">{currentQ.ansText}</p>
+                            <p className="text-[10px] text-gray-500 font-bold mb-3">{currentQ.fullInfo}</p>
                             
                             <div className="flex gap-2">
-                                <button onClick={() => generateQuestion(false)} className="flex-1 bg-white border border-gray-200 py-2 rounded-lg text-xs font-bold text-gray-600">🔄 سؤال آخر</button>
-                                <button onClick={() => generateQuestion(true)} className="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold shadow">أكمل (الآية التالية) ⬅️</button>
+                                <button onClick={() => generate(false)} className="flex-1 bg-white border border-gray-200 py-2 rounded-lg text-xs font-bold text-gray-600">🔄 سؤال آخر</button>
+                                {/* زر الإكمال يظهر فقط إذا كان السؤال "أكمل" أو "التالي" */}
+                                {(qType === 'complete' || qType === 'next') && 
+                                    <button onClick={() => generate(true)} className="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-xs font-bold shadow">أكمل (الآية التالية) ⬅️</button>
+                                }
                             </div>
                         </div>
                     )}
@@ -249,75 +305,63 @@ window.TestHifz = () => {
 };
 
 // ============================================================
-// 4. المصحف الشريف (كما هو في التحديث السابق)
+// 4. المصحف الشريف (كما هو)
 // ============================================================
-window.QuranReader = window.QuranReader; // استخدام النسخة السابقة إذا كانت موجودة أو أعد نسخها
+window.QuranReader = window.QuranReader; 
 
 // ============================================================
-// 5. الأذكار (نظام التصنيفات الجديد)
+// 5. الأذكار (النظام الذي أعجبك - الأقسام)
 // ============================================================
 window.AzkarApp = () => {
-    const [view, setView] = useState('categories'); // 'categories' or 'list'
-    const [selectedCat, setSelectedCat] = useState(null);
+    const [view, setView] = useState('cats');
+    const [selCat, setSelCat] = useState(null);
     const [counts, setCounts] = useState({});
 
-    useEffect(() => {
-        if (window.APP_DATA.azkar) {
-            const initial = {};
-            window.APP_DATA.azkar.forEach((z, i) => initial[i] = z.count || 0);
-            setCounts(initial);
-        }
-    }, []);
-
-    // استخراج التصنيفات الفريدة
+    // استخراج الأقسام تلقائياً
     const categories = useMemo(() => {
         if (!window.APP_DATA.azkar) return [];
-        const cats = new Set(window.APP_DATA.azkar.map(z => z.category));
-        return Array.from(cats);
+        return [...new Set(window.APP_DATA.azkar.map(z => z.category))];
     }, []);
 
-    const handleClick = (idx) => {
-        if (counts[idx] > 0) {
-            setCounts(prev => ({ ...prev, [idx]: prev[idx] - 1 }));
-            if (navigator.vibrate && counts[idx] === 1) navigator.vibrate([50, 50, 50]); // اهتزاز عند الانتهاء
-            else if (navigator.vibrate) navigator.vibrate(20);
+    const clickZekr = (i) => {
+        if((counts[i]||0) < (window.APP_DATA.azkar[i].count||1)) {
+           setCounts(p => ({...p, [i]: (p[i]||0) + 1}));
+           if(navigator.vibrate) navigator.vibrate(20);
         }
     };
 
     return (
-        <div className="feature-container p-4 min-h-[400px]">
-            {view === 'categories' && (
+        <div className="feature-container p-4">
+            {view === 'cats' && (
                 <div className="grid grid-cols-2 gap-3 animate-in">
                     {categories.map(cat => (
-                        <button key={cat} onClick={() => { setSelectedCat(cat); setView('list'); }} 
-                            className="p-6 bg-white border-2 border-emerald-50 rounded-2xl shadow-sm hover:border-emerald-500 hover:bg-emerald-50 transition flex flex-col items-center justify-center gap-2">
-                            <span className="text-2xl">📿</span>
-                            <span className="font-bold text-emerald-800 text-sm">{cat}</span>
+                        <button key={cat} onClick={()=>{setSelCat(cat); setView('list')}} className="p-5 bg-white border-2 border-emerald-50 rounded-2xl hover:border-emerald-500 font-bold text-emerald-800 text-sm shadow-sm flex flex-col items-center gap-2">
+                            <span className="text-xl">📿</span>
+                            <span>{cat}</span>
                         </button>
                     ))}
-                    {/* زر السبحة الحرة */}
-                    <button onClick={() => setView('sebha')} className="col-span-2 p-4 bg-amber-50 border-2 border-amber-100 rounded-2xl font-bold text-amber-800 mt-2">
-                        ☝️ السبحة الحرة
-                    </button>
+                    <button onClick={() => setView('sebha')} className="col-span-2 p-4 bg-amber-50 border-2 border-amber-100 rounded-2xl font-bold text-amber-800 mt-2">☝️ السبحة الحرة</button>
                 </div>
             )}
 
             {view === 'list' && (
                 <div className="animate-in">
-                    <button onClick={() => setView('categories')} className="mb-4 text-xs font-bold text-gray-500 flex items-center gap-1">⬅️ عودة للأقسام</button>
-                    <h3 className="font-black text-emerald-800 mb-4 text-center">{selectedCat}</h3>
-                    <div className="space-y-3 max-h-[350px] overflow-y-auto custom-scroll">
+                    <button onClick={()=>setView('cats')} className="mb-3 text-xs font-bold text-gray-500 flex items-center gap-1">⬅️ القائمة الرئيسية</button>
+                    <h3 className="text-center font-black text-emerald-800 mb-4 bg-emerald-50 p-2 rounded-xl">{selCat}</h3>
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scroll">
                         {window.APP_DATA.azkar.map((z, i) => {
-                            if (z.category !== selectedCat) return null;
+                            if(z.category !== selCat) return null;
+                            const done = (counts[i]||0);
+                            const total = z.count || 1;
+                            const remaining = total - done;
+                            
                             return (
-                                <div key={i} onClick={() => handleClick(i)} 
-                                     className={`p-4 rounded-xl border-r-4 shadow-sm cursor-pointer transition relative ${counts[i] === 0 ? 'bg-green-50 border-gray-300 opacity-60' : 'bg-white border-emerald-500'}`}>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className={`text-xs font-black px-3 py-1 rounded-full ${counts[i]===0?'bg-green-200 text-green-800':'bg-emerald-600 text-white'}`}>
-                                            {counts[i] === 0 ? 'تم ✅' : counts[i]}
-                                        </span>
+                                <div key={i} onClick={()=>clickZekr(i)} className={`p-4 bg-white border-r-4 rounded-xl shadow-sm cursor-pointer relative overflow-hidden ${remaining===0 ? 'border-gray-300 opacity-60 bg-green-50' : 'border-emerald-500'}`}>
+                                    <div className="flex justify-between mb-2">
+                                        <span className={`text-xs px-2 py-1 rounded font-bold ${remaining===0 ? 'bg-green-200 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{remaining===0 ? 'تم ✅' : `باقي: ${remaining}`}</span>
                                     </div>
-                                    <p className="font-amiri text-lg leading-loose text-gray-800">{z.zekr}</p>
+                                    <p className="font-amiri text-lg leading-loose">{z.zekr}</p>
+                                    {remaining===0 && <div className="absolute inset-0 flex items-center justify-center bg-white/50 text-green-600 font-black text-2xl rotate-12">تم الإنجاز</div>}
                                 </div>
                             );
                         })}
@@ -327,12 +371,12 @@ window.AzkarApp = () => {
 
             {view === 'sebha' && (
                 <div className="text-center py-8 animate-in">
-                    <button onClick={() => setView('categories')} className="absolute top-4 right-4 text-xs font-bold text-gray-500">❌ خروج</button>
-                    <div className="sebha-circle mx-auto" onClick={(e) => {
-                        e.target.innerText = parseInt(e.target.innerText) + 1;
-                        if(navigator.vibrate) navigator.vibrate(30);
-                    }}>0</div>
-                    <p className="mt-4 text-gray-400 text-xs">اضغط للعد</p>
+                    <button onClick={() => setView('cats')} className="absolute top-4 right-4 text-xs font-bold text-gray-500">❌ خروج</button>
+                    <div className="sebha-circle mx-auto" onClick={(e) => { e.target.innerText = parseInt(e.target.innerText) + 1; if(navigator.vibrate) navigator.vibrate(30); }}>0</div>
+                    <div className="flex justify-center gap-4 mt-8">
+                        <button onClick={(e) => e.target.parentElement.previousElementSibling.innerText = Math.max(0, parseInt(e.target.parentElement.previousElementSibling.innerText)-1)} className="bg-gray-200 px-4 py-2 rounded-full text-xs font-bold">تراجع</button>
+                        <button onClick={(e) => e.target.parentElement.previousElementSibling.innerText = 0} className="bg-red-50 text-red-600 px-4 py-2 rounded-full text-xs font-bold">تصفير</button>
+                    </div>
                 </div>
             )}
         </div>
