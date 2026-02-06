@@ -1,40 +1,47 @@
 /* =========================================
-   محمل البيانات: js/data_loader.js (صامت وآمن)
+   محمل البيانات: js/data_loader.js
+   (تم التصحيح لضمان عمل المحاكي والورد اليومي)
    ========================================= */
-window.APP_DATA = { isReady: false };
 
-const loadData = async () => {
+// دالة لجلب ملف JSON
+async function loadJSON(path) {
     try {
-        console.log('جاري تحميل البيانات...');
-        
-        const [quranRes, azkarRes] = await Promise.all([
-            fetch('data/quran.json'),
-            fetch('data/azkar.json')
-        ]);
-
-        if (!quranRes.ok || !azkarRes.ok) throw new Error("فشل في الملفات الأساسية");
-
-        const quran = await quranRes.json();
-        const azkar = await azkarRes.json();
-
-        let tafseerMap = {};
-        try {
-            const tafseerRes = await fetch('data/tafseer.json');
-            if (tafseerRes.ok) {
-                const tafseerRaw = await tafseerRes.json();
-                tafseerRaw.forEach(item => { tafseerMap[`${item.number}_${item.aya}`] = item.text; });
-            }
-        } catch (e) { console.warn('لم يتم تحميل التفسير'); }
-
-        window.APP_DATA = { isReady: true, quran, azkar, tafseer: tafseerMap };
-        window.dispatchEvent(new Event('data-ready'));
-        console.log('✅ تم التحميل');
-
-    } catch (error) {
-        console.error('❌ خطأ فادح:', error);
-        // تم إزالة الـ alert المزعج من هنا
-        // سيظهر الموقع فارغاً أو يمكن لـ app.js اكتشاف المشكلة لاحقاً
+        const response = await fetch(path);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return await response.json();
+    } catch (e) {
+        console.error(`Failsed to load ${path}:`, e);
+        return null;
     }
-};
+}
 
-loadData();
+// تحميل جميع البيانات عند بدء الموقع
+async function initAppData() {
+    console.log("⏳ جاري تحميل بيانات المصحف...");
+    
+    // 1. تحميل ملف القرآن (تأكد أن الملف موجود في data/quran.json)
+    const quran = await loadJSON('data/quran.json');
+    
+    if (quran) {
+        // تعريف المتغير عالمياً لكي يراه المحاكي والورد اليومي
+        window.quranData = quran;
+        
+        // إطلاق حدث يخبر الموقع أن البيانات جاهزة
+        window.APP_DATA = { isReady: true, quran: quran };
+        const event = new Event('data-ready');
+        window.dispatchEvent(event);
+        
+        console.log(`✅ تم تحميل المصحف: ${quran.length} سورة`);
+    } else {
+        console.error("❌ فشل تحميل ملف القرآن! تأكد من وجود المجلد data والملف quran.json");
+        // بيانات طوارئ وهمية لكي لا يعلق الموقع
+        window.quranData = [
+            { number: 1, name: "الفاتحة", ayahs: [{ text: "بسم الله الرحمن الرحيم" }, { text: "الحمد لله رب العالمين" }] },
+            { number: 112, name: "الإخلاص", ayahs: [{ text: "قل هو الله أحد" }] }
+        ];
+        window.dispatchEvent(new Event('data-ready'));
+    }
+}
+
+// تشغيل التحميل
+initAppData();
