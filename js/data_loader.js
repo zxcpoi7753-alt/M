@@ -1,60 +1,46 @@
 /* =========================================
-   ملف البيانات: js/data_loader.js
-   الوظيفة: جلب ملفات JSON من مجلد data
+   محمل البيانات: js/data_loader.js
    ========================================= */
+window.APP_DATA = { isReady: false };
 
-// تهيئة حاوية البيانات العالمية
-window.APP_DATA = {
-    quran: null,
-    pages: null,
-    azkar: null,
-    isReady: false
-};
-
-async function loadData() {
-    console.log("📥 جاري تحميل البيانات...");
-
+const loadData = async () => {
     try {
-        // نستخدم Promise.all لتحميل الملفات الثلاثة في وقت واحد لسرعة أكبر
-        const [quranRes, pagesRes, azkarRes] = await Promise.all([
-            fetch('data/quran.json'),
-            fetch('data/pagesquran.json'),
-            fetch('data/azkar.json')
+        console.log('جاري تحميل البيانات...');
+        
+        // نفترض أن ملفاتك موجودة في مجلد data أو في الجذر
+        // تأكد من وضع ملف tafseer.json بجانب ملف quran.json
+        const [quranRes, azkarRes, tafseerRes] = await Promise.all([
+            fetch('data/quran.json'),   // تأكد من المسار
+            fetch('data/azkar.json'),   // تأكد من المسار
+            fetch('tafseer.json')       // ملف التفسير الجديد
         ]);
 
-        // التحقق من صحة التحميل
-        if (!quranRes.ok) throw new Error("فشل تحميل ملف القرآن");
-        if (!pagesRes.ok) throw new Error("فشل تحميل ملف الصفحات");
-        if (!azkarRes.ok) throw new Error("فشل تحميل ملف الأذكار");
+        const quran = await quranRes.json();
+        const azkar = await azkarRes.json();
+        const tafseerRaw = await tafseerRes.json();
 
-        // تحويل البيانات إلى صيغة JS
-        const quranData = await quranRes.json();
-        const pagesData = await pagesRes.json();
-        const azkarData = await azkarRes.json();
+        // تحويل التفسير إلى صيغة سريعة البحث (Map)
+        // المفتاح سيكون: "رقم_السورة_رقم_الآية"
+        const tafseerMap = {};
+        tafseerRaw.forEach(item => {
+            tafseerMap[`${item.number}_${item.aya}`] = item.text;
+        });
 
-        // تخزين البيانات في الحاوية العالمية
-        window.APP_DATA = {
-            quran: quranData,
-            pages: pagesData,
-            azkar: azkarData,
-            isReady: true
+        window.APP_DATA = { 
+            isReady: true, 
+            quran: quran, 
+            azkar: azkar,
+            tafseer: tafseerMap // أصبح جاهزاً للاستخدام السريع
         };
 
-        console.log("✅ تم تحميل كافة البيانات بنجاح");
-
-        // إرسال إشارة (Event) للموقع بأن البيانات جاهزة
+        // إطلاق حدث أن البيانات جاهزة
         window.dispatchEvent(new Event('data-ready'));
+        console.log('تم تحميل البيانات بنجاح ✅');
 
     } catch (error) {
-        console.error("❌ خطأ جسيم في تحميل البيانات:", error);
-        
-        // عرض رسالة خطأ واضحة للمستخدم في حال فشل التحميل
-        const errorMsg = document.createElement('div');
-        errorMsg.style.cssText = "position:fixed;top:0;left:0;right:0;background:#ef4444;color:white;padding:15px;text-align:center;z-index:9999;font-weight:bold;";
-        errorMsg.innerHTML = `⚠️ تنبيه: فشل تحميل ملفات البيانات. تأكد أنك تشغل الموقع عبر Live Server وأن مجلد data يحتوي على الملفات المطلوبة.`;
-        document.body.appendChild(errorMsg);
+        console.error('فشل تحميل البيانات:', error);
+        alert('فشل تحميل بيانات الموقع، يرجى تحديث الصفحة');
     }
-}
+};
 
-// بدء التحميل فور استدعاء الملف
 loadData();
