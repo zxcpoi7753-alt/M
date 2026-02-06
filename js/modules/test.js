@@ -4,7 +4,6 @@
    ========================================= */
 const { useState, useMemo } = React;
 
-// بيانات السور (خاصة بالاختبار)
 const SURAH_NAMES = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
 const JUZ_START_INDEX = [0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 17, 18, 21, 23, 25, 27, 29, 33, 36, 39, 41, 46, 51, 58, 67, 78];
 
@@ -15,14 +14,20 @@ window.TestHifz = () => {
     const getMaskedText = (t) => { const w=t.trim().split(/\s+/); let c=0; if(w.length<=3) c=Math.max(1,w.length-1); else c=Math.min(6, Math.floor(w.length/2)); return w.slice(0,c).join(' ')+" ..."; };
     
     const generate = (isNext=false) => {
-        if(!window.APP_DATA.quran) return alert("انتظر التحميل...");
+        // استخدام النافذة العامة
+        if(!window.APP_DATA.quran) return window.showGlobalAlert("انتظر", "جاري تحميل بيانات المصحف...");
+        
         let sId, sObj, aIdx;
-        if(isNext && currentQ) { sId=currentQ.sId; sObj=window.APP_DATA.quran[sId]; aIdx=currentQ.aIdx+1; if(aIdx>=sObj.ayahs.length) return alert("انتهت السورة"); }
+        if(isNext && currentQ) { 
+            sId=currentQ.sId; sObj=window.APP_DATA.quran[sId]; aIdx=currentQ.aIdx+1; 
+            if(aIdx>=sObj.ayahs.length) return window.showGlobalAlert("انتهت", "انتهت السورة، اختر سؤالاً جديداً."); 
+        }
         else {
             let pool=[];
             if(scope==='custom') pool=customSurahs; else if(scope==='juz') pool=(selectedSurahInJuz!=='all'?[selectedSurahInJuz]:surahsInSelectedJuz.map(s=>s.id.toString())); else pool=Object.keys(window.APP_DATA.quran);
-            if(pool.length===0) return alert("اختر سوراً");
-            const valid=pool.filter(id=>window.APP_DATA.quran[id]); if(valid.length===0) return alert("لا توجد بيانات");
+            if(pool.length===0) return window.showGlobalAlert("تنبيه", "الرجاء تحديد سور للاختبار");
+            const valid=pool.filter(id=>window.APP_DATA.quran[id]); 
+            if(valid.length===0) return window.showGlobalAlert("خطأ", "لا توجد بيانات للسور المختارة");
             sId=valid[Math.floor(Math.random()*valid.length)]; sObj=window.APP_DATA.quran[sId]; aIdx=Math.floor(Math.random()*sObj.ayahs.length);
         }
         const ayah=sObj.ayahs[aIdx]; let qText=ayah.text, prompt="";
