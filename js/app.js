@@ -1,6 +1,5 @@
 /* =========================================
-   ملف التطبيق: js/app.js
-   الوظيفة: تشغيل واجهة الزوار (مع إصلاح المربعات)
+   ملف التطبيق: js/app.js (V-Final with Boxes)
    ========================================= */
 
 const { useState, useEffect } = React;
@@ -180,7 +179,7 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 6. من نحن (تم إصلاح التصميم هنا) */}
+                {/* 6. من نحن (تم إصلاح المربعات هنا) */}
                 {page === 'about' && (
                     <div className="space-y-6 max-w-xl mx-auto text-center">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-lg space-y-6 border border-emerald-50">
@@ -190,7 +189,7 @@ const App = () => {
                             <p className="text-gray-500 font-bold text-sm border-t pt-4">{config.texts.aboutFooter}</p>
                         </div>
                         
-                        {/* مربعات التواصل الاجتماعي المحسنة */}
+                        {/* تصميم المربعات الجديد */}
                         <div className="grid grid-cols-2 gap-3">
                             <a href={`tel:${config.texts.contact.phone}`} className="flex flex-col items-center justify-center p-4 bg-green-50 border-2 border-green-200 rounded-2xl shadow-sm text-green-700 font-bold hover:bg-green-100 transition">
                                 <span className="text-2xl mb-1">📞</span> واتساب
@@ -243,8 +242,8 @@ const App = () => {
                 )}
             </main>
 
-            <footer className="p-4 text-center bg-white border-t text-[10px] text-gray-400 font-bold fixed bottom-0 w-full z-30">
-                &copy; 2026 {config.texts.siteTitle}
+            <footer className="p-4 text-center bg-white border-t text-[10px] text-gray-400 font-bold uppercase tracking-widest fixed bottom-0 w-full z-30 shadow-inner">
+                &copy; 2026 {config.texts.siteTitle} | الإصدار الشامل
             </footer>
         </div>
     );
