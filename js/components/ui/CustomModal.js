@@ -19,7 +19,7 @@ const CustomModal = ({ isOpen, onClose, title, children }) => {
                     {children}
                 </div>
 
-                {/* ذيل النافذة (اختياري) */}
+                {/* ذيل النافذة */}
                 <div className="p-4 bg-gray-50 flex justify-center">
                     <button onClick={onClose} className="bg-emerald-600 text-white px-8 py-2 rounded-xl font-black shadow-lg hover:bg-emerald-700 transition">حسناً</button>
                 </div>
@@ -28,5 +28,5 @@ const CustomModal = ({ isOpen, onClose, title, children }) => {
     );
 };
 
-// تصدير المكون للنافذة
+// تصدير المكون للنافذة (هام جداً)
 window.CustomModal = CustomModal;
