@@ -1,10 +1,10 @@
 /* =========================================
-   ملف التطبيق: js/app.js (V-Final with Boxes)
+   ملف التطبيق: js/app.js
+   الوظيفة: واجهة الزوار (تم فصل الجداول)
    ========================================= */
 
 const { useState, useEffect } = React;
 
-// استيراد المكونات
 const CalcEffort = window.CalcEffort;
 const CalcTime = window.CalcTime;
 const TestHifz = window.TestHifz;
@@ -15,8 +15,7 @@ const App = () => {
     const [config, setConfig] = useState({
         settings: { layoutScale: 1 },
         texts: {
-            siteTitle: 'حلقات الثريا',
-            heroTitle: 'أهلاً بكم',
+            siteTitle: 'حلقات الثريا', heroTitle: 'أهلاً بكم',
             contact: { phone: '', location: '', youtube: '', facebook: '', instagram: '' },
             studentMsg: '', weeklyQuestion: '', aboutMain: '', aboutAyah: '', aboutFooter: ''
         },
@@ -69,8 +68,6 @@ const App = () => {
             </nav>
 
             <main className="p-4 pb-24 animate-in">
-                
-                {/* 1. الرئيسية */}
                 {page === 'home' && (
                     <div className="space-y-6">
                         <section className="relative rounded-[2.5rem] overflow-hidden bg-emerald-700 text-white p-8 text-center shadow-xl">
@@ -103,52 +100,72 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 2. ركن الطالب */}
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
                         <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-center mb-4 shadow-sm">
                             <p className="text-amber-900 font-bold leading-relaxed text-sm">{config.texts.studentMsg}</p>
                         </div>
-                        
                         <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي (بجهدي)</span><span>{activeFeature === 'effort' ? '➖' : '➕'}</span></div>
                         {activeFeature === 'effort' && <CalcEffort />}
-
                         <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم (بوقتي)</span><span>{activeFeature === 'time' ? '➖' : '➕'}</span></div>
                         {activeFeature === 'time' && <CalcTime />}
-
                         <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature === 'test' ? '➖' : '➕'}</span></div>
                         {activeFeature === 'test' && (dataReady ? <TestHifz /> : <div className="text-center p-4 text-gray-400">جاري التحميل...</div>)}
-
                         <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran' ? '➖' : '➕'}</span></div>
                         {activeFeature === 'quran' && (dataReady ? <QuranReader /> : <div className="text-center p-4 text-gray-400">جاري التحميل...</div>)}
-
                         <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}><span>📿 الأذكار</span><span>{activeFeature === 'azkar' ? '➖' : '➕'}</span></div>
                         {activeFeature === 'azkar' && (dataReady ? <AzkarApp /> : <div className="text-center p-4 text-gray-400">جاري التحميل...</div>)}
                     </div>
                 )}
 
-                {/* 3. الجداول */}
                 {page === 'schedules' && (
-                    <div className="space-y-6">
-                        {config.schedules.filter(s => !s.hidden).map(sch => (
-                            <div key={sch.id}>
-                                <div onClick={() => setExpandedSch(expandedSch === sch.id ? null : sch.id)} className={`halqa-accordion ${expandedSch === sch.id ? 'active' : ''}`}>
-                                    <span>{sch.name} ({sch.period})</span><span>{expandedSch === sch.id ? '−' : '+'}</span>
-                                </div>
-                                {expandedSch === sch.id && (
-                                    <div className="bg-white rounded-xl shadow-md overflow-hidden border mb-4 animate-in">
-                                        <table className="schedule-table">
-                                            <thead><tr><th>اليوم</th><th>الوقت</th><th>ملاحظة</th></tr></thead>
-                                            <tbody>{sch.days.map((d, i) => <tr key={i}><td>{d.day}</td><td className="text-emerald-700 font-bold">{d.time}</td><td className="text-gray-500 text-xs">{d.note}</td></tr>)}</tbody>
-                                        </table>
+                    <div className="space-y-8">
+                        {/* حلقات العصر */}
+                        <div>
+                            <h3 className="font-black text-xl text-amber-600 mb-4 border-b-2 border-amber-200 pb-2 w-fit">☀️ حلقات العصر</h3>
+                            {config.schedules.filter(s => s.period === 'عصر' && !s.hidden).length > 0 ? (
+                                config.schedules.filter(s => s.period === 'عصر' && !s.hidden).map(sch => (
+                                    <div key={sch.id}>
+                                        <div onClick={() => setExpandedSch(expandedSch === sch.id ? null : sch.id)} className={`halqa-accordion ${expandedSch === sch.id ? 'active' : ''}`}>
+                                            <span>{sch.name}</span><span>{expandedSch === sch.id ? '−' : '+'}</span>
+                                        </div>
+                                        {expandedSch === sch.id && (
+                                            <div className="bg-white rounded-xl shadow-md overflow-hidden border mb-4 animate-in">
+                                                <table className="schedule-table">
+                                                    <thead><tr><th>اليوم</th><th>الوقت</th><th>ملاحظة</th></tr></thead>
+                                                    <tbody>{sch.days.map((d, i) => <tr key={i}><td>{d.day}</td><td className="text-emerald-700 font-bold">{d.time}</td><td className="text-gray-500 text-xs">{d.note}</td></tr>)}</tbody>
+                                                </table>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        ))}
+                                ))
+                            ) : <p className="text-gray-400 text-sm">لا توجد حلقات مسجلة للعصر</p>}
+                        </div>
+
+                        {/* حلقات المغرب */}
+                        <div>
+                            <h3 className="font-black text-xl text-indigo-600 mb-4 border-b-2 border-indigo-200 pb-2 w-fit">🌙 حلقات المغرب</h3>
+                            {config.schedules.filter(s => s.period === 'مغرب' && !s.hidden).length > 0 ? (
+                                config.schedules.filter(s => s.period === 'مغرب' && !s.hidden).map(sch => (
+                                    <div key={sch.id}>
+                                        <div onClick={() => setExpandedSch(expandedSch === sch.id ? null : sch.id)} className={`halqa-accordion ${expandedSch === sch.id ? 'active' : ''}`}>
+                                            <span>{sch.name}</span><span>{expandedSch === sch.id ? '−' : '+'}</span>
+                                        </div>
+                                        {expandedSch === sch.id && (
+                                            <div className="bg-white rounded-xl shadow-md overflow-hidden border mb-4 animate-in">
+                                                <table className="schedule-table">
+                                                    <thead><tr><th>اليوم</th><th>الوقت</th><th>ملاحظة</th></tr></thead>
+                                                    <tbody>{sch.days.map((d, i) => <tr key={i}><td>{d.day}</td><td className="text-emerald-700 font-bold">{d.time}</td><td className="text-gray-500 text-xs">{d.note}</td></tr>)}</tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : <p className="text-gray-400 text-sm">لا توجد حلقات مسجلة للمغرب</p>}
+                        </div>
                     </div>
                 )}
 
-                {/* 4. المعلمون */}
                 {page === 'teachers' && (
                     <div className="grid gap-4">
                         {config.teachers.filter(t => !t.hidden).map(t => (
@@ -160,7 +177,6 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 5. الأوائل */}
                 {page === 'students' && (
                     <div className="space-y-6">
                         {config.halaqat.filter(h => !h.hidden).map(h => (
@@ -179,7 +195,6 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 6. من نحن (تم إصلاح المربعات هنا) */}
                 {page === 'about' && (
                     <div className="space-y-6 max-w-xl mx-auto text-center">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-lg space-y-6 border border-emerald-50">
@@ -188,41 +203,18 @@ const App = () => {
                             <div className="font-black text-xl italic" style={{ color: config.texts.aboutAyahColor }}>{config.texts.aboutAyah}</div>
                             <p className="text-gray-500 font-bold text-sm border-t pt-4">{config.texts.aboutFooter}</p>
                         </div>
-                        
-                        {/* تصميم المربعات الجديد */}
                         <div className="grid grid-cols-2 gap-3">
-                            <a href={`tel:${config.texts.contact.phone}`} className="flex flex-col items-center justify-center p-4 bg-green-50 border-2 border-green-200 rounded-2xl shadow-sm text-green-700 font-bold hover:bg-green-100 transition">
-                                <span className="text-2xl mb-1">📞</span> واتساب
-                            </a>
-                            <a href={config.texts.contact.location} target="_blank" className="flex flex-col items-center justify-center p-4 bg-blue-50 border-2 border-blue-200 rounded-2xl shadow-sm text-blue-700 font-bold hover:bg-blue-100 transition">
-                                <span className="text-2xl mb-1">📍</span> الموقع
-                            </a>
+                            <a href={`tel:${config.texts.contact.phone}`} className="flex flex-col items-center justify-center p-4 bg-green-50 border-2 border-green-200 rounded-2xl shadow-sm text-green-700 font-bold hover:bg-green-100 transition"><span className="text-2xl mb-1">📞</span> واتساب</a>
+                            <a href={config.texts.contact.location} target="_blank" className="flex flex-col items-center justify-center p-4 bg-blue-50 border-2 border-blue-200 rounded-2xl shadow-sm text-blue-700 font-bold hover:bg-blue-100 transition"><span className="text-2xl mb-1">📍</span> الموقع</a>
                         </div>
-
                         <div className="grid grid-cols-3 gap-3 mt-2">
-                            {config.texts.contact.youtube && (
-                                <a href={config.texts.contact.youtube} className="flex flex-col items-center justify-center p-3 border-2 border-red-100 rounded-2xl bg-white shadow-sm hover:border-red-500 transition">
-                                    <span className="text-red-600 text-3xl">▶️</span>
-                                    <span className="text-[10px] font-bold mt-1 text-gray-500">يوتيوب</span>
-                                </a>
-                            )}
-                            {config.texts.contact.facebook && (
-                                <a href={config.texts.contact.facebook} className="flex flex-col items-center justify-center p-3 border-2 border-blue-100 rounded-2xl bg-white shadow-sm hover:border-blue-600 transition">
-                                    <span className="text-blue-600 text-3xl font-black">f</span>
-                                    <span className="text-[10px] font-bold mt-1 text-gray-500">فيسبوك</span>
-                                </a>
-                            )}
-                            {config.texts.contact.instagram && (
-                                <a href={config.texts.contact.instagram} className="flex flex-col items-center justify-center p-3 border-2 border-pink-100 rounded-2xl bg-white shadow-sm hover:border-pink-500 transition">
-                                    <span className="text-pink-600 text-3xl">📸</span>
-                                    <span className="text-[10px] font-bold mt-1 text-gray-500">انستقرام</span>
-                                </a>
-                            )}
+                            {config.texts.contact.youtube && <a href={config.texts.contact.youtube} className="flex flex-col items-center justify-center p-3 border-2 border-red-100 rounded-2xl bg-white shadow-sm hover:border-red-500 transition"><span className="text-red-600 text-3xl">▶️</span><span className="text-[10px] font-bold mt-1 text-gray-500">يوتيوب</span></a>}
+                            {config.texts.contact.facebook && <a href={config.texts.contact.facebook} className="flex flex-col items-center justify-center p-3 border-2 border-blue-100 rounded-2xl bg-white shadow-sm hover:border-blue-600 transition"><span className="text-blue-600 text-3xl font-black">f</span><span className="text-[10px] font-bold mt-1 text-gray-500">فيسبوك</span></a>}
+                            {config.texts.contact.instagram && <a href={config.texts.contact.instagram} className="flex flex-col items-center justify-center p-3 border-2 border-pink-100 rounded-2xl bg-white shadow-sm hover:border-pink-500 transition"><span className="text-pink-600 text-3xl">📸</span><span className="text-[10px] font-bold mt-1 text-gray-500">انستقرام</span></a>}
                         </div>
                     </div>
                 )}
 
-                {/* 7. بطاقتي */}
                 {page === 'card' && (
                     <div className="max-w-md mx-auto space-y-6">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center border-4 border-emerald-50">
