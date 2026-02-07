@@ -1,19 +1,20 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة المنيعة: تلغي الـ Alert وتمنع الشاشة البيضاء)
+   (تم تنظيمه وفصل واحة الزوار في دالة مستقلة)
    ========================================= */
 
 const { useState, useEffect } = React;
 
-// استيراد المكونات مع حماية (إذا كان الملف ناقصاً لن ينهار الموقع)
-const safeImport = (name) => window[name] || (() => <div className="text-red-500 p-4 border rounded">⚠️ المكون {name} مفقود</div>);
+// استيراد المكونات الآمنة
+const safeImport = (name) => window[name] || (() => null);
 
+// المكونات الفرعية
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
 const QuranReader = safeImport('QuranReader');
 const AzkarApp = safeImport('AzkarApp');
-const CustomModal = window.CustomModal; // يجب أن يكون موجوداً
+const CustomModal = window.CustomModal; 
 const DailyWird = safeImport('DailyWird');
 const QuranExam = safeImport('QuranExam');
 
@@ -23,7 +24,44 @@ const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
+// --------------------------------------------------------------------------
+// (1) دالة قسم واحة الزوار (Extras Section)
+// [بداية الدالة رقم 1] - لتسهيل التعديل المستقبلي
+// --------------------------------------------------------------------------
+const ExtrasSection = ({ dataReady, activeFeature, toggleFeature }) => {
+    return (
+        <div className="space-y-4 max-w-lg mx-auto animate-in">
+            <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
+            
+            {/* 1. منبه الأوقات الفاضلة (يظهر دائماً) */}
+            {window.VirtuousTimesWidget && <window.VirtuousTimesWidget />}
+            
+            {/* 2. الورد اليومي (يحتاج بيانات المصحف) */}
+            {dataReady && window.DailyWird && <window.DailyWird />}
+
+            {/* 3. العداد الجماعي (يظهر دائماً لأنه متصل بفايربيس) */}
+            {window.GlobalKhatmaCounter && <window.GlobalKhatmaCounter />}
+
+            {/* 4. صيدلية القلوب (زر قابل للفتح) */}
+            <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
+            {activeFeature === 'feeling' && <window.FeelingsPharmacy />}
+            
+            {/* 5. المحاكي القرآني (يحتاج بيانات المصحف) */}
+            {dataReady && window.QuranExam && <window.QuranExam />}
+
+            {/* 6. صانع البطاقات (زر قابل للفتح) */}
+            <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
+            {activeFeature === 'card' && <window.CardMaker />}
+        </div>
+    );
+};
+// --------------------------------------------------------------------------
+// [نهاية الدالة رقم 1]
+// --------------------------------------------------------------------------
+
+
 const App = () => {
+    // --- الحالة (State) ---
     const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [] });
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
@@ -33,29 +71,21 @@ const App = () => {
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     
-    // حالة النافذة المنبثقة (Modal)
+    // النافذة المنبثقة
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
-    // --- 🛡️ استبدال الـ ALERT الأصلي (Monkey Patch) ---
+    // --- التأثيرات (Effects) ---
     useEffect(() => {
-        // هذه الدالة هي السحر: نسرق وظيفة alert ونربطها بالنافذة الأنيقة
-        window.alert = (message) => {
-            setModal({ show: true, title: 'تنبيه', msg: message });
-        };
-
-        // دالة مخصصة للعناوين
+        // تفعيل النافذة الأنيقة بدلاً من alert
+        window.alert = (message) => setModal({ show: true, title: 'تنبيه', msg: message });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
-        console.log("🛡️ تم تفعيل نظام النوافذ الأنيقة (Native Alert Disabled)");
-    }, []);
-
-    // تحميل البيانات
-    useEffect(() => {
+        // الاستماع لجاهزية البيانات
         const handleDataReady = () => setDataReady(true);
         window.addEventListener('data-ready', handleDataReady);
         if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
-        
-        // Firebase Config
+
+        // جلب الإعدادات من Firebase
         if (window.db && window.onSnapshot && window.doc) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                 if (doc.exists()) {
@@ -65,6 +95,23 @@ const App = () => {
             });
         }
         return () => window.removeEventListener('data-ready', handleDataReady);
+    }, []);
+
+    // نظام الإشعارات
+    useEffect(() => {
+        if (!window.db) return;
+        const unsub = window.onSnapshot(window.doc(window.db, "appData", "notifications"), (doc) => {
+            if (doc.exists()) {
+                const data = doc.data();
+                const lastMsgId = localStorage.getItem('last_notification_id');
+                if (data.id && data.id !== lastMsgId && data.active) {
+                    if(window.showGlobalAlert) window.showGlobalAlert(data.title, data.body);
+                    if (Notification.permission === 'granted') new Notification(data.title, { body: data.body, icon: 'icon-192.png' });
+                    localStorage.setItem('last_notification_id', data.id);
+                }
+            }
+        });
+        return () => unsub();
     }, []);
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
@@ -78,6 +125,7 @@ const App = () => {
                 </CustomModal>
             )}
 
+            {/* الهيدر */}
             <header>
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
@@ -89,6 +137,7 @@ const App = () => {
                 </div>
             </header>
 
+            {/* القائمة العلوية */}
             <nav className="no-scrollbar">
                 {['home','student_corner','extras','teachers','students','schedules','about','card'].map(t => (
                     <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
@@ -102,52 +151,42 @@ const App = () => {
             </nav>
 
             <main className="p-4 pb-24 animate-in">
+                {/* 1. الرئيسية */}
                 {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
 
+                {/* 2. ركن الطالب */}
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
                         <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>{activeFeature === 'effort' && <CalcEffort />}
                         <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>{activeFeature === 'time' && <CalcTime />}
                         
-                        {/* 3. اختبر حفظك (مع حماية التحميل) */}
                         <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك (قديم)</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
                         {activeFeature === 'test' && (dataReady ? <TestHifz /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل بيانات الاختبار...</div>)}
                         
-                        {/* 4. المصحف */}
                         <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
                         {activeFeature === 'quran' && (dataReady ? <QuranReader /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل المصحف...</div>)}
                         
-                        {/* 5. الأذكار */}
                         <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}><span>📿 الأذكار</span><span>{activeFeature === 'azkar'?'➖':'➕'}</span></div>
                         {activeFeature === 'azkar' && (dataReady ? <AzkarApp /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل الأذكار...</div>)}
                     </div>
                 )}
 
+                {/* 3. واحة الزوار (استخدام الدالة المنفصلة هنا) ✅ */}
                 {page === 'extras' && (
-                    <div className="space-y-4 max-w-lg mx-auto">
-                        <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
-                        
-                        {dataReady ? (
-                           <>
-                             {window.VirtuousTimesWidget && <window.VirtuousTimesWidget />}
-                             {window.DailyWird && <DailyWird />}
-                             {window.GlobalKhatmaCounter && <window.GlobalKhatmaCounter />}
-                           </>
-                        ) : <div className="text-center p-4 text-gray-400">جاري تحميل الأدوات...</div>}
-
-                        <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
-                        {activeFeature === 'feeling' && <window.FeelingsPharmacy />}
-                        
-                        {/* المحاكي القرآني (الجديد) */}
-                        {window.QuranExam && <QuranExam />}
-
-                        <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
-                        {activeFeature === 'card' && <window.CardMaker />}
-                    </div>
+                    <ExtrasSection 
+                        dataReady={dataReady} 
+                        activeFeature={activeFeature} 
+                        toggleFeature={toggleFeature} 
+                    />
                 )}
 
+                {/* 4. المعلمون */}
                 {page === 'teachers' && <TeachersSection teachers={config.teachers} />}
+
+                {/* 5. الجداول */}
                 {page === 'schedules' && <SchedulesSection schedules={config.schedules} />}
+
+                {/* 6. الأوائل */}
                 {page === 'students' && (
                      <div className="space-y-6">
                         {config.halaqat.filter(h => !h.hidden).map(h => (
@@ -158,7 +197,11 @@ const App = () => {
                         ))}
                     </div>
                 )}
+
+                {/* 7. من نحن */}
                 {page === 'about' && <AboutSection texts={config.texts} />}
+
+                {/* 8. بطاقتي */}
                 {page === 'card' && (
                     <div className="max-w-md mx-auto space-y-6 animate-in">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center border-4 border-emerald-50">
