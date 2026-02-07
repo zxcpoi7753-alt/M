@@ -1,6 +1,6 @@
 /* =========================================
    محمل البيانات: js/data_loader.js
-   (الجسر الذكي: يدعم الأنظمة القديمة والجديدة معاً)
+   (الجسر الشامل: يحل مشكلة التعليق ويدعم القديم والجديد)
    ========================================= */
 
 async function loadJSON(path) {
@@ -15,46 +15,46 @@ async function loadJSON(path) {
 }
 
 async function initAppData() {
-    console.log("⏳ جاري تحميل وتجهيز البيانات...");
+    console.log("⏳ بدء تحميل البيانات...");
 
-    // 1. تهيئة الحاويات (لمنع الشاشة البيضاء)
+    // تهيئة الحاويات العالمية
     window.APP_DATA = window.APP_DATA || {}; 
     window.APP_DATA.isReady = false;
 
-    // 2. تحميل الملفات
+    // تحميل الملفات بالتوازي
     const [quranArray, azkarArray] = await Promise.all([
         loadJSON('data/quran.json'),
         loadJSON('data/azkar.json')
     ]);
 
-    // 3. معالجة القرآن (أهم خطوة)
+    // 1. معالجة بيانات القرآن (لحل مشكلة اختبر حفظك + المحاكي)
     if (quranArray) {
-        // أ) للنظام الجديد (مصفوفة)
+        // أ) للنظام الجديد (المحاكي والورد اليومي يحتاجونه مصفوفة)
         window.quranData = quranArray; 
         
-        // ب) للنظام القديم (Object مفهرس برقم السورة)
-        // نحول المصفوفة إلى كائن: { "1": {name: "الفاتحة"...}, "2": {...} }
+        // ب) للنظام القديم (اختبر حفظك يحتاجه كائن مفهرس برقم السورة)
         window.APP_DATA.quran = {};
         quranArray.forEach(surah => {
             window.APP_DATA.quran[surah.number] = surah;
         });
-
-        // ج) إنشاء فهرس الصفحات (لحل مشكلة اختبار الصفحة)
-        // (مؤقتاً سننشئ فهرساً بسيطاً إذا لم يكن ملف الصفحات موجوداً)
-        window.APP_DATA.pages = []; 
-        // هنا يمكن إضافة منطق الصفحات لاحقاً
+    } else {
+        console.error("❌ لم يتم العثور على ملف القرآن!");
+        // بيانات طوارئ لمنع الشاشة البيضاء
+        window.quranData = [];
+        window.APP_DATA.quran = {};
     }
 
-    // 4. معالجة الأذكار
+    // 2. معالجة بيانات الأذكار
     if (azkarArray) {
-        window.APP_DATA.azkar = azkarArray; // للنظام القديم
-        window.azkarData = azkarArray;      // للنظام الجديد (احتياط)
+        window.APP_DATA.azkar = azkarArray; // للتصميم القديم
+        window.azkarData = azkarArray;      // احتياط
     }
 
-    // 5. إطلاق إشارة البدء
+    // 3. إطلاق إشارة الجاهزية (هذا يفك تعليق "جاري التحميل")
     window.APP_DATA.isReady = true;
-    window.dispatchEvent(new Event('data-ready'));
-    console.log("✅ البيانات جاهزة: القديمة والجديدة تعمل الآن.");
+    const event = new Event('data-ready');
+    window.dispatchEvent(event);
+    console.log("✅ تم تجهيز البيانات بنجاح (القديم والجديد).");
 }
 
 initAppData();
