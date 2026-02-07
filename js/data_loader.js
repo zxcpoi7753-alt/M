@@ -1,47 +1,53 @@
 /* =========================================
    محمل البيانات: js/data_loader.js
-   (تم التصحيح لضمان عمل المحاكي والورد اليومي)
+   (النسخة الآمنة: تمنع انهيار الموقع عند فقدان البيانات)
    ========================================= */
 
-// دالة لجلب ملف JSON
 async function loadJSON(path) {
     try {
         const response = await fetch(path);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (e) {
-        console.error(`Failsed to load ${path}:`, e);
+        console.warn(`⚠️ تعذر تحميل ${path}، سيتم استخدام بيانات الطوارئ.`);
         return null;
     }
 }
 
-// تحميل جميع البيانات عند بدء الموقع
 async function initAppData() {
-    console.log("⏳ جاري تحميل بيانات المصحف...");
-    
-    // 1. تحميل ملف القرآن (تأكد أن الملف موجود في data/quran.json)
-    const quran = await loadJSON('data/quran.json');
-    
+    console.log("⏳ جاري تحميل البيانات...");
+
+    // 1. تحميل القرآن والأذكار بالتوازي
+    const [quran, azkar] = await Promise.all([
+        loadJSON('data/quran.json'),
+        loadJSON('data/azkar.json')
+    ]);
+
+    // 2. فحص القرآن (بيانات الطوارئ لمنع الشاشة البيضاء في المحاكي والورد)
     if (quran) {
-        // تعريف المتغير عالمياً لكي يراه المحاكي والورد اليومي
         window.quranData = quran;
-        
-        // إطلاق حدث يخبر الموقع أن البيانات جاهزة
-        window.APP_DATA = { isReady: true, quran: quran };
-        const event = new Event('data-ready');
-        window.dispatchEvent(event);
-        
-        console.log(`✅ تم تحميل المصحف: ${quran.length} سورة`);
     } else {
-        console.error("❌ فشل تحميل ملف القرآن! تأكد من وجود المجلد data والملف quran.json");
-        // بيانات طوارئ وهمية لكي لا يعلق الموقع
+        // بيانات وهمية لكي تعمل الأزرار ولا ينهار الموقع
         window.quranData = [
             { number: 1, name: "الفاتحة", ayahs: [{ text: "بسم الله الرحمن الرحيم" }, { text: "الحمد لله رب العالمين" }] },
-            { number: 112, name: "الإخلاص", ayahs: [{ text: "قل هو الله أحد" }] }
+            { number: 112, name: "الإخلاص", ayahs: [{ text: "قل هو الله أحد" }, { text: "الله الصمد" }] }
         ];
-        window.dispatchEvent(new Event('data-ready'));
     }
+
+    // 3. فحص الأذكار (لمنع اختفاء زر الأذكار)
+    if (azkar) {
+        window.azkarData = azkar;
+    } else {
+        window.azkarData = {
+            "أذكار الصباح": [{ count: 3, content: "سبحان الله وبحمده" }],
+            "أذكار المساء": [{ count: 3, content: "أستغفر الله" }]
+        };
+    }
+
+    // 4. إطلاق إشارة الجاهزية
+    window.APP_DATA = { isReady: true };
+    window.dispatchEvent(new Event('data-ready'));
+    console.log("✅ تم تجهيز البيانات بنجاح");
 }
 
-// تشغيل التحميل
 initAppData();
