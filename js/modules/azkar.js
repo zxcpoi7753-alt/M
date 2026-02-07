@@ -1,70 +1,78 @@
 /* =========================================
-   الوحدة: الأذكار (Azkar)
+   موديول: الأذكار (النسخة الآمنة)
    المسار: js/modules/azkar.js
    ========================================= */
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect } = React;
 
-window.AzkarApp = () => {
-    const [view, setView] = useState('cats');
-    const [selCat, setSelCat] = useState(null);
-    const [counts, setCounts] = useState({});
+const AzkarApp = () => {
+    const [category, setCategory] = useState(null); // 'morning', 'evening', etc.
+    const [count, setCount] = useState(0);
+    const [currentZikrIndex, setCurrentZikrIndex] = useState(0);
+    
+    // بيانات الأذكار (يقرأ من window.azkarData الذي وفره data_loader.js)
+    const azkarData = window.azkarData || { 
+        "الصباح": [{ content: "سبحان الله", count: 3 }], 
+        "المساء": [{ content: "الحمد لله", count: 3 }] 
+    };
 
-    const categories = useMemo(() => {
-        if (!window.APP_DATA.azkar) return [];
-        return [...new Set(window.APP_DATA.azkar.map(z => z.category))];
-    }, []);
+    const categories = Object.keys(azkarData);
 
-    useEffect(() => {
-        if (window.APP_DATA.azkar) {
-            const init = {};
-            window.APP_DATA.azkar.forEach((z, i) => init[i] = z.count || 1);
-            setCounts(init);
-        }
-    }, []);
-
-    const click = (i) => {
-        if (counts[i] > 0) {
-            setCounts(p => ({...p, [i]: p[i]-1}));
-            if(navigator.vibrate) navigator.vibrate(30);
+    const handleClick = () => {
+        // الاهتزاز عند التسبيح (للهواتف)
+        if (navigator.vibrate) navigator.vibrate(50);
+        
+        const currentZikr = azkarData[category][currentZikrIndex];
+        if (count < currentZikr.count) {
+            setCount(prev => prev + 1);
+        } else {
+            // الانتقال للذكر التالي
+            if (currentZikrIndex < azkarData[category].length - 1) {
+                setCurrentZikrIndex(prev => prev + 1);
+                setCount(0);
+            } else {
+                window.alert("✨ فتح الله عليك! أتممت الأذكار.");
+                setCategory(null);
+                setCount(0);
+                setCurrentZikrIndex(0);
+            }
         }
     };
 
     return (
-        <div className="feature-container p-4">
-            {view === 'cats' && (
-                <div className="grid grid-cols-2 gap-3">
-                    {categories.map(c => (
-                        <button key={c} onClick={()=>{setSelCat(c); setView('list')}} className="p-4 bg-white border rounded-xl shadow-sm font-bold text-emerald-800 text-sm flex flex-col items-center">
-                            <span className="text-2xl mb-1">📿</span> {c}
+        <div className="animate-in bg-white rounded-[2rem] border border-emerald-100 shadow-sm overflow-hidden p-6">
+            {!category ? (
+                <div className="grid grid-cols-2 gap-4">
+                    {categories.map(cat => (
+                        <button key={cat} onClick={() => setCategory(cat)} className="p-4 bg-emerald-50 rounded-2xl text-emerald-800 font-black hover:bg-emerald-100 transition shadow-sm border border-emerald-100">
+                            {cat}
                         </button>
                     ))}
-                    <button onClick={()=>setView('sebha')} className="col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl font-bold text-amber-800">السبحة الحرة</button>
                 </div>
-            )}
-            {view === 'list' && (
-                <div>
-                    <button onClick={()=>setView('cats')} className="mb-2 text-xs text-gray-500 font-bold">⬅️ رجوع</button>
-                    <h3 className="text-center font-black text-emerald-800 mb-3 bg-emerald-50 p-2 rounded">{selCat}</h3>
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                        {window.APP_DATA.azkar.map((z, i) => {
-                            if(z.category !== selCat) return null;
-                            return (
-                                <div key={i} onClick={()=>click(i)} className={`p-4 bg-white border-r-4 rounded-xl shadow-sm cursor-pointer ${counts[i]===0 ? 'border-gray-300 opacity-50' : 'border-emerald-500'}`}>
-                                    <div className="flex justify-between mb-2"><span className="text-xs bg-gray-100 px-2 rounded font-bold">{counts[i]===0 ? 'تم ✅' : `باقي: ${counts[i]}`}</span></div>
-                                    <p className="font-amiri text-lg">{z.zekr}</p>
-                                </div>
-                            )
-                        })}
+            ) : (
+                <div className="text-center space-y-6">
+                    <div className="flex justify-between items-center mb-4">
+                        <button onClick={() => setCategory(null)} className="text-xs font-bold text-gray-400 hover:text-red-500">✕ خروج</button>
+                        <span className="text-xs font-bold text-emerald-600">{category} ({currentZikrIndex + 1}/{azkarData[category].length})</span>
                     </div>
-                </div>
-            )}
-            {view === 'sebha' && (
-                <div className="text-center py-10">
-                    <button onClick={()=>setView('cats')} className="absolute top-4 right-4 text-xs font-bold text-gray-500">خروج</button>
-                    <div className="sebha-circle mx-auto" onClick={(e)=>{e.target.innerText = parseInt(e.target.innerText)+1; if(navigator.vibrate) navigator.vibrate(30);}}>0</div>
-                    <button onClick={(e)=>e.target.previousElementSibling.innerText=0} className="mt-4 text-red-500 font-bold text-xs">تصفير</button>
+
+                    <div className="min-h-[120px] flex items-center justify-center">
+                        <h3 className="text-xl font-amiri font-bold leading-loose text-gray-800">
+                            {azkarData[category][currentZikrIndex].content}
+                        </h3>
+                    </div>
+
+                    <button 
+                        onClick={handleClick}
+                        className="w-full h-32 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-4xl shadow-lg active:scale-95 transition-transform flex flex-col items-center justify-center gap-2"
+                    >
+                        <span>{count}</span>
+                        <span className="text-xs opacity-70 font-normal">اضغط للتسبيح / الهدف: {azkarData[category][currentZikrIndex].count}</span>
+                    </button>
                 </div>
             )}
         </div>
     );
 };
+
+// تصدير هام جداً (بدونه يختفي الزر)
+window.AzkarApp = AzkarApp;
