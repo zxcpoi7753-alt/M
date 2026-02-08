@@ -1,11 +1,11 @@
 /* =========================================
    محمل البيانات: js/data_loader.js
-   (الإصدار المستقر: يدعم quran.json و pagesquran.json)
+   (النسخة الكاملة: تدعم التفسير والصفحات)
    ========================================= */
 
 async function loadJSON(path) {
     try {
-        const response = await fetch(`${path}?v=${new Date().getTime()}`); // منع الكاش
+        const response = await fetch(`${path}?v=${new Date().getTime()}`);
         if (!response.ok) throw new Error("404");
         return await response.json();
     } catch (e) {
@@ -20,52 +20,53 @@ async function initAppData() {
     window.APP_DATA = window.APP_DATA || {};
     window.APP_DATA.isReady = false;
 
-    // تحميل الملفات (نفس الأسماء التي في مجلد data لديك)
-    const [quranRaw, azkarRaw, pagesRaw] = await Promise.all([
+    // 1. تحميل كل الملفات المطلوبة
+    const [quranRaw, azkarRaw, pagesRaw, tafseerRaw] = await Promise.all([
         loadJSON('data/quran.json'),
         loadJSON('data/azkar.json'),
-        loadJSON('data/pagesquran.json')
+        loadJSON('data/pagesquran.json'),
+        loadJSON('data/tafseer.json') // ملف التفسير الجديد
     ]);
 
-    // 1. معالجة القرآن
+    // 2. معالجة القرآن
     if (quranRaw) {
-        let quranArray = [];
-        // إذا كان الملف كائن (Object)، نحوله لمصفوفة
-        if (!Array.isArray(quranRaw) && typeof quranRaw === 'object') {
-             quranArray = Object.values(quranRaw);
-        } else {
-             quranArray = quranRaw;
-        }
-
-        window.quranData = quranArray; // للنظام الجديد
+        let quranArray = Array.isArray(quranRaw) ? quranRaw : Object.values(quranRaw);
         
-        // للنظام القديم (فهرسة برقم السورة)
-        window.APP_DATA.quran = {};
+        window.quranData = quranArray; // للنظام الجديد
+        window.APP_DATA.quran = {};    // للنظام القديم
+        
         quranArray.forEach(s => {
             if (s && s.number) window.APP_DATA.quran[s.number] = s;
         });
     } else {
-        // بيانات طوارئ فقط إذا فشل التحميل تماماً
-        console.warn("⚠️ تفعيل بيانات الطوارئ للمصحف");
+        // بيانات طوارئ
         const dummy = [{ number: 1, name: "الفاتحة", ayahs: [{ text: "بسم الله الرحمن الرحيم", number: 1 }] }];
         window.quranData = dummy;
         window.APP_DATA.quran = { 1: dummy[0] };
     }
 
-    // 2. معالجة الصفحات (لاختبر حفظك - سؤال الصفحة)
-    if (pagesRaw) {
-        window.APP_DATA.pages = pagesRaw;
+    // 3. معالجة التفسير (تحويله لفهرس سريع)
+    if (tafseerRaw) {
+        window.APP_DATA.tafseer = {};
+        // نتوقع أن التفسير مصفوفة كائنات: {sura: 1, aya: 1, text: "..."}
+        if (Array.isArray(tafseerRaw)) {
+            tafseerRaw.forEach(t => {
+                // المفتاح سيكون: رقم السورة_رقم الآية (مثال: 1_1)
+                const key = `${t.sura || t.surah}_${t.aya || t.ayah}`;
+                window.APP_DATA.tafseer[key] = t.text;
+            });
+        }
+        console.log("✅ تم تحميل التفسير");
     }
 
-    // 3. معالجة الأذكار
-    if (azkarRaw) {
-        window.APP_DATA.azkar = azkarRaw;
-    }
+    // 4. معالجة الصفحات والأذكار
+    if (pagesRaw) window.APP_DATA.pages = pagesRaw;
+    if (azkarRaw) window.APP_DATA.azkar = azkarRaw;
 
-    // إطلاق النظام
+    // 5. إطلاق النظام
     window.APP_DATA.isReady = true;
     window.dispatchEvent(new Event('data-ready'));
-    console.log("✅ البيانات جاهزة.");
+    console.log("✅ النظام جاهز بالكامل.");
 }
 
 initAppData();
