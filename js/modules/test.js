@@ -1,17 +1,15 @@
 /* =========================================
-   الوحدة: اختبار الحفظ (Test Hifz)
+   الوحدة: اختبار الحفظ (الإصلاح النهائي للنطاق)
    المسار: js/modules/test.js
    ========================================= */
 const { useState, useMemo } = React;
 
 const SURAH_NAMES = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
+// خريطة بداية الأجزاء (رقم السورة لكل جزء)
 const JUZ_START = [0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 17, 18, 21, 23, 25, 27, 29, 33, 36, 39, 41, 46, 51, 58, 67, 78];
 
 window.TestHifz = () => {
-    // التحقق من توفر البيانات في APP_DATA
-    if (!window.APP_DATA || !window.APP_DATA.quran) {
-        return <div className="text-center p-6 text-gray-500 font-bold animate-pulse">⏳ جاري تحميل بيانات الاختبار...</div>;
-    }
+    if (!window.APP_DATA || !window.APP_DATA.quran) return <div className="text-center p-6 text-gray-500 animate-pulse">⏳ جاري تحميل البيانات...</div>;
 
     const [scope, setScope] = useState('all');
     const [selJuz, setSelJuz] = useState(1);
@@ -21,7 +19,15 @@ window.TestHifz = () => {
     const [currQ, setCurrQ] = useState(null);
     const [showAns, setShowAns] = useState(false);
 
-    // استخدام النافذة الأنيقة بدلاً من alert
+    // قائمة السور للجزء المختار (للقائمة المنسدلة)
+    const surahsInSelectedJuz = useMemo(() => {
+        const start = JUZ_START[selJuz - 1] || 1;
+        const end = JUZ_START[selJuz] || 114;
+        // نولد مصفوفة سور الجزء للعرض
+        return SURAH_NAMES.map((n, i) => ({ id: i + 1, name: n }))
+            .filter(s => s.id >= start && s.id <= (end + 2)); // +2 لضمان شمول سور نهاية الجزء
+    }, [selJuz]);
+
     const notify = (title, msg) => {
         if (window.showGlobalAlert) window.showGlobalAlert(title, msg);
         else alert(msg);
@@ -29,31 +35,46 @@ window.TestHifz = () => {
 
     const generate = (isNext) => {
         let sId, sObj, aIdx;
-        
+
         if (isNext && currQ) {
             sId = currQ.sId; sObj = window.APP_DATA.quran[sId]; aIdx = currQ.aIdx + 1;
-            if (aIdx >= sObj.ayahs.length) return notify("انتهت السورة", "لقد وصلت لنهاية السورة.");
+            if (!sObj.ayahs[aIdx]) return notify("انتهت السورة", "أحسنت! انتهت السورة.");
         } else {
             let pool = [];
-            if (scope === 'all') pool = Object.keys(window.APP_DATA.quran);
-            else if (scope === 'custom') pool = customList;
-            else if (scope === 'juz') {
-                const start = JUZ_START[selJuz-1] || 0;
-                const end = JUZ_START[selJuz] || 114;
-                pool = Object.keys(window.APP_DATA.quran).filter(id => id > start && id <= end + 5);
-                if (selSurah !== 'all') pool = [selSurah];
+            const allIds = Object.keys(window.APP_DATA.quran);
+
+            if (scope === 'all') {
+                pool = allIds;
+            } else if (scope === 'custom') {
+                pool = customList;
+            } else if (scope === 'juz') {
+                // منطق الجزء المصحح
+                const startSurah = JUZ_START[selJuz - 1] || 1;
+                // بداية الجزء التالي هي نهاية هذا الجزء
+                const endSurah = JUZ_START[selJuz] || 115; 
+                
+                // فلترة دقيقة بالأرقام
+                pool = allIds.filter(id => {
+                    const num = parseInt(id);
+                    if (selSurah !== 'all') return num === parseInt(selSurah);
+                    return num >= startSurah && num < endSurah + 3; // هامش أمان
+                });
             }
 
-            if (pool.length === 0) return notify("تنبيه", "يرجى اختيار نطاق صحيح للسور.");
+            if (pool.length === 0) return notify("تنبيه", "يرجى اختيار نطاق صحيح أو سور محددة.");
+            
+            // اختيار عشوائي
             sId = pool[Math.floor(Math.random() * pool.length)];
             sObj = window.APP_DATA.quran[sId];
-            if (!sObj || !sObj.ayahs) return notify("خطأ", "بيانات السورة غير متوفرة.");
+            
+            if (!sObj || !sObj.ayahs) return notify("خطأ", "بيانات السورة غير متوفرة، اختر نطاقاً آخر.");
             aIdx = Math.floor(Math.random() * sObj.ayahs.length);
         }
 
         const ayah = sObj.ayahs[aIdx];
         let qText = ayah.text, prompt = "أكمل الآية:", ansText = ayah.text;
 
+        // أنواع الأسئلة
         if (qType === 'complete' && !isNext) {
             const words = ayah.text.split(" ");
             qText = words.slice(0, Math.min(5, Math.floor(words.length / 2))).join(" ") + " ...";
@@ -64,31 +85,43 @@ window.TestHifz = () => {
             prompt = "ما الآية السابقة؟";
             ansText = (aIdx > 0) ? sObj.ayahs[aIdx - 1].text : "بداية السورة";
         } else if (qType === 'ayahNum') {
-            prompt = "ما رقم هذه الآية؟";
-            ansText = ayah.numberInSurah || ayah.num || ayah.number;
+            prompt = "ما رقم الآية؟";
+            ansText = ayah.num || ayah.number; // دعم التسميتين
         } else if (qType === 'surahName') {
-            prompt = "في أي سورة تقع هذه الآية؟";
+            prompt = "ما اسم السورة؟";
             ansText = sObj.name;
         } else if (qType === 'page') {
             prompt = "ما رقم الصفحة؟";
             ansText = "غير متوفر";
             if (window.APP_DATA.pages) {
-                // منطق البحث عن الصفحة في الملف الجديد
-                const p = window.APP_DATA.pages.find(pg => 
-                    (pg.start.surah_number < sId || (pg.start.surah_number == sId && pg.start.verse <= (ayah.numberInSurah || ayah.number))) &&
-                    (pg.end.surah_number > sId || (pg.end.surah_number == sId && pg.end.verse >= (ayah.numberInSurah || ayah.number)))
-                );
+                const targetNum = ayah.num || ayah.number;
+                const p = window.APP_DATA.pages.find(pg => {
+                    const sNum = parseInt(sId);
+                    const pgStartS = parseInt(pg.start.surah_number);
+                    const pgEndS = parseInt(pg.end.surah_number);
+                    
+                    // منطق فحص الصفحة بدقة
+                    const afterStart = (sNum > pgStartS) || (sNum === pgStartS && targetNum >= pg.start.verse);
+                    const beforeEnd = (sNum < pgEndS) || (sNum === pgEndS && targetNum <= pg.end.verse);
+                    
+                    return afterStart && beforeEnd;
+                });
                 if (p) ansText = p.page;
             }
         }
 
-        setCurrQ({ sId, aIdx, qText, fullText: ayah.text, ansText, prompt, info: `${sObj.name} - آية ${ayah.numberInSurah || ayah.num || ayah.number}` });
+        setCurrQ({ 
+            sId, aIdx, qText, 
+            fullText: ayah.text, 
+            ansText, prompt, 
+            info: `${sObj.name} - آية ${ayah.num || ayah.number}` 
+        });
         setShowAns(false);
     };
 
     return (
         <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm animate-in">
-            <h3 className="text-center font-black text-indigo-900 mb-4">🧠 اختبر حفظك (الكلاسيكي)</h3>
+            <h3 className="text-center font-black text-indigo-900 mb-4">🧠 اختبر حفظك</h3>
             
             <div className="grid grid-cols-2 gap-2 mb-3">
                 <select className="p-2 border rounded-xl text-xs font-bold bg-gray-50" value={scope} onChange={e => setScope(e.target.value)}>
@@ -107,9 +140,13 @@ window.TestHifz = () => {
             </div>
 
             {scope === 'juz' && (
-                <div className="mb-3 animate-in">
-                    <select className="w-full p-2 border rounded-xl text-xs font-bold mb-2" value={selJuz} onChange={e => setSelJuz(e.target.value)}>
+                <div className="mb-3 animate-in space-y-2">
+                    <select className="w-full p-2 border rounded-xl text-xs font-bold" value={selJuz} onChange={e => setSelJuz(parseInt(e.target.value))}>
                         {[...Array(30)].map((_, i) => <option key={i} value={i+1}>الجزء {i+1}</option>)}
+                    </select>
+                    <select className="w-full p-2 border rounded-xl text-xs font-bold" value={selSurah} onChange={e => setSelSurah(e.target.value)}>
+                        <option value="all">كامل الجزء</option>
+                        {surahsInSelectedJuz.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                 </div>
             )}
@@ -126,7 +163,7 @@ window.TestHifz = () => {
             )}
 
             <button onClick={() => generate(false)} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black shadow-lg hover:bg-indigo-700 transition mb-4">
-                طرح سؤال جديد 🎲
+                سؤال جديد 🎲
             </button>
 
             {currQ && (
