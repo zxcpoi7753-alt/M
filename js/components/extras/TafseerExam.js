@@ -1,8 +1,8 @@
 /* =========================================
-   المكون: مسابقة التفسير (التحديث الذهبي: مؤقت لكل سؤال + اختيار الأجزاء)
+   المكون: مسابقة التفسير (الجزء الأول: المنطق)
    المسار: js/components/extras/TafseerExam.js
    ========================================= */
-const { useState, useEffect, useRef, useMemo } = React;
+const { useState, useEffect, useRef } = React;
 
 const TafseerExam = () => {
     // --- الحالة (State) ---
@@ -11,7 +11,7 @@ const TafseerExam = () => {
     
     // إعدادات اللعبة
     const [isBlitz, setIsBlitz] = useState(false); // تحدي السرعة
-    const [selectionType, setSelectionType] = useState(null); // 'surah' or 'juz'
+    const [selectionType, setSelectionType] = useState(null); 
     const [selectedItems, setSelectedItems] = useState([]);
     
     // بيانات اللعب
@@ -19,7 +19,7 @@ const TafseerExam = () => {
     const [currentQIndex, setCurrentQIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [feedback, setFeedback] = useState(null); // correct, wrong, timeout
-    const [timeLeft, setTimeLeft] = useState(20); // المؤقت
+    const [timeLeft, setTimeLeft] = useState(20); 
     const [mistakes, setMistakes] = useState([]);
     const [dbReady, setDbReady] = useState(false);
 
@@ -39,17 +39,15 @@ const TafseerExam = () => {
         return () => clearInterval(check);
     }, []);
 
-    // --- إدارة المؤقت (لكل سؤال) ---
+    // إدارة المؤقت (لكل سؤال)
     useEffect(() => {
         if (mode === 'playing' && isBlitz && !feedback) {
-            // إعادة ضبط الوقت عند كل سؤال جديد
             setTimeLeft(20); 
-            
             timerRef.current = setInterval(() => {
                 setTimeLeft((prev) => {
                     if (prev <= 1) {
                         clearInterval(timerRef.current);
-                        handleAnswer(null, true); // انتهى الوقت
+                        handleAnswer(null, true); 
                         return 0;
                     }
                     return prev - 1;
@@ -65,32 +63,49 @@ const TafseerExam = () => {
         setSelectedItems(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
     };
 
-    const startExam = () => {
-        if (selectedItems.length === 0 && selectionType !== 'full') return alert("الرجاء تحديد الاختيار");
-
+    // 🔥 دالة تشغيل المستويات (تمت إعادتها)
+    const startByLevel = (level) => {
+        const all = Object.values(window.APP_DATA.quran);
         let targetSurahs = [];
-        const allSurahs = Object.values(window.APP_DATA.quran);
 
-        if (selectionType === 'full') {
-            targetSurahs = allSurahs;
-        } else if (selectionType === 'surah') {
-            targetSurahs = allSurahs.filter(s => selectedItems.includes(s.number));
+        if (level === 'full') {
+            targetSurahs = all;
+        } else if (level === 'level1') { // 1-10
+            targetSurahs = all.filter(s => s.number >= 1 && s.number <= 9);
+        } else if (level === 'level2') { // 11-20
+            targetSurahs = all.filter(s => s.number >= 10 && s.number <= 29);
+        } else if (level === 'level3') { // 21-30
+            targetSurahs = all.filter(s => s.number >= 30 && s.number <= 114);
+        }
+
+        generateQuestions(targetSurahs);
+    };
+
+    // تشغيل مخصص (سور أو أجزاء)
+    const startCustom = () => {
+        const all = Object.values(window.APP_DATA.quran);
+        let targets = [];
+        
+        if (selectionType === 'surah') {
+            targets = all.filter(s => selectedItems.includes(s.number));
         } else if (selectionType === 'juz') {
             selectedItems.forEach(juz => {
                 const start = juzStartSurah[juz - 1];
                 const end = juzStartSurah[juz] || 115;
-                // إضافة هامش بسيط للتأكد من شمول السور
-                const inJuz = allSurahs.filter(s => s.number >= start && s.number < end + 2);
-                targetSurahs.push(...inJuz);
+                const inJuz = all.filter(s => s.number >= start && s.number < end + 2);
+                targets.push(...inJuz);
             });
+            targets = [...new Set(targets)];
         }
+        
+        generateQuestions(targets);
+    };
 
-        // إزالة التكرار
-        targetSurahs = [...new Set(targetSurahs)];
+    const generateQuestions = (targetSurahs) => {
+        if (!targetSurahs || targetSurahs.length === 0) return alert("البيانات غير متوفرة");
 
-        // توليد الأسئلة
         const newQuestions = [];
-        const totalQ = 10; // عدد الأسئلة في الاختبار
+        const totalQ = 10; 
 
         for (let i = 0; i < totalQ; i++) {
             const randSurah = targetSurahs[Math.floor(Math.random() * targetSurahs.length)];
@@ -102,7 +117,6 @@ const TafseerExam = () => {
 
             if (!correctTafseer) { i--; continue; }
 
-            // خيارات خاطئة
             let wrongOptions = [];
             let attempts = 0;
             while (wrongOptions.length < 2 && attempts < 50) {
@@ -124,7 +138,7 @@ const TafseerExam = () => {
             });
         }
 
-        if (newQuestions.length === 0) return alert("لا توجد بيانات كافية لهذا النطاق");
+        if (newQuestions.length === 0) return alert("نطاق البحث صغير جداً، اختر سوراً أكثر");
 
         setQuestions(newQuestions);
         setScore(0);
@@ -136,7 +150,7 @@ const TafseerExam = () => {
 
     const handleAnswer = (option, isTimeout = false) => {
         if (feedback) return;
-        clearInterval(timerRef.current); // إيقاف المؤقت فوراً
+        clearInterval(timerRef.current); 
 
         const currentQ = questions[currentQIndex];
         const isCorrect = option === currentQ.correct;
@@ -144,30 +158,27 @@ const TafseerExam = () => {
         if (isTimeout) setFeedback('timeout');
         else setFeedback(isCorrect ? 'correct' : 'wrong');
         
-        if (isCorrect) {
-            setScore(s => s + 1);
-        } else {
-            // تسجيل الخطأ
+        if (isCorrect) setScore(s => s + 1);
+        else {
             setMistakes(prev => [...prev, {
                 q: currentQ.ayahText,
                 surah: currentQ.surah,
-                wrong: isTimeout ? "انتهى الوقت ⏳" : option,
+                wrong: isTimeout ? "انتهى الوقت" : option,
                 right: currentQ.correct
             }]);
         }
 
-        // الانتقال للسؤال التالي
         setTimeout(() => {
             setFeedback(null);
-            if (currentQIndex < questions.length - 1) {
-                setCurrentQIndex(prev => prev + 1);
-            } else {
-                setMode('result');
-            }
-        }, 2000); // وقت لقراءة الإجابة الصحيحة
+            if (currentQIndex < questions.length - 1) setCurrentQIndex(prev => prev + 1);
+            else setMode('result');
+        }, 2000); 
     };
+/* =========================================
+   المكون: مسابقة التفسير (الجزء الثاني: الواجهة)
+   تابع للملف السابق...
+   ========================================= */
 
-    // --- الواجهة ---
     return (
         <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden mb-6 animate-in">
             {/* الرأس */}
@@ -190,9 +201,9 @@ const TafseerExam = () => {
                         <div className="text-center py-10 text-gray-400 animate-pulse">⏳ نجهز لك المعاني...</div>
                     ) : (
                         <>
-                            {/* 1. القائمة الرئيسية (الخيارات الثلاثة المطلوبة) */}
+                            {/* 1. القائمة الرئيسية (بجميع الخيارات المطلوبة) */}
                             {mode === 'menu' && (
-                                <div className="space-y-4 my-auto animate-in">
+                                <div className="space-y-3 my-auto animate-in">
                                     
                                     {/* زر تفعيل تحدي السرعة */}
                                     <div onClick={() => setIsBlitz(!isBlitz)} className={`p-3 rounded-xl border-2 flex justify-between items-center cursor-pointer transition ${isBlitz ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
@@ -209,41 +220,58 @@ const TafseerExam = () => {
                                         <h3 className="font-black text-gray-800 text-sm">حدد نطاق الاختبار:</h3>
                                     </div>
 
-                                    {/* الخيار 1: المصحف كامل */}
-                                    <button onClick={() => { setSelectionType('full'); setSelectedItems(['all']); setTimeout(startExam, 100); }} 
-                                        className="w-full bg-white border-l-4 border-amber-500 p-4 rounded-xl shadow-sm hover:bg-amber-50 transition text-right group">
+                                    {/* الخيارات الأساسية (المستويات) */}
+                                    <button onClick={() => startByLevel('full')} className="w-full bg-white border-l-4 border-amber-500 p-3 rounded-xl shadow-sm hover:bg-amber-50 transition text-right group">
                                         <div className="flex justify-between items-center">
                                             <div>
                                                 <div className="font-black text-amber-900 text-sm">🕌 المصحف كاملاً</div>
-                                                <div className="text-[10px] text-gray-500">أسئلة عشوائية من كل القرآن</div>
+                                                <div className="text-[10px] text-gray-500">أسئلة عشوائية من الفاتحة للناس</div>
                                             </div>
-                                            <span className="group-hover:-translate-x-2 transition">⬅️</span>
+                                            <span className="group-hover:-translate-x-2 transition opacity-50">⬅️</span>
                                         </div>
                                     </button>
 
-                                    {/* الخيار 2: جزء معين */}
-                                    <button onClick={() => { setSelectionType('juz'); setMode('selection'); setSelectedItems([]); }} 
-                                        className="w-full bg-white border-l-4 border-teal-500 p-4 rounded-xl shadow-sm hover:bg-teal-50 transition text-right group">
+                                    <button onClick={() => startByLevel('level1')} className="w-full bg-white border-l-4 border-green-500 p-3 rounded-xl shadow-sm hover:bg-green-50 transition text-right group">
                                         <div className="flex justify-between items-center">
                                             <div>
-                                                <div className="font-black text-teal-900 text-sm">📚 جزء معين</div>
-                                                <div className="text-[10px] text-gray-500">اختر جزءاً واحداً أو أكثر</div>
+                                                <div className="font-black text-green-900 text-sm">📗 الثلث الأول (1-10 أجزاء)</div>
+                                                <div className="text-[10px] text-gray-500">من الفاتحة إلى التوبة</div>
                                             </div>
-                                            <span className="group-hover:-translate-x-2 transition">⬅️</span>
+                                            <span className="group-hover:-translate-x-2 transition opacity-50">⬅️</span>
                                         </div>
                                     </button>
 
-                                    {/* الخيار 3: سورة معينة */}
-                                    <button onClick={() => { setSelectionType('surah'); setMode('selection'); setSelectedItems([]); }} 
-                                        className="w-full bg-white border-l-4 border-indigo-500 p-4 rounded-xl shadow-sm hover:bg-indigo-50 transition text-right group">
+                                    <button onClick={() => startByLevel('level2')} className="w-full bg-white border-l-4 border-orange-500 p-3 rounded-xl shadow-sm hover:bg-orange-50 transition text-right group">
                                         <div className="flex justify-between items-center">
                                             <div>
-                                                <div className="font-black text-indigo-900 text-sm">📖 سورة معينة</div>
-                                                <div className="text-[10px] text-gray-500">اختر سورة محددة للمراجعة</div>
+                                                <div className="font-black text-orange-900 text-sm">📙 الثلث الثاني (11-20 جزء)</div>
+                                                <div className="text-[10px] text-gray-500">من يونس إلى العنكبوت</div>
                                             </div>
-                                            <span className="group-hover:-translate-x-2 transition">⬅️</span>
+                                            <span className="group-hover:-translate-x-2 transition opacity-50">⬅️</span>
                                         </div>
                                     </button>
+
+                                    <button onClick={() => startByLevel('level3')} className="w-full bg-white border-l-4 border-blue-500 p-3 rounded-xl shadow-sm hover:bg-blue-50 transition text-right group">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <div className="font-black text-blue-900 text-sm">📘 الثلث الأخير (21-30 جزء)</div>
+                                                <div className="text-[10px] text-gray-500">من الروم إلى الناس</div>
+                                            </div>
+                                            <span className="group-hover:-translate-x-2 transition opacity-50">⬅️</span>
+                                        </div>
+                                    </button>
+
+                                    {/* خيارات التخصيص */}
+                                    <div className="grid grid-cols-2 gap-2 mt-2">
+                                        <button onClick={() => { setSelectionType('juz'); setMode('selection'); setSelectedItems([]); }} 
+                                            className="bg-gray-100 p-3 rounded-xl font-bold text-xs text-gray-600 hover:bg-teal-100 hover:text-teal-800 transition">
+                                            📚 جزء معين
+                                        </button>
+                                        <button onClick={() => { setSelectionType('surah'); setMode('selection'); setSelectedItems([]); }} 
+                                            className="bg-gray-100 p-3 rounded-xl font-bold text-xs text-gray-600 hover:bg-indigo-100 hover:text-indigo-800 transition">
+                                            📖 سورة معينة
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
@@ -275,7 +303,7 @@ const TafseerExam = () => {
                                         )}
                                     </div>
                                     
-                                    <button onClick={startExam} disabled={selectedItems.length === 0} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black shadow-lg disabled:opacity-50 hover:bg-emerald-700 transition">
+                                    <button onClick={startCustom} disabled={selectedItems.length === 0} className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black shadow-lg disabled:opacity-50 hover:bg-emerald-700 transition">
                                         ابدأ التحدي ({selectedItems.length}) 🚀
                                     </button>
                                 </div>
@@ -289,7 +317,7 @@ const TafseerExam = () => {
                                         <div className="flex items-center gap-2">
                                             <span>النقاط: {score}</span>
                                             {isBlitz && (
-                                                <span className={`px-2 py-1 rounded text-white font-mono shadow-sm ${timeLeft < 5 ? 'bg-red-600 animate-bounce' : timeLeft < 10 ? 'bg-orange-500' : 'bg-emerald-500'}`}>
+                                                <span className={`px-2 py-1 rounded text-white font-mono shadow-sm transition-colors duration-300 ${timeLeft < 5 ? 'bg-red-600 animate-bounce' : timeLeft < 10 ? 'bg-orange-500' : 'bg-emerald-500'}`}>
                                                     ⏱️ {timeLeft}s
                                                 </span>
                                             )}
