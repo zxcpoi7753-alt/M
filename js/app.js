@@ -33,28 +33,27 @@ const ExtrasSection = ({ dataReady, activeFeature, toggleFeature }) => {
         <div className="space-y-4 max-w-lg mx-auto animate-in">
             <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
             
-            {/* 1. منبه الأوقات الفاضلة (يظهر دائماً) */}
+            {/* يظهر دائماً */}
             {window.VirtuousTimesWidget && <window.VirtuousTimesWidget />}
             
-            {/* 2. الورد اليومي (يحتاج بيانات المصحف) */}
-            {dataReady && window.DailyWird && <window.DailyWird />}
+            {/* يظهر دائماً (والتعليق يتم داخله) */}
+            {window.DailyWird && <window.DailyWird />}
 
-            {/* 3. العداد الجماعي (يظهر دائماً لأنه متصل بفايربيس) */}
+            {/* يظهر دائماً */}
             {window.GlobalKhatmaCounter && <window.GlobalKhatmaCounter />}
 
-            {/* 4. صيدلية القلوب (زر قابل للفتح) */}
             <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
             {activeFeature === 'feeling' && <window.FeelingsPharmacy />}
             
-            {/* 5. المحاكي القرآني (يحتاج بيانات المصحف) */}
-            {dataReady && window.QuranExam && <window.QuranExam />}
+            {/* المحاكي القرآني: أزلنا شرط dataReady من هنا ليظهر الزر دائماً */}
+            {window.QuranExam && <window.QuranExam />}
 
-            {/* 6. صانع البطاقات (زر قابل للفتح) */}
             <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
             {activeFeature === 'card' && <window.CardMaker />}
         </div>
     );
 };
+
 // --------------------------------------------------------------------------
 // [نهاية الدالة رقم 1]
 // --------------------------------------------------------------------------
