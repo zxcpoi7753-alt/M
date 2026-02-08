@@ -1,69 +1,58 @@
 /* =========================================
    محمل البيانات: js/data_loader.js
-   (النسخة المنيعة: تجبر الموقع على الفتح حتى لو الملفات مفقودة)
+   (نظام الطوارئ: يجبر الموقع على الفتح دائماً)
    ========================================= */
 
 async function loadJSON(path) {
     try {
-        console.log(`📡 محاولة تحميل: ${path}`);
         const response = await fetch(path);
-        if (!response.ok) throw new Error(`خطأ 404: الملف غير موجود`);
-        const data = await response.json();
-        console.log(`✅ تم تحميل ${path} بنجاح`);
-        return data;
+        if (!response.ok) throw new Error("404");
+        return await response.json();
     } catch (e) {
-        console.error(`❌ فشل تحميل ${path}:`, e);
+        console.warn(`⚠️ فشل تحميل ${path}`);
         return null;
     }
 }
 
 async function initAppData() {
-    console.log("⏳ بدء تشغيل النظام...");
-
-    // تهيئة الحاويات
-    window.APP_DATA = window.APP_DATA || {}; 
+    console.log("🚀 بدء تشغيل النظام...");
+    
+    // تهيئة المتغيرات العالمية
+    window.APP_DATA = window.APP_DATA || {};
     window.APP_DATA.isReady = false;
 
     // محاولة تحميل الملفات
-    const [quranArray, azkarArray] = await Promise.all([
+    const [quran, azkar] = await Promise.all([
         loadJSON('data/quran.json'),
         loadJSON('data/azkar.json')
     ]);
 
-    // --- معالجة القرآن ---
-    if (quranArray) {
-        window.quranData = quranArray; // للنظام الجديد
-        window.APP_DATA.quran = {};    // للنظام القديم
-        quranArray.forEach(s => window.APP_DATA.quran[s.number] = s);
+    // 1. معالجة القرآن (للجهتين)
+    if (quran) {
+        window.quranData = quran; // للمحاكي والورد
+        window.APP_DATA.quran = {}; // لاختبر حفظك
+        quran.forEach(s => window.APP_DATA.quran[s.number] = s);
     } else {
-        console.warn("⚠️ تم تفعيل بيانات طوارئ القرآن (الملف غير موجود أو تالف)");
-        // بيانات وهمية لكي يظهر المحاكي ولا يختفي
-        const dummyQuran = [
-            { number: 1, name: "الفاتحة (تجريبي)", ayahs: [{ text: "بسم الله الرحمن الرحيم" }, { text: "الحمد لله رب العالمين" }] },
-            { number: 112, name: "الإخلاص (تجريبي)", ayahs: [{ text: "قل هو الله أحد" }] }
-        ];
-        window.quranData = dummyQuran;
-        window.APP_DATA.quran = { 1: dummyQuran[0], 112: dummyQuran[1] };
+        console.error("❌ لم يتم العثور على ملف القرآن، تفعيل وضع الطوارئ.");
+        // بيانات طوارئ ليعمل المحاكي
+        const dummy = [{ number: 1, name: "الفاتحة (طوارئ)", ayahs: [{ text: "بسم الله الرحمن الرحيم" }] }];
+        window.quranData = dummy;
+        window.APP_DATA.quran = { 1: dummy[0] };
     }
 
-    // --- معالجة الأذكار ---
-    if (azkarArray) {
-        window.APP_DATA.azkar = azkarArray;
-        window.azkarData = azkarArray;
+    // 2. معالجة الأذكار
+    if (azkar) {
+        window.APP_DATA.azkar = azkar;
+        window.azkarData = azkar;
     } else {
-        console.warn("⚠️ تم تفعيل بيانات طوارئ الأذكار");
-        const dummyAzkar = [
-            { category: "أذكار الصباح", zekr: "سبحان الله (بيانات تجريبية)", count: 3 },
-            { category: "أذكار المساء", zekr: "الحمد لله (بيانات تجريبية)", count: 3 }
-        ];
-        window.APP_DATA.azkar = dummyAzkar;
-        window.azkarData = dummyAzkar;
+        window.APP_DATA.azkar = [{ category: "تنبيه", zekr: "تأكد من ملف data/azkar.json", count: 1 }];
+        window.azkarData = window.APP_DATA.azkar;
     }
 
-    // --- إجبار الموقع على الفتح ---
+    // 3. إطلاق الإشارة
     window.APP_DATA.isReady = true;
     window.dispatchEvent(new Event('data-ready'));
-    console.log("🚀 تم إطلاق الموقع (سواء ببيانات حقيقية أو طوارئ)");
+    console.log("✅ النظام جاهز.");
 }
 
 initAppData();
