@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (نسخة الطوارئ: تمنع الشاشة البيضاء وتكشف مكان الخطأ)
+   (شامل: صائد الأخطاء + مسابقة التفسير)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -42,7 +42,8 @@ const QuranReader = safeImport('QuranReader');
 const AzkarApp = safeImport('AzkarApp');
 const DailyWird = safeImport('DailyWird');
 const QuranExam = safeImport('QuranExam');
-const VirtuousTimesWidget = safeImport('VirtuousTimesWidget'); // المنبه
+const TafseerExam = safeImport('TafseerExam'); // 🔥 إضافة مسابقة التفسير
+const VirtuousTimesWidget = safeImport('VirtuousTimesWidget');
 const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
 const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
@@ -69,10 +70,8 @@ const App = () => {
 
         const handleDataReady = () => setDataReady(true);
         window.addEventListener('data-ready', handleDataReady);
-        // فحص فوري
         if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
 
-        // Firebase
         if (window.db && window.onSnapshot) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                 if (doc.exists()) {
@@ -132,19 +131,31 @@ const App = () => {
                     </div>
                 )}
 
+                {/* --- قسم واحة الزوار --- */}
                 {page === 'extras' && (
                     <div className="space-y-4 max-w-lg mx-auto animate-in">
                         <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
                         
+                        {/* 1. منبه الأوقات الفاضلة */}
                         <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>
+                        
+                        {/* 2. الورد اليومي */}
                         <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>
+                        
+                        {/* 3. العداد الجماعي */}
                         <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>
 
+                        {/* 4. صيدلية القلوب */}
                         <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary>
                         
+                        {/* 5. المحاكي القرآني */}
                         <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>
 
+                        {/* 6. 🔥 مسابقة التفسير (جديد) */}
+                        <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>
+
+                        {/* 7. صانع البطاقات */}
                         <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary>
                     </div>
