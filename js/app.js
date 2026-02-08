@@ -1,24 +1,22 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (تم تنظيمه وفصل واحة الزوار في دالة مستقلة)
+   (النسخة النهائية المرتبة)
    ========================================= */
 
 const { useState, useEffect } = React;
 
-// استيراد المكونات الآمنة
+// استيراد آمن للمكونات
 const safeImport = (name) => window[name] || (() => null);
 
-// المكونات الفرعية
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
 const QuranReader = safeImport('QuranReader');
 const AzkarApp = safeImport('AzkarApp');
-const CustomModal = window.CustomModal; 
 const DailyWird = safeImport('DailyWird');
 const QuranExam = safeImport('QuranExam');
+const CustomModal = window.CustomModal; // يجب أن يكون موجوداً
 
-// مكونات الصفحات
 const HomeSection = safeImport('HomeSection');
 const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
@@ -26,66 +24,54 @@ const AboutSection = safeImport('AboutSection');
 
 // --------------------------------------------------------------------------
 // (1) دالة قسم واحة الزوار (Extras Section)
-// [بداية الدالة رقم 1] - لتسهيل التعديل المستقبلي
 // --------------------------------------------------------------------------
 const ExtrasSection = ({ dataReady, activeFeature, toggleFeature }) => {
     return (
         <div className="space-y-4 max-w-lg mx-auto animate-in">
             <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
             
-            {/* يظهر دائماً */}
+            {/* 1. منبه الأوقات */}
             {window.VirtuousTimesWidget && <window.VirtuousTimesWidget />}
             
-            {/* يظهر دائماً (والتعليق يتم داخله) */}
+            {/* 2. الورد اليومي (يظهر دائماً والتحميل داخله) */}
             {window.DailyWird && <window.DailyWird />}
 
-            {/* يظهر دائماً */}
+            {/* 3. العداد الجماعي */}
             {window.GlobalKhatmaCounter && <window.GlobalKhatmaCounter />}
 
+            {/* 4. صيدلية القلوب */}
             <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
             {activeFeature === 'feeling' && <window.FeelingsPharmacy />}
             
-            {/* المحاكي القرآني: أزلنا شرط dataReady من هنا ليظهر الزر دائماً */}
+            {/* 5. المحاكي القرآني (يظهر دائماً) */}
             {window.QuranExam && <window.QuranExam />}
 
+            {/* 6. صانع البطاقات */}
             <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
             {activeFeature === 'card' && <window.CardMaker />}
         </div>
     );
 };
 
-// --------------------------------------------------------------------------
-// [نهاية الدالة رقم 1]
-// --------------------------------------------------------------------------
-
-
 const App = () => {
-    // --- الحالة (State) ---
     const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [] });
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
     const [dataReady, setDataReady] = useState(false);
-    
-    // بيانات الطالب
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
-    
-    // النافذة المنبثقة
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
-    // --- التأثيرات (Effects) ---
     useEffect(() => {
-        // تفعيل النافذة الأنيقة بدلاً من alert
-        window.alert = (message) => setModal({ show: true, title: 'تنبيه', msg: message });
+        // تفعيل النافذة الأنيقة
+        window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
-        // الاستماع لجاهزية البيانات
         const handleDataReady = () => setDataReady(true);
         window.addEventListener('data-ready', handleDataReady);
         if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
 
-        // جلب الإعدادات من Firebase
-        if (window.db && window.onSnapshot && window.doc) {
+        if (window.db && window.onSnapshot) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                 if (doc.exists()) {
                     setConfig(prev => ({...prev, ...doc.data()}));
@@ -93,20 +79,18 @@ const App = () => {
                 }
             });
         }
-        return () => window.removeEventListener('data-ready', handleDataReady);
     }, []);
 
-    // نظام الإشعارات
+    // الإشعارات
     useEffect(() => {
         if (!window.db) return;
         const unsub = window.onSnapshot(window.doc(window.db, "appData", "notifications"), (doc) => {
             if (doc.exists()) {
                 const data = doc.data();
-                const lastMsgId = localStorage.getItem('last_notification_id');
-                if (data.id && data.id !== lastMsgId && data.active) {
+                const lastId = localStorage.getItem('last_notif');
+                if (data.id && data.id !== lastId && data.active) {
                     if(window.showGlobalAlert) window.showGlobalAlert(data.title, data.body);
-                    if (Notification.permission === 'granted') new Notification(data.title, { body: data.body, icon: 'icon-192.png' });
-                    localStorage.setItem('last_notification_id', data.id);
+                    localStorage.setItem('last_notif', data.id);
                 }
             }
         });
@@ -117,14 +101,8 @@ const App = () => {
 
     return (
         <div id="app-container">
-            {/* النافذة العامة */}
-            {window.CustomModal && (
-                <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}>
-                    <p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p>
-                </CustomModal>
-            )}
+            {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
 
-            {/* الهيدر */}
             <header>
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
@@ -136,31 +114,24 @@ const App = () => {
                 </div>
             </header>
 
-            {/* القائمة العلوية */}
             <nav className="no-scrollbar">
                 {['home','student_corner','extras','teachers','students','schedules','about','card'].map(t => (
                     <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
-                        {{
-                            home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار',
-                            teachers:'المعلمون', students:'الأوائل', schedules:'الجداول',
-                            about:'من نحن', card:'بطاقتي'
-                        }[t]}
+                        {{home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار', teachers:'المعلمون', students:'الأوائل', schedules:'الجداول', about:'من نحن', card:'بطاقتي'}[t]}
                     </button>
                 ))}
             </nav>
 
             <main className="p-4 pb-24 animate-in">
-                {/* 1. الرئيسية */}
                 {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
-
-                {/* 2. ركن الطالب */}
+                
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
                         <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>{activeFeature === 'effort' && <CalcEffort />}
                         <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>{activeFeature === 'time' && <CalcTime />}
                         
                         <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك (قديم)</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
-                        {activeFeature === 'test' && (dataReady ? <TestHifz /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل بيانات الاختبار...</div>)}
+                        {activeFeature === 'test' && (dataReady ? <TestHifz /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل الاختبار...</div>)}
                         
                         <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
                         {activeFeature === 'quran' && (dataReady ? <QuranReader /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل المصحف...</div>)}
@@ -170,22 +141,10 @@ const App = () => {
                     </div>
                 )}
 
-                {/* 3. واحة الزوار (استخدام الدالة المنفصلة هنا) ✅ */}
-                {page === 'extras' && (
-                    <ExtrasSection 
-                        dataReady={dataReady} 
-                        activeFeature={activeFeature} 
-                        toggleFeature={toggleFeature} 
-                    />
-                )}
+                {page === 'extras' && <ExtrasSection dataReady={dataReady} activeFeature={activeFeature} toggleFeature={toggleFeature} />}
 
-                {/* 4. المعلمون */}
                 {page === 'teachers' && <TeachersSection teachers={config.teachers} />}
-
-                {/* 5. الجداول */}
                 {page === 'schedules' && <SchedulesSection schedules={config.schedules} />}
-
-                {/* 6. الأوائل */}
                 {page === 'students' && (
                      <div className="space-y-6">
                         {config.halaqat.filter(h => !h.hidden).map(h => (
@@ -196,18 +155,14 @@ const App = () => {
                         ))}
                     </div>
                 )}
-
-                {/* 7. من نحن */}
                 {page === 'about' && <AboutSection texts={config.texts} />}
-
-                {/* 8. بطاقتي */}
                 {page === 'card' && (
                     <div className="max-w-md mx-auto space-y-6 animate-in">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center border-4 border-emerald-50">
                             <h2 className="text-2xl font-black mb-6">بيانات الطالب</h2>
                             <input value={studentName} onChange={e => {setStudentName(e.target.value); localStorage.setItem('st_name', e.target.value)}} className="w-full p-4 bg-gray-50 border rounded-2xl mb-3 text-center font-bold" placeholder="الاسم الثلاثي" />
                             <input value={halaqaName} onChange={e => {setHalaqaName(e.target.value); localStorage.setItem('st_halaqa', e.target.value)}} className="w-full p-4 bg-gray-50 border rounded-2xl mb-6 text-center font-bold" placeholder="اسم الحلقة" />
-                            <button onClick={() => { setPage('home'); window.alert('تم حفظ البيانات بنجاح ✅'); }} className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-emerald-700 transition">حفظ وتفعيل</button>
+                            <button onClick={() => { setPage('home'); window.showGlobalAlert('نجاح', 'تم حفظ البيانات بنجاح ✅'); }} className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-emerald-700 transition">حفظ وتفعيل</button>
                         </div>
                     </div>
                 )}
