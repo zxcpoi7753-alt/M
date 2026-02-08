@@ -1,5 +1,5 @@
 /* =========================================
-   المكون: منبه الأوقات الفاضلة وأوقات الصلاة
+   المكون: منبه الأوقات الفاضلة (النسخة الذكية الهجينة)
    المسار: js/components/extras/VirtuousTimes.js
    ========================================= */
 const { useState, useEffect } = React;
@@ -7,184 +7,214 @@ const { useState, useEffect } = React;
 const VirtuousTimesWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [locationData, setLocationData] = useState(null); 
-    const [activeTab, setActiveTab] = useState(null);
+    const [timings, setTimings] = useState(null); // مواقيت الصلاة
+    const [hijriDate, setHijriDate] = useState(null);
     const [now, setNow] = useState(new Date());
-    const [manualCity, setManualCity] = useState("");
+    const [selectedCity, setSelectedCity] = useState("auto");
 
+    // 1. قائمة المدن (إحداثيات تقريبية)
+    const CITIES = [
+        { id: "auto", name: "📍 تحديد موقعي تلقائياً", lat: null, lng: null },
+        { id: "mekkah", name: "🇸🇦 مكة المكرمة", lat: 21.389, lng: 39.857 },
+        { id: "madina", name: "🇸🇦 المدينة المنورة", lat: 24.524, lng: 39.569 },
+        { id: "hadramout", name: "🇾🇪 حضرموت (الغيل)", lat: 14.776, lng: 49.365 },
+        { id: "sanaa", name: "🇾🇪 صنعاء", lat: 15.369, lng: 44.191 },
+        { id: "cairo", name: "🇪🇬 القاهرة", lat: 30.044, lng: 31.235 },
+        { id: "quds", name: "🇵🇸 القدس الشريف", lat: 31.768, lng: 35.213 },
+        { id: "baghdad", name: "🇮🇶 بغداد", lat: 33.315, lng: 44.366 },
+    ];
+
+    // 2. تواريخ المواسم السنوية (ثابتة لضمان دقة العداد التنازلي)
+    const YEARLY_TARGETS = [
+        { id: 'ramadan', title: '🌙 رمضان المبارك', date: "2026-02-18T00:00:00", desc: 'شهر القرآن' },
+        { id: 'eid_fitr', title: '🎉 عيد الفطر', date: "2026-03-20T00:00:00", desc: 'فرحة الصائم' },
+        { id: 'arafa', title: '🕋 يوم عرفة', date: "2026-05-27T00:00:00", desc: 'يكفر سنتين' }, // تقديري
+        { id: 'eid_adha', title: '🐑 عيد الأضحى', date: "2026-05-28T00:00:00", desc: 'يوم النحر' }   // تقديري
+    ];
+
+    // تحديث الوقت كل ثانية
     useEffect(() => {
         const timer = setInterval(() => setNow(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
 
-    const presetLocations = [
-        { label: "📍 تحديد موقعي تلقائياً", lat: null, lng: null, type: 'auto' },
-        { label: "🇾🇪 اليمن - حضرموت - غيل باوزير", lat: 14.776, lng: 49.365, type: 'manual' },
-        { label: "🇾🇪 اليمن - المكلا", lat: 14.542, lng: 49.124, type: 'manual' },
-        { label: "🇾🇪 اليمن - صنعاء", lat: 15.369, lng: 44.191, type: 'manual' },
-        { label: "🇸🇦 السعودية - مكة المكرمة", lat: 21.389, lng: 39.857, type: 'manual' },
-        { label: "🇸🇦 السعودية - المدينة المنورة", lat: 24.524, lng: 39.569, type: 'manual' },
-        { label: "🇪🇬 مصر - القاهرة", lat: 30.044, lng: 31.235, type: 'manual' },
-        { label: "🇵🇸 فلسطين - القدس", lat: 31.768, lng: 35.213, type: 'manual' },
-    ];
+    // جلب المواقيت عند فتح القائمة أو تغيير المدينة
+    useEffect(() => {
+        if (isOpen && !timings) fetchTimings(selectedCity);
+    }, [isOpen]);
 
-    const fetchPrayerTimes = async (lat, lng) => {
+    const fetchTimings = async (cityId) => {
         setLoading(true);
+        let lat, lng;
+
         try {
-            const dateStr = new Date().toISOString().split('T')[0];
-            const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=4&adjustment=1`;
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.code === 200) {
-                setLocationData(data.data);
-                if(window.showGlobalAlert) window.showGlobalAlert("تم التحديث", "تم جلب التوقيت بدقة للمنطقة المحددة ✅");
+            if (cityId === 'auto') {
+                if (!navigator.geolocation) throw new Error("الموقع غير مدعوم");
+                const pos = await new Promise((resolve, reject) => 
+                    navigator.geolocation.getCurrentPosition(resolve, reject)
+                );
+                lat = pos.coords.latitude;
+                lng = pos.coords.longitude;
+            } else {
+                const city = CITIES.find(c => c.id === cityId);
+                lat = city.lat;
+                lng = city.lng;
             }
-        } catch (error) {
-            console.error(error);
-            alert("فشل جلب البيانات، تأكد من الإنترنت");
+
+            // جلب البيانات من API موثوق
+            const dateStr = new Date().toISOString().split('T')[0];
+            const response = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=4`);
+            const data = await response.json();
+
+            if (data.code === 200) {
+                setTimings(data.data.timings);
+                setHijriDate(data.data.date.hijri);
+                if(window.showGlobalAlert) window.showGlobalAlert("تم التحديث", `تم جلب مواقيت الصلاة لـ ${cityId === 'auto' ? 'موقعك الحالي' : CITIES.find(c=>c.id===cityId).name}`);
+            }
+        } catch (e) {
+            console.error(e);
+            if(window.showGlobalAlert) window.showGlobalAlert("تنبيه", "تأكد من تفعيل الموقع أو الاتصال بالإنترنت");
         }
         setLoading(false);
     };
 
-    const handleLocationChange = (e) => {
-        const idx = e.target.selectedIndex;
-        if (idx === 0) return;
-        const item = presetLocations[idx - 1];
-        setManualCity(idx - 1);
+    // مكون العداد الرقمي الدقيق
+    const Countdown = ({ target }) => {
+        const tgtDate = new Date(target);
+        let diff = tgtDate - now;
 
-        if (item.type === 'auto') {
-            if (!navigator.geolocation) return alert("جهازك لا يدعم تحديد الموقع");
-            setLoading(true);
-            navigator.geolocation.getCurrentPosition(
-                (pos) => fetchPrayerTimes(pos.coords.latitude, pos.coords.longitude),
-                () => { setLoading(false); alert("تعذر تحديد الموقع، اختر يدوياً"); }
-            );
-        } else {
-            fetchPrayerTimes(item.lat, item.lng);
+        // إذا كان الهدف وقت صلاة مر اليوم، نضيف 24 ساعة (ليوم غد)
+        if (diff < -12 * 60 * 60 * 1000 && !target.includes('T')) { 
+             // منطق بسيط للصلوات اليومية
         }
-    };
-
-    const calculateEvents = () => {
-        if (!locationData) return {};
-        const timings = locationData.timings;
-        const hijri = locationData.date.hijri;
         
-        const getTodayTime = (timeStr) => {
-            const [h, m] = timeStr.split(':').map(Number);
-            const d = new Date(); d.setHours(h, m, 0, 0);
-            return d;
-        };
+        // إذا انتهى الوقت للمواسم
+        if (diff < 0 && target.includes('2026')) return <span className="text-red-500 font-bold">انقضى</span>;
 
-        const fajr = getTodayTime(timings.Fajr);
-        const sunrise = getTodayTime(timings.Sunrise);
-        const maghrib = getTodayTime(timings.Maghrib);
-        
-        const fajrTomorrow = new Date(fajr);
-        fajrTomorrow.setDate(fajrTomorrow.getDate() + 1);
-        
-        const nightDurationMs = fajrTomorrow - maghrib;
-        const halfNightTime = new Date(maghrib.getTime() + (nightDurationMs / 2));
-        const lastThirdTime = new Date(maghrib.getTime() + (nightDurationMs * 2 / 3));
-        const duhaTime = new Date(sunrise.getTime() + 15 * 60000);
-        const fridayHourStart = new Date(maghrib.getTime() - 60 * 60000);
-
-        return {
-            daily: [
-                { id: 'duha', title: '🌤️ صلاة الضحى', target: duhaTime, desc: 'صلاة الأوابين (بعد الشروق بـ 15د)' },
-                { id: 'midnight', title: '🌚 منتصف الليل', target: halfNightTime, desc: 'نهاية وقت العشاء شرعاً' },
-                { id: 'lastThird', title: '🌌 الثلث الأخير', target: lastThirdTime, desc: 'وقت النزول الإلهي' }
-            ],
-            weekly: [
-                { id: 'friday', title: '🕌 ساعة الاستجابة', target: fridayHourStart, dayObj: 5, desc: 'آخر ساعة من عصر الجمعة', isWeekly: true },
-                { id: 'fasting', title: '📅 صيام الاثنين/الخميس', dayObj: [1, 4], desc: 'تعرض الأعمال على الله', isWeekly: true }
-            ],
-            monthly: [
-                { id: 'whiteDays', title: `🌕 الأيام البيض (${hijri.month.ar})`, days: [13, 14, 15], currentHDay: parseInt(hijri.day), desc: 'وصية النبي ﷺ: صيام ثلاثة أيام' }
-            ],
-            yearly: [
-                { id: 'ramadan', title: '🌙 رمضان المبارك', hMonth: 9, hDay: 1, currentHMonth: parseInt(hijri.month.number), desc: 'شهر القرآن' },
-                { id: 'arafa', title: '🕋 يوم عرفة', hMonth: 12, hDay: 9, currentHMonth: parseInt(hijri.month.number), desc: 'يكفر سنتين' },
-                { id: 'eidFitr', title: '🎉 عيد الفطر', hMonth: 10, hDay: 1, currentHMonth: parseInt(hijri.month.number), desc: 'فرحة الصائم' },
-                { id: 'eidAdha', title: '🐑 عيد الأضحى', hMonth: 12, hDay: 10, currentHMonth: parseInt(hijri.month.number), desc: 'يوم النحر' }
-            ]
-        };
-    };
-
-    const events = calculateEvents();
-
-    const CountdownTimer = ({ targetDate }) => {
-        if (!targetDate) return <span>--</span>;
-        let diff = targetDate - now;
-        if (diff < 0) diff += 24 * 60 * 60 * 1000; 
+        // حساب الوحدات
         const d = Math.floor(diff / (1000 * 60 * 60 * 24));
         const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         const m = Math.floor((diff / 1000 / 60) % 60);
         const s = Math.floor((diff / 1000) % 60);
+
         return (
-            <div className="flex gap-2 justify-center items-center text-xs font-bold text-emerald-800" dir="ltr">
-                <div className="bg-gray-100 px-2 py-1 rounded"><span>{s}</span><span className="text-[8px] block text-gray-400">ثانية</span></div>:
-                <div className="bg-gray-100 px-2 py-1 rounded"><span>{m}</span><span className="text-[8px] block text-gray-400">دقيقة</span></div>:
-                <div className="bg-gray-100 px-2 py-1 rounded"><span>{h}</span><span className="text-[8px] block text-gray-400">ساعة</span></div>
-                {d > 0 && <div className="bg-emerald-100 px-2 py-1 rounded text-emerald-800"><span>{d}</span><span className="text-[8px] block text-emerald-600">يوم</span></div>}
+            <div className="flex gap-1 justify-end text-[10px] font-bold font-mono text-emerald-700" dir="ltr">
+                <span className="bg-emerald-50 px-1 rounded">{s}ث</span>:
+                <span className="bg-emerald-50 px-1 rounded">{m}د</span>:
+                <span className="bg-emerald-50 px-1 rounded">{h}س</span>
+                {d > 0 && <span className="bg-amber-100 text-amber-800 px-1 rounded border border-amber-200 ml-1">{d} يوم</span>}
             </div>
         );
     };
 
-    const SeasonCounter = ({ hMonth, hDay, currentHMonth, currentHDay }) => {
-        let monthsDiff = hMonth - currentHMonth;
-        if (monthsDiff < 0) monthsDiff += 12;
-        const totalDaysLeft = (monthsDiff * 29.5); 
-        return (
-            <div className="text-center">
-                {monthsDiff === 0 && currentHDay === hDay ? 
-                    <span className="text-green-600 font-black animate-pulse">نحن في اليوم! 🎉</span> :
-                    <span className="font-bold text-amber-600">باقي {Math.floor(totalDaysLeft)} يوم تقريباً</span>
-                }
-            </div>
-        );
+    // حساب أوقات الليل والضحى
+    const getDailyTimes = () => {
+        if (!timings) return [];
+        
+        const todayStr = new Date().toISOString().split('T')[0];
+        const getTime = (t) => new Date(`${todayStr}T${t}`);
+
+        const fajr = getTime(timings.Fajr);
+        const maghrib = getTime(timings.Maghrib);
+        const sunrise = getTime(timings.Sunrise);
+        
+        // حساب الثلث الأخير (تقريبي)
+        const nightLen = 24 * 60 * 60 * 1000 - (maghrib - fajr); // مدة الليل
+        const lastThird = new Date(fajr.getTime() - (nightLen / 3));
+        
+        // الضحى
+        const duha = new Date(sunrise.getTime() + 15 * 60000);
+
+        return [
+            { name: "🕌 الضحى (الأوابين)", time: duha },
+            { name: "🌌 الثلث الأخير", time: lastThird }
+        ];
     };
 
     return (
-        <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden mb-6 animate-in">
-            <div onClick={() => setIsOpen(!isOpen)} className="p-5 flex justify-between items-center cursor-pointer bg-gradient-to-r from-emerald-50 to-white hover:bg-emerald-100 transition">
+        <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden mb-4 animate-in">
+            {/* الشريط العلوي */}
+            <div onClick={() => setIsOpen(!isOpen)} className="p-5 flex justify-between items-center cursor-pointer bg-gradient-to-r from-indigo-50 to-white hover:bg-indigo-100 transition">
                 <div className="flex items-center gap-3">
                     <span className="text-2xl">⏳</span>
                     <div>
-                        <h3 className="font-black text-emerald-900">منبه الأوقات الفاضلة</h3>
-                        <p className="text-[10px] text-gray-500 font-bold">حضرموت • مكة • القدس...</p>
+                        <h3 className="font-black text-indigo-900">منبه الأوقات الفاضلة</h3>
+                        <p className="text-[10px] text-gray-500 font-bold">
+                            {hijriDate ? `${hijriDate.day} ${hijriDate.month.ar} ${hijriDate.year}` : "الصلوات • المواسم • العدادات"}
+                        </p>
                     </div>
                 </div>
                 <div className={`transform transition duration-300 ${isOpen ? 'rotate-180' : ''}`}>▼</div>
             </div>
+
+            {/* المحتوى */}
             {isOpen && (
-                <div className="p-4 bg-gray-50 border-t">
-                    <select onChange={handleLocationChange} value={manualCity} className="w-full p-3 mb-4 rounded-xl border border-gray-300 text-xs font-bold bg-white text-center shadow-sm">
-                        <option value="">-- اختر منطقتك للحصول على أدق توقيت --</option>
-                        {presetLocations.map((loc, idx) => (<option key={idx} value={idx}>{loc.label}</option>))}
-                    </select>
-                    {!locationData ? (<div className="text-center text-gray-400 text-xs py-4">يرجى اختيار المدينة لعرض العدادات</div>) : (
-                        <div className="space-y-3">
-                            <div className="text-center bg-white p-2 rounded-lg border border-emerald-100 mb-4">
-                                <span className="text-xs font-black text-emerald-800">📅 {locationData.date.hijri.day} {locationData.date.hijri.month.ar} {locationData.date.hijri.year} هـ</span>
+                <div className="p-4 bg-gray-50 border-t space-y-6">
+                    
+                    {/* 1. اختيار المدينة */}
+                    <div className="bg-white p-2 rounded-xl border">
+                        <select 
+                            className="w-full text-xs font-bold bg-transparent outline-none text-gray-700"
+                            value={selectedCity}
+                            onChange={(e) => { setSelectedCity(e.target.value); fetchTimings(e.target.value); }}
+                        >
+                            {CITIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                    </div>
+
+                    {loading && <div className="text-center text-xs text-indigo-500 animate-pulse">جاري جلب المواقيت بدقة... 📡</div>}
+
+                    {timings && (
+                        <>
+                            {/* 2. مواقيت الصلاة (الأساسية) */}
+                            <div>
+                                <h4 className="text-center font-black text-gray-700 mb-2 text-xs">🕌 الصلوات اليومية</h4>
+                                <div className="grid grid-cols-5 gap-1 text-center">
+                                    {["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"].map((k, i) => {
+                                        const names = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"];
+                                        // تحويل الوقت لصيغة 12 ساعة
+                                        let time = timings[k].split(':')[0];
+                                        const min = timings[k].split(':')[1];
+                                        const ampm = time >= 12 ? 'م' : 'ص';
+                                        time = time % 12 || 12;
+                                        return (
+                                            <div key={k} className="bg-white p-2 rounded-lg border border-gray-100 shadow-sm">
+                                                <div className="text-[9px] text-gray-400 font-bold">{names[i]}</div>
+                                                <div className="text-[10px] font-black text-indigo-800">{time}:{min} {ampm}</div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                            <div className="bg-white rounded-xl border overflow-hidden">
-                                <div onClick={() => setActiveTab(activeTab === 'daily' ? null : 'daily')} className="p-3 bg-blue-50 flex justify-between items-center cursor-pointer"><span className="font-bold text-xs text-blue-800">🌤️ أوقات يومية (الضحى، السحر...)</span><span>{activeTab === 'daily' ? '➖' : '➕'}</span></div>
-                                {activeTab === 'daily' && (<div className="p-3 space-y-3">{events.daily.map(ev => (<div key={ev.id} className="border-b pb-2 last:border-0"><div className="flex justify-between mb-1"><span className="text-xs font-bold text-gray-700">{ev.title}</span><span className="text-[10px] text-gray-400">{ev.target.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span></div><CountdownTimer targetDate={ev.target} /><p className="text-[9px] text-gray-500 mt-1 text-center">{ev.desc}</p></div>))}</div>)}
+
+                            {/* 3. أوقات خاصة (الضحى والثلث الأخير) */}
+                            <div>
+                                <h4 className="text-center font-black text-gray-700 mb-2 text-xs">✨ أوقات الغنائم</h4>
+                                {getDailyTimes().map((t, i) => (
+                                    <div key={i} className="flex justify-between items-center bg-white p-3 mb-1 rounded-xl border border-indigo-50">
+                                        <span className="text-xs font-bold text-gray-700">{t.name}</span>
+                                        <span className="text-xs font-mono text-indigo-600 font-bold">{t.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                    </div>
+                                ))}
                             </div>
-                            <div className="bg-white rounded-xl border overflow-hidden">
-                                <div onClick={() => setActiveTab(activeTab === 'weekly' ? null : 'weekly')} className="p-3 bg-purple-50 flex justify-between items-center cursor-pointer"><span className="font-bold text-xs text-purple-800">🗓️ أوقات أسبوعية (الجمعة...)</span><span>{activeTab === 'weekly' ? '➖' : '➕'}</span></div>
-                                {activeTab === 'weekly' && (<div className="p-3 space-y-3">{events.weekly.map(ev => (<div key={ev.id} className="border-b pb-2 last:border-0"><div className="flex justify-between mb-1"><span className="text-xs font-bold text-gray-700">{ev.title}</span></div>{ev.id === 'friday' && new Date().getDay() === 5 ? <CountdownTimer targetDate={ev.target} /> : <span className="text-[10px] text-gray-400 block text-center">انتظر يوم {ev.id === 'friday' ? 'الجمعة' : 'الاثنين/الخميس'}</span>}<p className="text-[9px] text-gray-500 mt-1 text-center">{ev.desc}</p></div>))}</div>)}
-                            </div>
-                            <div className="bg-white rounded-xl border overflow-hidden">
-                                <div onClick={() => setActiveTab(activeTab === 'monthly' ? null : 'monthly')} className="p-3 bg-amber-50 flex justify-between items-center cursor-pointer"><span className="font-bold text-xs text-amber-800">🌕 أوقات شهرية (البيض)</span><span>{activeTab === 'monthly' ? '➖' : '➕'}</span></div>
-                                {activeTab === 'monthly' && (<div className="p-3 text-center">{events.monthly.map((ev, i) => (<div key={i}><h4 className="font-bold text-xs mb-2">{ev.title}</h4><div className="flex justify-center gap-2 mb-2">{ev.days.map(d => (<span key={d} className={`w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold ${ev.currentHDay === d ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-400'}`}>{d}</span>))}</div><p className="text-[10px] text-gray-500">{ev.desc}</p></div>))}</div>)}
-                            </div>
-                            <div className="bg-white rounded-xl border overflow-hidden">
-                                <div onClick={() => setActiveTab(activeTab === 'yearly' ? null : 'yearly')} className="p-3 bg-emerald-50 flex justify-between items-center cursor-pointer"><span className="font-bold text-xs text-emerald-800">🌙 مواسم سنوية (رمضان، عرفة)</span><span>{activeTab === 'yearly' ? '➖' : '➕'}</span></div>
-                                {activeTab === 'yearly' && (<div className="p-3 space-y-3">{events.yearly.map(ev => (<div key={ev.id} className="flex justify-between items-center border-b pb-2 last:border-0"><div><span className="text-xs font-bold block">{ev.title}</span><span className="text-[9px] text-gray-400">{ev.desc}</span></div><div className="text-xs"><SeasonCounter hMonth={ev.hMonth} hDay={ev.hDay} currentHMonth={ev.currentHMonth} currentHDay={parseInt(locationData.date.hijri.day)} /></div></div>))}</div>)}
-                            </div>
-                        </div>
+                        </>
                     )}
+
+                    {/* 4. العدادات السنوية (تعمل دائماً) */}
+                    <div>
+                        <h4 className="text-center font-black text-gray-700 mb-2 text-xs">📅 كم باقي للمواسم؟</h4>
+                        <div className="space-y-2">
+                            {YEARLY_TARGETS.map((t) => (
+                                <div key={t.id} className="bg-white p-3 rounded-xl border border-emerald-100 shadow-sm">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="font-bold text-xs text-emerald-900">{t.title}</span>
+                                        <span className="text-[9px] text-gray-400">{t.desc}</span>
+                                    </div>
+                                    <Countdown target={t.date} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
