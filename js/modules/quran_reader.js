@@ -1,5 +1,5 @@
 /* =========================================
-   الوحدة: المصحف الشريف المطور (وضع الخشوع + فواصل الصفحات)
+   الوحدة: المصحف الشريف (وضع الخشوع الحقيقي + فواصل الصفحات)
    المسار: js/modules/quran_reader.js
    ========================================= */
 const { useState, useEffect, useRef, useMemo } = React;
@@ -17,9 +17,7 @@ window.QuranReader = () => {
     const [search, setSearch] = useState('');
     const [bg, setBg] = useState('white');
     const [fs, setFs] = useState(1.8);
-    
-    // 🔥 ميزة 1: وضع الخشوع (ملء الشاشة)
-    const [isFullScreen, setIsFullScreen] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false); // حالة ملء الشاشة
 
     const [bookmark, setBookmark] = useState(JSON.parse(localStorage.getItem('quran_bookmark')) || null);
     const [tafsirModal, setTafsirModal] = useState({ show: false, ayah: null, text: '' });
@@ -27,19 +25,29 @@ window.QuranReader = () => {
 
     // --- المنطق (Logic) ---
 
+    // عند تفعيل ملء الشاشة، نلغي سكرول الصفحة الرئيسية
+    useEffect(() => {
+        if (isFullScreen) {
+            document.body.style.overflow = 'hidden'; // تجميد الخلفية
+        } else {
+            document.body.style.overflow = 'auto'; // إعادة السكرول
+        }
+        return () => { document.body.style.overflow = 'auto'; };
+    }, [isFullScreen]);
+
     // 1. تصفية السور
     const filtered = Object.keys(window.APP_DATA.quran).filter(k => 
         window.APP_DATA.quran[k].name.includes(search)
     );
 
-    // 2. حساب فواصل الصفحات (ميزة 2)
+    // 2. حساب فواصل الصفحات بدقة من ملف pagesquran.json
     const pageBreaks = useMemo(() => {
         if (!activeSurah || !window.APP_DATA.pages) return {};
         const breaks = {};
-        // البحث عن الصفحات التي تنتهي في هذه السورة
         window.APP_DATA.pages.forEach(p => {
-            if (parseInt(p.end.surah_number) === activeSurah.number) {
-                // نربط رقم الآية برقم الصفحة
+            // نستخدم start و end لتحديد النطاق
+            // لكن للتبسيط، سنرسم الخط عند "نهاية" الصفحة
+            if (parseInt(p.end.surah_number) === parseInt(activeSurah.number)) {
                 breaks[p.end.verse] = p.page;
             }
         });
@@ -76,7 +84,7 @@ window.QuranReader = () => {
     const handleTouchStart = (ayahObj) => {
         longPressTimer.current = setTimeout(() => {
             if(navigator.vibrate) navigator.vibrate(50);
-            const key = `${activeSurah.id}_${ayahObj.num || ayahObj.numberInSurah}`;
+            const key = `${activeSurah.id}_${ayahObj.num || ayahObj.numberInSurah}`; // مفتاح التفسير
             const text = window.APP_DATA.tafseer ? window.APP_DATA.tafseer[key] : "جاري التحميل...";
             setTafsirModal({ show: true, ayah: ayahObj, text: text || "لا يوجد تفسير." });
         }, 800);
@@ -84,8 +92,12 @@ window.QuranReader = () => {
     const handleTouchEnd = () => { if (longPressTimer.current) clearTimeout(longPressTimer.current); };
 
     return (
-        <div className={`transition-all duration-500 bg-white shadow-sm overflow-hidden flex flex-col relative animate-in
-            ${isFullScreen ? 'fixed inset-0 z-[100] h-screen w-screen rounded-none' : 'rounded-[2rem] border border-gray-100 h-[600px]'}
+        // 🔥 هنا التغيير الجذري: استخدام position: fixed و z-index عالي جداً عند التفعيل
+        <div className={`transition-all duration-300 bg-white shadow-sm overflow-hidden flex flex-col animate-in
+            ${isFullScreen 
+                ? 'fixed top-0 left-0 w-screen h-screen z-[9999] rounded-none m-0' 
+                : 'relative rounded-[2rem] border border-gray-100 h-[600px] z-10'
+            }
         `}>
             
             {/* نافذة التفسير */}
@@ -107,7 +119,7 @@ window.QuranReader = () => {
                 </window.CustomModal>
             )}
 
-            {/* وضع القائمة */}
+            {/* وضع القائمة (لا يظهر في وضع ملء الشاشة عادة، لكن لو حصل خطأ نخرجه منه) */}
             {view === 'list' && (
                 <div className="p-4 flex-1 flex flex-col h-full">
                     <h3 className="text-center font-black text-emerald-900 mb-4 text-xl">📖 المصحف الشريف</h3>
@@ -132,22 +144,31 @@ window.QuranReader = () => {
             {/* 🔥 وضع القراءة المطور */}
             {view === 'reader' && activeSurah && (
                 <div className="flex flex-col h-full bg-white">
-                    {/* شريط الأدوات (يختفي عند التمرير في بعض التطبيقات، هنا نثبته) */}
+                    {/* شريط الأدوات */}
                     <div className="p-3 border-b flex justify-between items-center bg-gray-50 shadow-sm z-10 sticky top-0">
-                        <div className="flex gap-2">
-                            <button onClick={()=>setView('list')} className="px-3 py-1.5 bg-white border rounded-lg text-xs font-black text-gray-600 hover:bg-red-50">خروج</button>
-                            {/* زر ملء الشاشة */}
-                            <button onClick={()=>setIsFullScreen(!isFullScreen)} className={`px-3 py-1.5 border rounded-lg text-xs font-black transition ${isFullScreen ? 'bg-emerald-600 text-white' : 'bg-white text-emerald-600'}`}>
-                                {isFullScreen ? 'تصغير ✖' : 'تكبير ⛶'}
+                        <div className="flex gap-2 items-center">
+                            {/* زر الخروج: إذا كان ملء الشاشة يغلقه، وإلا يعود للقائمة */}
+                            <button 
+                                onClick={() => { if(isFullScreen) setIsFullScreen(false); else setView('list'); }} 
+                                className="px-3 py-1.5 bg-white border rounded-lg text-xs font-black text-gray-600 hover:bg-red-50 flex items-center gap-1"
+                            >
+                                {isFullScreen ? 'تصغير ✖' : 'خروج ⬅️'}
                             </button>
+                            
+                            {/* زر التكبير */}
+                            {!isFullScreen && (
+                                <button onClick={()=>setIsFullScreen(true)} className="w-8 h-8 rounded-lg border bg-emerald-50 text-emerald-700 text-lg flex items-center justify-center hover:bg-emerald-100" title="ملء الشاشة">
+                                    ⛶
+                                </button>
+                            )}
                         </div>
                         
-                        <span className="font-black text-sm text-emerald-800">{activeSurah.name}</span>
+                        <span className="font-black text-sm text-emerald-800 truncate px-2">{activeSurah.name}</span>
                         
                         <div className="flex gap-1">
-                            <button onClick={()=>setBg(bg==='white'?'#fffbf0':'white')} className="w-8 h-8 rounded-full border bg-amber-100 text-xs shadow-sm">🎨</button>
-                            <button onClick={()=>setFs(s=>Math.min(3,s+0.2))} className="w-8 h-8 rounded-full border bg-white font-bold shadow-sm">+</button>
-                            <button onClick={()=>setFs(s=>Math.max(1,s-0.2))} className="w-8 h-8 rounded-full border bg-white font-bold shadow-sm">-</button>
+                            <button onClick={()=>setBg(bg==='white'?'#fffbf0':'white')} className="w-8 h-8 rounded-full border bg-amber-100 text-xs shadow-sm flex items-center justify-center">🎨</button>
+                            <button onClick={()=>setFs(s=>Math.min(3,s+0.2))} className="w-8 h-8 rounded-full border bg-white font-bold shadow-sm flex items-center justify-center">+</button>
+                            <button onClick={()=>setFs(s=>Math.max(1,s-0.2))} className="w-8 h-8 rounded-full border bg-white font-bold shadow-sm flex items-center justify-center">-</button>
                         </div>
                     </div>
 
@@ -162,7 +183,6 @@ window.QuranReader = () => {
                         <div className="font-amiri text-gray-800">
                             {activeSurah.ayahs.map((a, index) => {
                                 const aNum = a.num || a.numberInSurah;
-                                // هل هذه الآية هي نهاية صفحة؟
                                 const endPageNum = pageBreaks[aNum];
 
                                 return (
@@ -182,24 +202,26 @@ window.QuranReader = () => {
 
                                         {/* 🔥 الفاصل الزخرفي للصفحة */}
                                         {endPageNum && (
-                                            <div className="w-full my-8 flex items-center justify-center gap-4 opacity-70 select-none pointer-events-none animate-in">
-                                                <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent flex-1"></div>
-                                                <div className="text-[10px] text-emerald-800 font-bold border border-emerald-200 px-4 py-1 rounded-full bg-emerald-50 shadow-sm flex items-center gap-2">
-                                                    <span>📖</span>
-                                                    <span>نهاية صفحة {endPageNum}</span>
+                                            <div className="w-full my-10 flex items-center justify-center gap-4 select-none pointer-events-none animate-in">
+                                                <div className="h-px bg-emerald-200 flex-1 opacity-50"></div>
+                                                <div className="text-[10px] text-emerald-800 font-bold border border-emerald-200 px-3 py-0.5 rounded-full bg-emerald-50 flex items-center gap-2">
+                                                    <span>صفحة {endPageNum}</span>
                                                 </div>
-                                                <div className="h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent flex-1"></div>
+                                                <div className="h-px bg-emerald-200 flex-1 opacity-50"></div>
                                             </div>
                                         )}
                                     </React.Fragment>
                                 );
                             })}
                         </div>
+                        
+                        {/* مسافة إضافية في الأسفل لتسهيل القراءة */}
+                        <div className="h-20"></div>
                     </div>
                     
                     {!isFullScreen && (
                         <div className="p-2 bg-emerald-50 text-[10px] text-center text-emerald-600 font-bold border-t">
-                            💡 اضغط مطولاً للتفسير | استخدم ⛶ للتركيز
+                            💡 اضغط مطولاً للتفسير
                         </div>
                     )}
                 </div>
