@@ -1,179 +1,158 @@
 /* =========================================
-   ملف التطبيق الرئيسي: js/app.js
-   (النسخة النهائية المرتبة)
+   الوحدة: اختبر حفظك (الكلاسيكي)
+   المسار: js/modules/test.js
    ========================================= */
+const { useState, useMemo } = React;
 
-const { useState, useEffect } = React;
+const SURAH_NAMES = ["الفاتحة", "البقرة", "آل عمران", "النساء", "المائدة", "الأنعام", "الأعراف", "الأنفال", "التوبة", "يونس", "هود", "يوسف", "الرعد", "إبراهيم", "الحجر", "النحل", "الإسراء", "الكهف", "مريم", "طه", "الأنبياء", "الحج", "المؤمنون", "النور", "الفرقان", "الشعراء", "النمل", "القصص", "العنكبوت", "الروم", "لقمان", "السجدة", "الأحزاب", "سبأ", "فاطر", "يس", "الصافات", "ص", "الزمر", "غافر", "فصلت", "الشورى", "الزخرف", "الدخان", "الجاثية", "الأحقاف", "محمد", "الفتح", "الحجرات", "ق", "الذاريات", "الطور", "النجم", "القمر", "الرحمن", "الواقعة", "الحديد", "المجادلة", "الحشر", "الممتحنة", "الصف", "الجمعة", "المنافقون", "التغابن", "الطلاق", "التحريم", "الملك", "القلم", "الحاقة", "المعارج", "نوح", "الجن", "المزمل", "المدثر", "القيامة", "الإنسان", "المرسلات", "النبأ", "النازعات", "عبس", "التكوير", "الانفطار", "المطففين", "الانشقاق", "البروج", "الطارق", "الأعلى", "الغاشية", "الفجر", "البلد", "الشمس", "الليل", "الضحى", "الشرح", "التين", "العلق", "القدر", "البينة", "الزلزلة", "العاديات", "القارعة", "التكاثر", "العصر", "الهمزة", "الفيل", "قريش", "الماعون", "الكوثر", "الكافرون", "النصر", "المسد", "الإخلاص", "الفلق", "الناس"];
+const JUZ_START = [0, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 12, 13, 15, 17, 18, 21, 23, 25, 27, 29, 33, 36, 39, 41, 46, 51, 58, 67, 78];
 
-// استيراد آمن للمكونات
-const safeImport = (name) => window[name] || (() => null);
+window.TestHifz = () => {
+    // التحقق من الجاهزية
+    if (!window.APP_DATA || !window.APP_DATA.quran) return <div className="text-center p-4 text-gray-500 animate-pulse">⏳ جاري تحميل البيانات...</div>;
 
-const CalcEffort = safeImport('CalcEffort');
-const CalcTime = safeImport('CalcTime');
-const TestHifz = safeImport('TestHifz');
-const QuranReader = safeImport('QuranReader');
-const AzkarApp = safeImport('AzkarApp');
-const DailyWird = safeImport('DailyWird');
-const QuranExam = safeImport('QuranExam');
-const CustomModal = window.CustomModal; // يجب أن يكون موجوداً
+    const [scope, setScope] = useState('all');
+    const [selJuz, setSelJuz] = useState(1);
+    const [selSurah, setSelSurah] = useState('all');
+    const [customList, setCustomList] = useState([]);
+    const [qType, setQType] = useState('complete');
+    const [currQ, setCurrQ] = useState(null);
+    const [showAns, setShowAns] = useState(false);
 
-const HomeSection = safeImport('HomeSection');
-const TeachersSection = safeImport('TeachersSection');
-const SchedulesSection = safeImport('SchedulesSection');
-const AboutSection = safeImport('AboutSection');
+    // دالة التنبيه الأنيق
+    const notify = (title, msg) => window.showGlobalAlert ? window.showGlobalAlert(title, msg) : alert(msg);
 
-// --------------------------------------------------------------------------
-// (1) دالة قسم واحة الزوار (Extras Section)
-// --------------------------------------------------------------------------
-const ExtrasSection = ({ dataReady, activeFeature, toggleFeature }) => {
-    return (
-        <div className="space-y-4 max-w-lg mx-auto animate-in">
-            <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
-            
-            {/* 1. منبه الأوقات */}
-            {window.VirtuousTimesWidget && <window.VirtuousTimesWidget />}
-            
-            {/* 2. الورد اليومي (يظهر دائماً والتحميل داخله) */}
-            {window.DailyWird && <window.DailyWird />}
-
-            {/* 3. العداد الجماعي */}
-            {window.GlobalKhatmaCounter && <window.GlobalKhatmaCounter />}
-
-            {/* 4. صيدلية القلوب */}
-            <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
-            {activeFeature === 'feeling' && <window.FeelingsPharmacy />}
-            
-            {/* 5. المحاكي القرآني (يظهر دائماً) */}
-            {window.QuranExam && <window.QuranExam />}
-
-            {/* 6. صانع البطاقات */}
-            <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
-            {activeFeature === 'card' && <window.CardMaker />}
-        </div>
-    );
-};
-
-const App = () => {
-    const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [] });
-    const [page, setPage] = useState('home');
-    const [activeFeature, setActiveFeature] = useState(null);
-    const [dataReady, setDataReady] = useState(false);
-    const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
-    const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
-    const [modal, setModal] = useState({ show: false, title: '', msg: '' });
-
-    useEffect(() => {
-        // تفعيل النافذة الأنيقة
-        window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
-        window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
-
-        const handleDataReady = () => setDataReady(true);
-        window.addEventListener('data-ready', handleDataReady);
-        if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
-
-        if (window.db && window.onSnapshot) {
-            window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
-                if (doc.exists()) {
-                    setConfig(prev => ({...prev, ...doc.data()}));
-                    if(doc.data().settings?.layoutScale) document.documentElement.style.setProperty('--layout-scale', doc.data().settings.layoutScale);
-                }
-            });
-        }
-    }, []);
-
-    // الإشعارات
-    useEffect(() => {
-        if (!window.db) return;
-        const unsub = window.onSnapshot(window.doc(window.db, "appData", "notifications"), (doc) => {
-            if (doc.exists()) {
-                const data = doc.data();
-                const lastId = localStorage.getItem('last_notif');
-                if (data.id && data.id !== lastId && data.active) {
-                    if(window.showGlobalAlert) window.showGlobalAlert(data.title, data.body);
-                    localStorage.setItem('last_notif', data.id);
-                }
+    const generate = (isNext) => {
+        let sId, sObj, aIdx;
+        
+        // منطق "التالي"
+        if (isNext && currQ) {
+            sId = currQ.sId; sObj = window.APP_DATA.quran[sId]; aIdx = currQ.aIdx + 1;
+            if (aIdx >= sObj.ayahs.length) return notify("انتهت السورة", "لقد وصلت لنهاية السورة.");
+        } else {
+            // منطق "سؤال جديد"
+            let pool = [];
+            if (scope === 'all') pool = Object.keys(window.APP_DATA.quran);
+            else if (scope === 'custom') pool = customList;
+            else if (scope === 'juz') {
+                const start = JUZ_START[selJuz-1] || 0;
+                const end = JUZ_START[selJuz] || 114;
+                pool = Object.keys(window.APP_DATA.quran).filter(id => id > start && id <= end + 5);
+                if (selSurah !== 'all') pool = [selSurah];
             }
-        });
-        return () => unsub();
-    }, []);
 
-    const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
+            if (pool.length === 0) return notify("تنبيه", "يرجى اختيار نطاق صحيح للسور.");
+            sId = pool[Math.floor(Math.random() * pool.length)];
+            sObj = window.APP_DATA.quran[sId];
+            if (!sObj || !sObj.ayahs) return notify("خطأ", "بيانات السورة غير متوفرة.");
+            aIdx = Math.floor(Math.random() * sObj.ayahs.length);
+        }
+
+        const ayah = sObj.ayahs[aIdx];
+        let qText = ayah.text, prompt = "أكمل الآية:", ansText = ayah.text;
+
+        // أنواع الأسئلة
+        if (qType === 'complete' && !isNext) {
+            const words = ayah.text.split(" ");
+            qText = words.slice(0, Math.min(5, Math.floor(words.length / 2))).join(" ") + " ...";
+        } else if (qType === 'next') {
+            prompt = "ما الآية التالية؟";
+            ansText = (aIdx + 1 < sObj.ayahs.length) ? sObj.ayahs[aIdx + 1].text : "نهاية السورة";
+        } else if (qType === 'prev') {
+            prompt = "ما الآية السابقة؟";
+            ansText = (aIdx > 0) ? sObj.ayahs[aIdx - 1].text : "بداية السورة";
+        } else if (qType === 'ayahNum') {
+            prompt = "ما رقم هذه الآية؟";
+            ansText = ayah.numberInSurah || ayah.num;
+        } else if (qType === 'surahName') {
+            prompt = "في أي سورة تقع هذه الآية؟";
+            ansText = sObj.name;
+        } else if (qType === 'page') {
+            prompt = "ما رقم الصفحة؟";
+            ansText = "غير متوفر";
+            if (window.APP_DATA.pages) {
+                const p = window.APP_DATA.pages.find(pg => 
+                    (pg.start.surah_number < sId || (pg.start.surah_number == sId && pg.start.verse <= ayah.numberInSurah)) &&
+                    (pg.end.surah_number > sId || (pg.end.surah_number == sId && pg.end.verse >= ayah.numberInSurah))
+                );
+                if (p) ansText = p.page;
+            }
+        }
+
+        setCurrQ({ sId, aIdx, qText, fullText: ayah.text, ansText, prompt, info: `${sObj.name} - آية ${ayah.numberInSurah || ayah.num}` });
+        setShowAns(false);
+    };
 
     return (
-        <div id="app-container">
-            {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
+        <div className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm animate-in">
+            <h3 className="text-center font-black text-indigo-900 mb-4">🧠 اختبر حفظك (الكلاسيكي)</h3>
+            
+            {/* أدوات التحكم */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+                <select className="p-2 border rounded-xl text-xs font-bold bg-gray-50" value={scope} onChange={e => setScope(e.target.value)}>
+                    <option value="all">كل المصحف</option>
+                    <option value="juz">جزء معين</option>
+                    <option value="custom">سور محددة</option>
+                </select>
+                <select className="p-2 border rounded-xl text-xs font-bold bg-gray-50" value={qType} onChange={e => setQType(e.target.value)}>
+                    <option value="complete">أكمل الآية</option>
+                    <option value="next">الآية التالية</option>
+                    <option value="prev">الآية السابقة</option>
+                    <option value="page">رقم الصفحة</option>
+                    <option value="ayahNum">رقم الآية</option>
+                    <option value="surahName">اسم السورة</option>
+                </select>
+            </div>
 
-            <header>
-                <div className="flex items-center gap-2" onClick={() => setPage('home')}>
-                    <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
-                    <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
+            {scope === 'juz' && (
+                <div className="mb-3 animate-in">
+                    <select className="w-full p-2 border rounded-xl text-xs font-bold mb-2" value={selJuz} onChange={e => setSelJuz(e.target.value)}>
+                        {[...Array(30)].map((_, i) => <option key={i} value={i+1}>الجزء {i+1}</option>)}
+                    </select>
                 </div>
-                <div className="flex gap-2">
-                    <button onClick={() => window.location.reload()} className="p-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 shadow-sm">🔄</button>
-                    <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 text-xl">🔒</a>
-                </div>
-            </header>
+            )}
 
-            <nav className="no-scrollbar">
-                {['home','student_corner','extras','teachers','students','schedules','about','card'].map(t => (
-                    <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
-                        {{home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار', teachers:'المعلمون', students:'الأوائل', schedules:'الجداول', about:'من نحن', card:'بطاقتي'}[t]}
-                    </button>
-                ))}
-            </nav>
-
-            <main className="p-4 pb-24 animate-in">
-                {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
-                
-                {page === 'student_corner' && (
-                    <div className="space-y-4 max-w-lg mx-auto">
-                        <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>{activeFeature === 'effort' && <CalcEffort />}
-                        <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>{activeFeature === 'time' && <CalcTime />}
-                        
-                        <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك (قديم)</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
-                        {activeFeature === 'test' && (dataReady ? <TestHifz /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل الاختبار...</div>)}
-                        
-                        <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
-                        {activeFeature === 'quran' && (dataReady ? <QuranReader /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل المصحف...</div>)}
-                        
-                        <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}><span>📿 الأذكار</span><span>{activeFeature === 'azkar'?'➖':'➕'}</span></div>
-                        {activeFeature === 'azkar' && (dataReady ? <AzkarApp /> : <div className="text-center p-4 text-gray-400 animate-pulse">⏳ جاري تحميل الأذكار...</div>)}
-                    </div>
-                )}
-
-                {page === 'extras' && <ExtrasSection dataReady={dataReady} activeFeature={activeFeature} toggleFeature={toggleFeature} />}
-
-                {page === 'teachers' && <TeachersSection teachers={config.teachers} />}
-                {page === 'schedules' && <SchedulesSection schedules={config.schedules} />}
-                {page === 'students' && (
-                     <div className="space-y-6">
-                        {config.halaqat.filter(h => !h.hidden).map(h => (
-                            <div key={h.id} className="bg-white rounded-[2rem] shadow-md overflow-hidden border-t-8 border-emerald-500">
-                                <div className="bg-emerald-50 p-4 text-center font-black text-emerald-800 border-b border-emerald-100">حلقة {h.name}</div>
-                                <div className="p-4 space-y-2">{h.students.map((st, idx) => (<div key={st.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border hover:bg-white transition"><span className="font-bold text-sm">{idx+1}. {st.name}</span><span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black shadow-sm">{st.rank}</span></div>))}</div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                {page === 'about' && <AboutSection texts={config.texts} />}
-                {page === 'card' && (
-                    <div className="max-w-md mx-auto space-y-6 animate-in">
-                        <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center border-4 border-emerald-50">
-                            <h2 className="text-2xl font-black mb-6">بيانات الطالب</h2>
-                            <input value={studentName} onChange={e => {setStudentName(e.target.value); localStorage.setItem('st_name', e.target.value)}} className="w-full p-4 bg-gray-50 border rounded-2xl mb-3 text-center font-bold" placeholder="الاسم الثلاثي" />
-                            <input value={halaqaName} onChange={e => {setHalaqaName(e.target.value); localStorage.setItem('st_halaqa', e.target.value)}} className="w-full p-4 bg-gray-50 border rounded-2xl mb-6 text-center font-bold" placeholder="اسم الحلقة" />
-                            <button onClick={() => { setPage('home'); window.showGlobalAlert('نجاح', 'تم حفظ البيانات بنجاح ✅'); }} className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-emerald-700 transition">حفظ وتفعيل</button>
+            {scope === 'custom' && (
+                <div className="h-32 overflow-y-auto border rounded-xl p-2 bg-gray-50 mb-3 grid grid-cols-3 gap-1 animate-in">
+                    {SURAH_NAMES.map((n, i) => (
+                        <div key={i} onClick={() => setCustomList(p => p.includes(String(i+1)) ? p.filter(x => x !== String(i+1)) : [...p, String(i+1)])}
+                             className={`text-[9px] p-1 rounded cursor-pointer border text-center font-bold ${customList.includes(String(i+1)) ? 'bg-indigo-600 text-white' : 'bg-white'}`}>
+                            {n}
                         </div>
-                    </div>
-                )}
-            </main>
+                    ))}
+                </div>
+            )}
 
-            <footer className="p-4 text-center bg-white border-t text-[10px] text-gray-400 font-bold fixed bottom-0 w-full z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                &copy; 2026 {config.texts?.siteTitle} | الإصدار المطور
-            </footer>
+            <button onClick={() => generate(false)} className="w-full bg-indigo-600 text-white py-3 rounded-xl font-black shadow-lg hover:bg-indigo-700 transition mb-4">
+                طرح سؤال جديد 🎲
+            </button>
+
+            {currQ && (
+                <div className="text-center animate-in">
+                    <div className="bg-white border-2 border-indigo-50 rounded-2xl p-6 mb-3 shadow-sm relative">
+                        <span className="absolute top-2 right-2 text-[10px] bg-gray-100 px-2 rounded text-gray-500">{currQ.prompt}</span>
+                        <p className="font-amiri text-xl leading-loose font-bold text-gray-800 mt-2" dir="rtl">{currQ.qText}</p>
+                    </div>
+
+                    {!showAns ? (
+                        <button onClick={() => setShowAns(true)} className="w-full bg-amber-100 text-amber-900 py-3 rounded-xl font-bold">👁️ كشف الإجابة</button>
+                    ) : (
+                        <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 animate-in">
+                            <p className="font-amiri text-lg text-emerald-900 font-bold mb-2">{currQ.ansText}</p>
+                            {qType === 'complete' && <p className="text-xs text-gray-500 border-t border-emerald-200 pt-2 mb-2">{currQ.fullText}</p>}
+                            <p className="text-[10px] text-emerald-600 font-bold bg-white inline-block px-2 py-1 rounded border border-emerald-100">{currQ.info}</p>
+                            
+                            <div className="flex gap-2 mt-4">
+                                <button onClick={() => generate(false)} className="flex-1 bg-white border border-gray-300 py-2 rounded-xl text-xs font-bold text-gray-600">سؤال جديد</button>
+                                {(qType === 'complete' || qType === 'next') && (
+                                    <button onClick={() => generate(true)} className="flex-1 bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold">التالي ⬅️</button>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+window.TestHifz = TestHifz;
