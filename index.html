@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>منصة حلقات الثريا | الإصدار المطور</title>
+    <title>منصة حلقات الثريا | تطبيق</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="الثريا">
+    
+    <link rel="icon" type="image/png" href="img/logo.png">
     <link rel="apple-touch-icon" href="img/logo.png">
 
-    <link rel="icon" type="image/png" href="img/logo.png">
     <link rel="stylesheet" href="css/style.css">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="js/libs/tailwindcss.js"></script>
+    <script src="js/libs/react.js"></script>
+    <script src="js/libs/react-dom.js"></script>
+    <script src="js/libs/babel.js"></script>
+    <script src="js/libs/html2canvas.js"></script>
 
     <script>
         tailwind.config = {
@@ -74,8 +74,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then((reg) => console.log('✅ Service Worker Registered!', reg.scope))
-                    .catch((err) => console.error('❌ SW Failed:', err));
+                    .then((reg) => console.log('✅ Service Worker OK'))
+                    .catch((err) => console.log('❌ SW Fail', err));
             });
         }
     </script>
