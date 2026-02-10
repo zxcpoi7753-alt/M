@@ -1,0 +1,63 @@
+{
+  "texts": {
+    "heroTitle": "مرحباً بك في منصة الثريا",
+    "weeklyQuestion": "ما هي السورة التي تسمى عروس القرآن؟",
+    "previousWinner": "الطالب: أحمد محمد (حلقة أبو بكر)",
+    "contact": {
+      "phone": "966500000000",
+      "location": {
+        "active": true,
+        "val": "https://maps.google.com"
+      },
+      "whatsapp": { "active": true, "val": "https://wa.me/966500000000" },
+      "youtube": { "active": false, "val": "" },
+      "facebook": { "active": false, "val": "" }
+    }
+  },
+  "news": [
+    {
+      "id": 1,
+      "title": "انطلاق النسخة الجديدة",
+      "content": "تم بحمد الله إطلاق تطبيق الثريا ليعمل بدون إنترنت بالكامل.",
+      "date": "2024-02-10",
+      "hidden": false,
+      "colors": { "title": "#059669", "content": "#374151" },
+      "link": { "url": "", "text": "" }
+    },
+    {
+      "id": 2,
+      "title": "تحديث البيانات",
+      "content": "يمكنك الآن تحديث الأخبار والجداول بضغطة زر عند توفر الإنترنت.",
+      "date": "2024-02-12",
+      "hidden": false,
+      "colors": { "title": "#d97706", "content": "#374151" },
+      "link": { "url": "", "text": "" }
+    }
+  ],
+  "teachers": [
+    { "id": 1, "name": "الشيخ محمد", "bio": "مقرئ القراءات العشر", "avatar": "🧔", "hidden": false },
+    { "id": 2, "name": "الشيخ عبد الله", "bio": "مشرف حلقات التحفيظ", "avatar": "👨‍🏫", "hidden": false }
+  ],
+  "schedules": [
+    {
+      "id": 1, "name": "حلقة أبي بن كعب", "period": "عصر", "hidden": false,
+      "days": [
+        { "day": "السبت", "time": "04:30", "note": "تسميع" },
+        { "day": "الأحد", "time": "04:30", "note": "مراجعة" },
+        { "day": "الاثنين", "time": "04:30", "note": "تسميع" },
+        { "day": "الثلاثاء", "time": "04:30", "note": "تسميع" },
+        { "day": "الأربعاء", "time": "04:30", "note": "مراجعة" },
+        { "day": "الخميس", "time": "إجازة", "note": "" }
+      ]
+    }
+  ],
+  "halaqat": [
+    {
+      "id": 1, "name": "فرسان التميز", "hidden": false,
+      "students": [
+        { "id": 1, "name": "عمر خالد", "rank": "الأول" },
+        { "id": 2, "name": "سعيد صالح", "rank": "الثاني" }
+      ]
+    }
+  ]
+}
