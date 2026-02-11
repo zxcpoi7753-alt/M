@@ -4,9 +4,9 @@
    ========================================= */
 const { useState } = React;
 
-// استيراد المكونات الفرعية (سننشئها بالأسفل)
-const ProphetSeerah = window.ProphetSeerah || (() => <div>جاري تحميل السيرة...</div>);
-const AsmaHusna = window.AsmaHusna || (() => <div>جاري تحميل الأسماء...</div>);
+// تعريف المكونات الفرعية (يتم تحميلها من المتصفح)
+const ProphetSeerah = window.ProphetSeerah || (() => <div className="p-4 text-center">جاري تحميل السيرة...</div>);
+const AsmaHusna = window.AsmaHusna || (() => <div className="p-4 text-center">جاري تحميل الأسماء...</div>);
 
 window.RawdatHub = () => {
     const [section, setSection] = useState('hub'); // hub, seerah, asma
@@ -21,22 +21,20 @@ window.RawdatHub = () => {
                 </div>
 
                 {/* زر سيرة النبي ﷺ */}
-                <div onClick={() => setSection('seerah')} className="relative overflow-hidden h-40 rounded-[2rem] shadow-xl cursor-pointer group border-4 border-amber-50">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/arches.png')] opacity-20"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-amber-100 to-orange-100 mix-blend-multiply"></div>
+                <div onClick={() => setSection('seerah')} className="relative overflow-hidden h-40 rounded-[2rem] shadow-xl cursor-pointer group border-4 border-amber-50 bg-white hover:scale-[1.02] transition duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-100 to-orange-50 opacity-50"></div>
                     <div className="relative z-10 flex flex-col items-center justify-center h-full p-4 text-center">
-                        <span className="text-4xl mb-2 group-hover:scale-110 transition">📜</span>
+                        <span className="text-4xl mb-2 drop-shadow-sm">📜</span>
                         <h3 className="font-black text-2xl text-amber-900 font-amiri">سيرة المصطفى ﷺ</h3>
                         <p className="text-xs text-amber-800 font-bold mt-1">عش حياته.. كأنك تراه</p>
                     </div>
                 </div>
 
                 {/* زر أسماء الله الحسنى */}
-                <div onClick={() => setSection('asma')} className="relative overflow-hidden h-40 rounded-[2rem] shadow-xl cursor-pointer group border-4 border-blue-50">
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-sky-100 to-blue-200 mix-blend-multiply"></div>
+                <div onClick={() => setSection('asma')} className="relative overflow-hidden h-40 rounded-[2rem] shadow-xl cursor-pointer group border-4 border-blue-50 bg-white hover:scale-[1.02] transition duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-sky-100 to-blue-50 opacity-50"></div>
                     <div className="relative z-10 flex flex-col items-center justify-center h-full p-4 text-center">
-                        <span className="text-4xl mb-2 group-hover:scale-110 transition">🌟</span>
+                        <span className="text-4xl mb-2 drop-shadow-sm">🌟</span>
                         <h3 className="font-black text-2xl text-blue-900 font-amiri">أسماء الله الحسنى</h3>
                         <p className="text-xs text-blue-800 font-bold mt-1">اعرف ربك.. ليزداد حبك</p>
                     </div>
@@ -53,9 +51,15 @@ window.RawdatHub = () => {
     // عرض الأقسام الداخلية
     return (
         <div className="animate-in h-full flex flex-col">
-            <button onClick={() => setSection('hub')} className="self-end mb-2 px-4 py-2 bg-gray-100 rounded-xl text-xs font-bold text-gray-600 shadow-sm flex items-center gap-2">
-                رجوع للروضة ↩️
-            </button>
+            <div className="flex justify-between items-center mb-4 px-2">
+                <h3 className="font-amiri font-bold text-lg text-gray-700">
+                    {section === 'seerah' ? 'سيرة الحبيب ﷺ' : 'الأسماء الحسنى'}
+                </h3>
+                <button onClick={() => setSection('hub')} className="px-4 py-2 bg-gray-200 rounded-xl text-xs font-bold text-gray-700 shadow-sm flex items-center gap-2 hover:bg-gray-300">
+                    خروج ↩️
+                </button>
+            </div>
+            
             {section === 'seerah' && <window.ProphetSeerah />}
             {section === 'asma' && <window.AsmaHusna />}
         </div>
