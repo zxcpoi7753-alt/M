@@ -1,25 +1,15 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (مع مؤشر حالة الأوفلاين الذكي)
+   (محدث ليشمل روضة المحبين)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
 
-// --- 1. صائد الأخطاء ---
 class ErrorBoundary extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { hasError: false, errorInfo: "" };
-    }
+    constructor(props) { super(props); this.state = { hasError: false, errorInfo: "" }; }
     static getDerivedStateFromError(error) { return { hasError: true }; }
-    componentDidCatch(error, errorInfo) {
-        this.setState({ errorInfo: error.toString() });
-        console.error("🔥 خطأ:", error);
-    }
-    render() {
-        if (this.state.hasError) return <div className="p-2 bg-red-50 text-red-600 text-xs text-center">خطأ بسيط، حاول التحديث</div>;
-        return this.props.children;
-    }
+    componentDidCatch(error, errorInfo) { this.setState({ errorInfo: error.toString() }); console.error("🔥 خطأ:", error); }
+    render() { if (this.state.hasError) return <div className="p-2 bg-red-50 text-red-600 text-xs text-center">خطأ بسيط، حاول التحديث</div>; return this.props.children; }
 }
 
 const safeImport = (name) => window[name] || (() => <div className="text-center text-xs text-gray-400 py-2">جاري التحميل...</div>);
@@ -39,55 +29,40 @@ const CardMaker = safeImport('CardMaker');
 const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
 const CustomModal = window.CustomModal;
 
+// 🔥 المكون الجديد
+const RawdatHub = safeImport('RawdatHub');
+
 const HomeSection = safeImport('HomeSection');
 const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
 const App = () => {
-    // الإعدادات
-    const [config, setConfig] = useState({ 
-        texts: { siteTitle: '...', contact: {} }, 
-        news: [], teachers: [], halaqat: [], schedules: [], visibility: {} 
-    });
-    
+    const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [], visibility: {} });
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
-
-    // --- منطق الأوفلاين والتثبيت ---
     const [installPrompt, setInstallPrompt] = useState(null);
-    const [offlineStatus, setOfflineStatus] = useState('checking'); // checking, downloading, ready
+    const [offlineStatus, setOfflineStatus] = useState('checking'); 
 
     useEffect(() => {
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
-        // 1. الاستماع لزر التثبيت
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            setInstallPrompt(e);
-        });
-
-        // 2. الاستماع لرسالة اكتمال التحميل من الـ Service Worker
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setInstallPrompt(e); });
+        
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'CACHE_COMPLETE') {
                     setOfflineStatus('ready');
-                    window.showGlobalAlert("✅ اكتمل التحميل", "تم تحميل جميع الملفات.\nيمكنك الآن استخدام التطبيق بدون إنترنت تماماً.");
+                    window.showGlobalAlert("✅ اكتمل التحميل", "تم تحميل جميع البيانات بنجاح.");
                 }
             });
-
-            // التحقق المبدئي: هل المصحف موجود في الكاش؟
-            caches.match('data/quran.json').then(res => {
-                if (res) setOfflineStatus('ready');
-                else setOfflineStatus('downloading');
-            });
+            caches.match('data/quran.json').then(res => { if (res) setOfflineStatus('ready'); else setOfflineStatus('downloading'); });
         }
 
-        // جلب البيانات الحية (فايربيس)
         if (window.db && window.onSnapshot) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                 if (doc.exists()) setConfig(prev => ({...prev, ...doc.data()}));
@@ -105,9 +80,10 @@ const App = () => {
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
     const isVisible = (section, key) => config.visibility?.[section]?.[key] !== false;
 
-    // القائمة
+    // 🔥 القائمة المحدثة
     const navItems = [
         {id: 'home', label: 'الرئيسية'},
+        {id: 'rawdah', label: 'روضة المحبين'}, // الزر الجديد
         {id: 'student_corner', label: 'ركن الطالب'},
         {id: 'extras', label: 'واحة الزوار'},
         {id: 'teachers', label: 'المعلمون'},
@@ -121,16 +97,10 @@ const App = () => {
         <div id="app-container">
             {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
 
-            {/* شريط حالة التحميل (يظهر فقط إذا لم يكتمل التحميل) */}
             {offlineStatus === 'downloading' && (
                 <div className="bg-amber-100 text-amber-800 text-[10px] font-bold text-center py-1 px-4 border-b border-amber-200 animate-pulse flex justify-between items-center">
-                    <span>⏳ جاري تحميل بيانات الأوفلاين... لا تقطع الاتصال</span>
+                    <span>⏳ جاري تحميل بيانات الأوفلاين...</span>
                     <span className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></span>
-                </div>
-            )}
-            {offlineStatus === 'ready' && !installPrompt && (
-                <div className="bg-emerald-100 text-emerald-800 text-[10px] font-bold text-center py-1 px-4 border-b border-emerald-200">
-                    ✅ التطبيق جاهز للعمل بدون نت 100%
                 </div>
             )}
 
@@ -140,7 +110,6 @@ const App = () => {
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
                 <div className="flex gap-2">
-                    {/* زر التثبيت يظهر فقط عندما يكون التحميل جاهزاً أو قريباً */}
                     {installPrompt && (
                         <button onClick={handleInstallClick} className={`px-3 py-2 text-white text-xs font-black rounded-xl shadow-lg border-2 border-white transition flex items-center gap-1 ${offlineStatus === 'ready' ? 'bg-gradient-to-r from-emerald-500 to-green-600 animate-bounce' : 'bg-gray-400 cursor-wait'}`}>
                             {offlineStatus === 'ready' ? '📲 تثبيت التطبيق' : '⏳ جاري التجهيز...'}
@@ -163,6 +132,13 @@ const App = () => {
                 <ErrorBoundary>
                     {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
                 </ErrorBoundary>
+
+                {/* 🔥 صفحة روضة المحبين الجديدة */}
+                {page === 'rawdah' && (
+                    <ErrorBoundary>
+                        {window.RawdatHub && <RawdatHub />}
+                    </ErrorBoundary>
+                )}
 
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
