@@ -1,34 +1,35 @@
 /* =========================================
    Service Worker: الحارس الذكي (Offline)
-   الإصدار: V9 - (يدعم المكتبات المحلية)
+   الإصدار: V10 - (شامل: مكتبات + روضة المحبين + السيرة)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v9'; 
+const CACHE_NAME = 'althuraya-offline-v10'; 
 
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './css/style.css',
   
-  // 🔥 المكتبات المحلية (مهم جداً جداً)
+  // 1. المكتبات المحلية
   './js/react.js',
   './js/react-dom.js',
   './js/tailwindcss.js',
   './js/babel.js',
   './js/html2canvas.js',
 
-  // ملفات النظام
+  // 2. ملفات النظام
   './js/app.js',
   './js/data_loader.js',
   './js/firebase.js',
 
-  // البيانات
+  // 3. البيانات الأساسية (تأكد أن الملفات موجودة في مجلد data)
   './data/quran.json',
   './data/azkar.json',
   './data/tafseer.json',
   './data/pagesquran.json',
+  './data/seerah/prophet.json', // بيانات السيرة
 
-  // الوحدات والمكونات
+  // 4. الوحدات والمكونات القديمة
   './js/modules/quran_reader.js',
   './js/modules/azkar.js',
   './js/modules/calculators.js',
@@ -48,18 +49,24 @@ const ASSETS_TO_CACHE = [
   './js/components/extras/FeelingsPharmacy.js',
   './js/components/extras/QuranExam.js',
   './js/components/extras/TafseerExam.js',
-  './js/components/ui/CustomModal.js'
+  './js/components/ui/CustomModal.js',
+
+  // 🔥 5. ملفات روضة المحبين الجديدة
+  './js/components/seerah/ProphetSeerah.js',
+  './js/components/seerah/AsmaHusna.js',
+  './js/components/seerah/RawdatHub.js'
 ];
 
 self.addEventListener('install', (evt) => {
   self.skipWaiting();
   evt.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
+      // تحميل الملفات واحداً تلو الآخر لضمان عدم الفشل الكامل
       const promises = ASSETS_TO_CACHE.map(url => 
         fetch(url).then(res => {
             if(res.ok) return cache.put(url, res);
             throw new Error('Not OK');
-        }).catch(err => console.warn(`⚠️ ملف مفقود: ${url}`))
+        }).catch(err => console.warn(`⚠️ ملف مفقود (يمكن تجاهله): ${url}`))
       );
       await Promise.all(promises);
     })
