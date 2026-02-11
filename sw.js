@@ -1,11 +1,10 @@
 /* =========================================
    Service Worker: الحارس الذكي (PWA)
-   الإصدار: V3 - تخزين شامل للبيانات والخطوط
+   الإصدار: V4 - مع إشعار اكتمال التحميل
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v3'; // تغيير الرقم يفرض تحديث الكاش عند المستخدمين
+const CACHE_NAME = 'althuraya-offline-v4'; // قمنا بتغيير الإصدار لتحديث الكاش
 
-// قائمة الملفات التي سيتم تخزينها إجبارياً
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -13,11 +12,11 @@ const ASSETS_TO_CACHE = [
   './manifest.json',
   './css/style.css',
   
-  // الخطوط (مهمة جداً للأوفلاين)
+  // الخطوط
   './css/fonts/Amiri-Bold.ttf',
   './css/fonts/Cairo-Black.ttf',
 
-  // المكتبات الأساسية
+  // المكتبات
   './js/tailwindcss.js',
   './js/react.js',
   './js/react-dom.js',
@@ -25,18 +24,18 @@ const ASSETS_TO_CACHE = [
   './js/html2canvas.js',
   './js/firebase.js',
 
-  // ملفات التشغيل
+  // ملفات النظام
   './js/app.js',
   './js/admin.js',
   './js/data_loader.js',
 
-  // البيانات الضخمة (هنا السر!)
+  // البيانات (تأكد أن المسارات صحيحة 100%)
   './data/quran.json',
   './data/azkar.json',
   './data/tafseer.json',
   './data/pagesquran.json',
 
-  // المكونات والوحدات
+  // الوحدات والمكونات
   './js/modules/quran_reader.js',
   './js/modules/azkar.js',
   './js/modules/calculators.js',
@@ -65,55 +64,49 @@ const ASSETS_TO_CACHE = [
   './js/components/ui/CustomModal.js'
 ];
 
-// 1. التثبيت: تحميل كل الملفات دفعة واحدة
+// 1. التثبيت والتحميل
 self.addEventListener('install', (evt) => {
-  console.log('[ServiceWorker] جاري التثبيت وتخزين الملفات...');
+  self.skipWaiting();
+  console.log('[SW] بدء تحميل الملفات...');
+  
   evt.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // محاولة تحميل الملفات وإذا نجحت نرسل رسالة
+      await cache.addAll(ASSETS_TO_CACHE);
+      console.log('[SW] تم تحميل كل الملفات بنجاح!');
+      
+      // إرسال رسالة للصفحة بأن التحميل اكتمل
+      const clients = await self.clients.matchAll({includeUncontrolled: true});
+      clients.forEach(client => {
+          client.postMessage({ type: 'CACHE_COMPLETE' });
+      });
     })
   );
-  self.skipWaiting(); // تفعيل الخدمة فوراً
 });
 
-// 2. التفعيل: تنظيف الكاش القديم
+// 2. التفعيل
 self.addEventListener('activate', (evt) => {
-  console.log('[ServiceWorker] تم التفعيل وتنظيف القديم');
   evt.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(keyList.map((key) => {
-        if (key !== CACHE_NAME) {
-          console.log('[ServiceWorker] حذف الكاش القديم:', key);
-          return caches.delete(key);
-        }
+        if (key !== CACHE_NAME) return caches.delete(key);
       }));
     })
   );
   self.clients.claim();
 });
 
-// 3. الاستدعاء: استراتيجية "الكاش أولاً" (Cache First)
-// هذه الاستراتيجية تجعل التطبيق صاروخياً وتعمل بدون نت
+// 3. الجلب (Offline First)
 self.addEventListener('fetch', (evt) => {
-  // استثناء طلبات الفايربيس أو الروابط الخارجية (لتبقى متصلة بالنت)
-  if (evt.request.url.includes('firestore') || evt.request.url.includes('googleapis')) {
-    return; // دعها تذهب للشبكة
-  }
-
+  if (evt.request.url.includes('firestore') || evt.request.url.includes('googleapis')) return;
   evt.respondWith(
-    caches.match(evt.request).then((cacheRes) => {
-      // إذا وجد الملف في الكاش، ارجعه فوراً (أسرع وأوفلاين)
-      // إذا لم يوجد، اذهب للإنترنت واجلبه
-      return cacheRes || fetch(evt.request).then(fetchRes => {
+    caches.match(evt.request).then((res) => {
+      return res || fetch(evt.request).then(fetchRes => {
           return caches.open(CACHE_NAME).then(cache => {
-              // خزن الملف الجديد للمرة القادمة
               cache.put(evt.request.url, fetchRes.clone());
               return fetchRes;
           });
       });
-    }).catch(() => {
-        // إذا فشل كل شيء (لا كاش ولا نت)، يمكن عرض صفحة "أنت غير متصل"
-        // لكن بما أننا خزننا كل شيء في التثبيت، لن نحتاج لهذا غالباً
     })
   );
 });
