@@ -1,40 +1,32 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (شامل: صائد الأخطاء + مسابقة التفسير)
+   (شامل: صائد الأخطاء + الميزات الجديدة الآمنة)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
 
 // --- 1. صائد الأخطاء (يمنع الشاشة البيضاء) ---
 class ErrorBoundary extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { hasError: false, errorInfo: "" };
-    }
-    static getDerivedStateFromError(error) {
-        return { hasError: true };
-    }
-    componentDidCatch(error, errorInfo) {
-        this.setState({ errorInfo: error.toString() });
-        console.error("🔥 خطأ في المكون:", error, errorInfo);
+    constructor(props) { super(props); this.state = { hasError: false, errorInfo: "" }; }
+    static getDerivedStateFromError(error) { return { hasError: true }; }
+    componentDidCatch(error, errorInfo) { 
+        this.setState({ errorInfo: error.toString() }); 
+        console.error("🔥 خطأ:", error, errorInfo); 
     }
     render() {
-        if (this.state.hasError) {
-            return (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center my-2">
-                    <h3 className="text-red-600 font-bold text-sm">⛔ توقف هذا الجزء</h3>
-                    <p className="text-[10px] text-red-400 mt-1" dir="ltr">{this.state.errorInfo.slice(0, 50)}...</p>
-                </div>
-            );
-        }
+        if (this.state.hasError) return <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center my-2"><h3 className="text-red-600 font-bold text-xs">⛔ توقف هذا الجزء</h3></div>;
         return this.props.children;
     }
 }
 
 // استيراد آمن للمكونات
-const safeImport = (name) => window[name] || (() => <div className="text-center text-xs text-gray-400 py-2">جاري تحميل {name}...</div>);
+const safeImport = (name) => {
+    const Comp = window[name];
+    if (!Comp) return () => <div className="text-center text-xs text-gray-400 py-4 border border-dashed rounded-lg bg-gray-50">⏳ جاري تحميل {name}... (تأكد من الملفات)</div>;
+    return Comp;
+};
 
-// تعريف المكونات
+// تعريف المكونات الأساسية
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
@@ -42,7 +34,7 @@ const QuranReader = safeImport('QuranReader');
 const AzkarApp = safeImport('AzkarApp');
 const DailyWird = safeImport('DailyWird');
 const QuranExam = safeImport('QuranExam');
-const TafseerExam = safeImport('TafseerExam'); // 🔥 إضافة مسابقة التفسير
+const TafseerExam = safeImport('TafseerExam');
 const VirtuousTimesWidget = safeImport('VirtuousTimesWidget');
 const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
@@ -54,30 +46,24 @@ const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
+// 🔥 المكون الجديد (روضة المحبين) - معزول
+const RawdatHub = safeImport('RawdatHub');
+
 const App = () => {
     const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [] });
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
-    const [dataReady, setDataReady] = useState(false);
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
     useEffect(() => {
-        // تفعيل النافذة الأنيقة
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
-        const handleDataReady = () => setDataReady(true);
-        window.addEventListener('data-ready', handleDataReady);
-        if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
-
         if (window.db && window.onSnapshot) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
-                if (doc.exists()) {
-                    setConfig(prev => ({...prev, ...doc.data()}));
-                    if(doc.data().settings?.layoutScale) document.documentElement.style.setProperty('--layout-scale', doc.data().settings.layoutScale);
-                }
+                if (doc.exists()) setConfig(prev => ({...prev, ...doc.data()}));
             });
         }
     }, []);
@@ -99,10 +85,21 @@ const App = () => {
                 </div>
             </header>
 
+            {/* 🔥 القائمة الجديدة (تم إضافة روضة المحبين) */}
             <nav className="no-scrollbar">
-                {['home','student_corner','extras','teachers','students','schedules','about','card'].map(t => (
-                    <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
-                        {{home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار', teachers:'المعلمون', students:'الأوائل', schedules:'الجداول', about:'من نحن', card:'بطاقتي'}[t]}
+                {[
+                    {id:'home', l:'الرئيسية'},
+                    {id:'rawdah', l:'روضة المحبين 💗'}, // جديد
+                    {id:'student_corner', l:'ركن الطالب'},
+                    {id:'extras', l:'واحة الزوار'},
+                    {id:'teachers', l:'المعلمون'},
+                    {id:'students', l:'الأوائل'},
+                    {id:'schedules', l:'الجداول'},
+                    {id:'about', l:'من نحن'},
+                    {id:'card', l:'بطاقتي'}
+                ].map(t => (
+                    <button key={t.id} onClick={() => setPage(t.id)} className={page === t.id ? 'active' : ''}>
+                        {t.l}
                     </button>
                 ))}
             </nav>
@@ -112,6 +109,13 @@ const App = () => {
                     {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
                 </ErrorBoundary>
 
+                {/* 🔥 صفحة روضة المحبين الجديدة */}
+                {page === 'rawdah' && (
+                    <ErrorBoundary>
+                        <RawdatHub />
+                    </ErrorBoundary>
+                )}
+
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
                         <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>
@@ -120,7 +124,7 @@ const App = () => {
                         <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'time' && <CalcTime />}</ErrorBoundary>
                         
-                        <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك (قديم)</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
+                        <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'test' && <TestHifz />}</ErrorBoundary>
                         
                         <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
@@ -131,31 +135,16 @@ const App = () => {
                     </div>
                 )}
 
-                {/* --- قسم واحة الزوار --- */}
                 {page === 'extras' && (
                     <div className="space-y-4 max-w-lg mx-auto animate-in">
                         <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
-                        
-                        {/* 1. منبه الأوقات الفاضلة */}
                         <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>
-                        
-                        {/* 2. الورد اليومي */}
                         <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>
-                        
-                        {/* 3. العداد الجماعي */}
                         <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>
-
-                        {/* 4. صيدلية القلوب */}
                         <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary>
-                        
-                        {/* 5. المحاكي القرآني */}
                         <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>
-
-                        {/* 6. 🔥 مسابقة التفسير (جديد) */}
                         <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>
-
-                        {/* 7. صانع البطاقات */}
                         <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary>
                     </div>
