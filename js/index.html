@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منصة حلقات الثريا | الإصدار المطور</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="الثريا">
+    <link rel="apple-touch-icon" href="img/logo.png">
+
+    <link rel="icon" type="image/png" href="img/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        amiri: ['Amiri', 'serif'],
+                    },
+                    colors: {
+                        emerald: { 50: '#ecfdf5', 100: '#d1fae5', 600: '#059669', 800: '#065f46', 900: '#064e3b' },
+                        amber: { 50: '#fffbeb', 100: '#fef3c7', 600: '#d97706' },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900 select-none font-cairo">
+    
+    <div id="root"></div>
+
+    <script type="module" src="js/firebase.js"></script>
+
+    <script type="text/babel" src="js/data_loader.js"></script>
+
+    <script type="text/babel" src="js/components/ui/CustomModal.js"></script>
+
+    <script type="text/babel" src="js/components/app/HomeSection.js"></script>
+    <script type="text/babel" src="js/components/app/TeachersSection.js"></script>
+    <script type="text/babel" src="js/components/app/SchedulesSection.js"></script>
+    <script type="text/babel" src="js/components/app/AboutSection.js"></script>
+
+    <script type="text/babel" src="js/modules/calculators.js"></script>
+    <script type="text/babel" src="js/modules/hifz_test.js"></script>
+    <script type="text/babel" src="js/modules/quran.js"></script>
+    <script type="text/babel" src="js/modules/azkar.js"></script>
+    <script type="text/babel" src="js/modules/quran_reader.js"></script>
+    <script type="text/babel" src="js/modules/test.js"></script>
+
+    <script type="text/babel" src="js/components/extras/VirtuousTimes.js"></script>
+    <script type="text/babel" src="js/components/extras/DailyWird.js"></script>
+    <script type="text/babel" src="js/components/extras/GlobalCounter.js"></script>
+    <script type="text/babel" src="js/components/extras/CardMaker.js"></script>
+    <script type="text/babel" src="js/components/extras/QuranExam.js"></script>
+    <script type="text/babel" src="js/components/extras/FeelingsPharmacy.js"></script>
+    <script type="text/babel" src="js/components/extras/TafseerExam.js"></script>
+
+    <script type="text/babel" src="js/app.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('✅ Service Worker Registered!', reg.scope))
+                    .catch((err) => console.error('❌ SW Failed:', err));
+            });
+        }
+    </script>
+
+</body>
+</html>
