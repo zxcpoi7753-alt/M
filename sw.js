@@ -1,11 +1,10 @@
 /* =========================================
    Service Worker: الحارس الذكي (PWA)
-   الإصدار: V6 - (النسخة النهائية للتخزين الضخم)
+   الإصدار: V7 - (مع دعم قسم روضة المحبين)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v6'; 
+const CACHE_NAME = 'althuraya-offline-v7'; 
 
-// قائمة الملفات (تأكد أن أسماء المجلدات data و js صغيرة كما هنا)
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -30,11 +29,13 @@ const ASSETS_TO_CACHE = [
   './js/admin.js',
   './js/data_loader.js',
 
-  // البيانات (أهم جزء)
+  // البيانات (بما فيها السيرة الجديدة)
   './data/quran.json',
   './data/azkar.json',
   './data/tafseer.json',
   './data/pagesquran.json',
+  './data/seerah/prophet.json',        // 🔥 جديد
+  './data/seerah/prophet_profile.json', // 🔥 جديد
 
   // الوحدات
   './js/modules/quran_reader.js',
@@ -56,6 +57,7 @@ const ASSETS_TO_CACHE = [
   './js/components/admin/SchedulesAdmin.js',
   './js/components/admin/HalaqatAdmin.js',
 
+  // الإضافات
   './js/components/extras/VirtuousTimes.js',
   './js/components/extras/DailyWird.js',
   './js/components/extras/GlobalCounter.js',
@@ -63,34 +65,31 @@ const ASSETS_TO_CACHE = [
   './js/components/extras/FeelingsPharmacy.js',
   './js/components/extras/QuranExam.js',
   './js/components/extras/TafseerExam.js',
-  './js/components/ui/CustomModal.js'
+  './js/components/ui/CustomModal.js',
+
+  // 🔥 قسم روضة المحبين
+  './js/components/seerah/RawdatHub.js',
+  './js/components/seerah/ProphetSeerah.js',
+  './js/components/seerah/AsmaHusna.js'
 ];
 
-// 1. التثبيت (تحميل جماعي سريع)
 self.addEventListener('install', (evt) => {
   self.skipWaiting();
-  console.log('[SW] بدء التحميل V6...');
-  
   evt.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      // نستخدم Promise.all للسرعة + عدم التوقف عند خطأ واحد
       const promises = ASSETS_TO_CACHE.map(url => 
         fetch(url).then(res => {
             if(res.ok) return cache.put(url, res);
             throw new Error('Not OK');
         }).catch(err => console.warn(`⚠️ تخطي ملف: ${url}`))
       );
-      
       await Promise.all(promises);
-      
-      // إرسال رسالة النجاح
       const clients = await self.clients.matchAll({includeUncontrolled: true});
       clients.forEach(client => client.postMessage({ type: 'CACHE_COMPLETE' }));
     })
   );
 });
 
-// 2. التفعيل (تنظيف القديم)
 self.addEventListener('activate', (evt) => {
   evt.waitUntil(
     caches.keys().then((keyList) => {
@@ -102,13 +101,9 @@ self.addEventListener('activate', (evt) => {
   self.clients.claim();
 });
 
-// 3. الجلب (Offline First) - هنا التعديل السحري
 self.addEventListener('fetch', (evt) => {
   if (evt.request.url.includes('firestore') || evt.request.url.includes('googleapis')) return;
-
   evt.respondWith(
-    // ignoreSearch: true >> هذه هي التي تصلح المشكلة!
-    // تعني: لو طلب الموقع quran.json?v=123 أعطه quran.json المخزن فوراً
     caches.match(evt.request, { ignoreSearch: true }).then((res) => {
       return res || fetch(evt.request);
     })
