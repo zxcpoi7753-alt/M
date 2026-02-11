@@ -3,7 +3,7 @@
    الإصدار: V7 - (مع دعم قسم روضة المحبين)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v7'; 
+const CACHE_NAME = 'althuraya-offline-v8'; 
 
 const ASSETS_TO_CACHE = [
   './',
