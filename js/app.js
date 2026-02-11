@@ -1,32 +1,26 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة الذهبية: أمان + ميزات جديدة + تخزين أوفلاين ذكي)
+   (النسخة الماسية: تحديث ذكي + أوفلاين + ميزات جديدة)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
 
-// --- 1. صائد الأخطاء (يمنع الشاشة البيضاء) ---
+// --- صائد الأخطاء ---
 class ErrorBoundary extends Component {
-    constructor(props) { super(props); this.state = { hasError: false, errorInfo: "" }; }
+    constructor(props) { super(props); this.state = { hasError: false }; }
     static getDerivedStateFromError(error) { return { hasError: true }; }
-    componentDidCatch(error, errorInfo) { 
-        this.setState({ errorInfo: error.toString() }); 
-        console.error("🔥 خطأ:", error, errorInfo); 
-    }
-    render() {
-        if (this.state.hasError) return <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center my-2"><h3 className="text-red-600 font-bold text-xs">⛔ توقف هذا الجزء</h3></div>;
-        return this.props.children;
-    }
+    componentDidCatch(error, info) { console.error("Error:", error); }
+    render() { if (this.state.hasError) return <div className="text-red-500 text-xs text-center p-2">⚠️ خطأ في العرض</div>; return this.props.children; }
 }
 
-// استيراد آمن للمكونات
+// استيراد آمن
 const safeImport = (name) => {
     const Comp = window[name];
-    if (!Comp) return () => <div className="text-center text-xs text-gray-400 py-4 border border-dashed rounded-lg bg-gray-50">⏳ جاري تحميل {name}... (تأكد من الملفات)</div>;
+    if (!Comp) return () => <div className="text-center text-xs text-gray-400 py-4 border border-dashed rounded-lg bg-gray-50">⏳ جاري التحميل...</div>;
     return Comp;
 };
 
-// تعريف المكونات الأساسية
+// تعريف المكونات
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
@@ -40,23 +34,18 @@ const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
 const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
 const CustomModal = window.CustomModal;
+const RawdatHub = safeImport('RawdatHub');
 
 const HomeSection = safeImport('HomeSection');
 const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
-// 🔥 المكون الجديد (روضة المحبين)
-const RawdatHub = safeImport('RawdatHub');
-
 const App = () => {
-    // 🔥 التعديل الذكي هنا: تهيئة البيانات من الذاكرة المحلية فوراً (Offline First)
+    // تحميل البيانات من الذاكرة (Offline First)
     const [config, setConfig] = useState(() => {
-        const savedData = localStorage.getItem('app_offline_data');
-        return savedData ? JSON.parse(savedData) : { 
-            texts: { siteTitle: '...', contact: {} }, 
-            news: [], teachers: [], halaqat: [], schedules: [] 
-        };
+        const saved = localStorage.getItem('app_offline_data');
+        return saved ? JSON.parse(saved) : { texts: { siteTitle: '...' }, news: [], teachers: [], halaqat: [], schedules: [] };
     });
 
     const [page, setPage] = useState('home');
@@ -66,25 +55,45 @@ const App = () => {
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
     useEffect(() => {
-        window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
-        // جلب البيانات من فيربيس وتحديث الذاكرة المحلية
         if (window.db && window.onSnapshot) {
             try {
                 window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
                     if (doc.exists()) {
                         const newData = doc.data();
                         setConfig(prev => ({...prev, ...newData}));
-                        // 🔥 حفظ النسخة الجديدة في "الخزنة" للاستخدام لاحقاً بدون نت
                         localStorage.setItem('app_offline_data', JSON.stringify(newData));
                     }
                 });
-            } catch (e) {
-                console.log("⚠️ وضع الأوفلاين: استخدام البيانات المخزنة");
-            }
+            } catch (e) { console.log("Offline Mode"); }
         }
     }, []);
+
+    // 🔥 دالة التحديث الذكي (الإجبارية)
+    const handleSmartUpdate = () => {
+        // 1. فحص الإنترنت
+        if (!navigator.onLine) {
+            setModal({
+                show: true, 
+                title: '📴 لا يوجد إنترنت', 
+                msg: 'عذراً، أنت غير متصل بالإنترنت.\nلا يمكن تحديث التطبيق الآن.\n(البيانات الحالية محفوظة وتعمل بنجاح)'
+            });
+            return;
+        }
+
+        // 2. إذا وجد نت: تأكيد وحذف الكاش القديم
+        if (confirm("هل تريد تحديث التطبيق لجلب آخر البيانات؟\n(سيتم إعادة تحميل الصفحة)")) {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    for(let reg of regs) reg.unregister(); // طرد الحارس القديم
+                    window.location.reload(true); // إعادة تحميل إجبارية
+                });
+            } else {
+                window.location.reload(true);
+            }
+        }
+    };
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
 
@@ -98,7 +107,11 @@ const App = () => {
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
                 <div className="flex gap-2">
-                    <button onClick={() => window.location.reload()} className="p-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 shadow-sm">🔄</button>
+                    {/* 🔥 زر التحديث الجديد */}
+                    <button onClick={handleSmartUpdate} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm active:scale-95 transition">
+                        <span className="font-bold text-xs">تحديث</span>
+                        <span className="text-sm">🔄</span>
+                    </button>
                     <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 text-xl">🔒</a>
                 </div>
             </header>
@@ -106,7 +119,7 @@ const App = () => {
             <nav className="no-scrollbar">
                 {[
                     {id:'home', l:'الرئيسية'},
-                    {id:'rawdah', l:'روضة المحبين 💗'}, // زر الميزة الجديدة
+                    {id:'rawdah', l:'روضة المحبين 💗'},
                     {id:'student_corner', l:'ركن الطالب'},
                     {id:'extras', l:'واحة الزوار'},
                     {id:'teachers', l:'المعلمون'},
@@ -126,12 +139,7 @@ const App = () => {
                     {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
                 </ErrorBoundary>
 
-                {/* 🔥 صفحة روضة المحبين */}
-                {page === 'rawdah' && (
-                    <ErrorBoundary>
-                        <RawdatHub />
-                    </ErrorBoundary>
-                )}
+                {page === 'rawdah' && <ErrorBoundary><RawdatHub /></ErrorBoundary>}
 
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
@@ -158,11 +166,11 @@ const App = () => {
                         <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>
                         <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>
                         <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>
-                        <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
+                        <div onClick={() => toggleFeature('feeling')} className={`student-btn border-emerald-200 bg-emerald-50 ${activeFeature === 'feeling' ? 'active' : ''}`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary>
                         <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>
                         <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>
-                        <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
+                        <div onClick={() => toggleFeature('card')} className={`student-btn border-blue-200 bg-blue-50 ${activeFeature === 'card' ? 'active' : ''}`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
                         <ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary>
                     </div>
                 )}
@@ -172,7 +180,7 @@ const App = () => {
                 
                 {page === 'students' && (
                      <div className="space-y-6">
-                        {config.halaqat && config.halaqat.filter(h => !h.hidden).map(h => (
+                        {config.halaqat.filter(h => !h.hidden).map(h => (
                             <div key={h.id} className="bg-white rounded-[2rem] shadow-md overflow-hidden border-t-8 border-emerald-500">
                                 <div className="bg-emerald-50 p-4 text-center font-black text-emerald-800 border-b border-emerald-100">حلقة {h.name}</div>
                                 <div className="p-4 space-y-2">{h.students.map((st, idx) => (<div key={st.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border hover:bg-white transition"><span className="font-bold text-sm">{idx+1}. {st.name}</span><span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black shadow-sm">{st.rank}</span></div>))}</div>
