@@ -11,8 +11,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="الثريا">
     <link rel="apple-touch-icon" href="img/logo.png">
-
     <link rel="icon" type="image/png" href="img/logo.png">
+    
     <link rel="stylesheet" href="css/style.css">
 
     <script src="js/tailwindcss.js"></script>
@@ -40,6 +40,21 @@
 </head>
 <body class="bg-gray-50 text-gray-900 select-none font-cairo">
     
+    <div id="debug-error" style="display:none; background: #fee2e2; color: #991b1b; padding: 20px; margin: 20px; border: 2px solid #b91c1c; border-radius: 10px; font-family: sans-serif; direction: ltr; text-align: left; z-index: 9999; position: relative;">
+        <h3 style="margin-top:0">🔥 خطأ برمجي (Error Detected):</h3>
+        <pre id="debug-msg" style="white-space: pre-wrap; font-size: 12px;"></pre>
+        <button onclick="location.reload()" style="background:#b91c1c; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; margin-top:10px; font-weight:bold;">تحديث الصفحة</button>
+    </div>
+
+    <script>
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            var container = document.getElementById('debug-error');
+            var msgBox = document.getElementById('debug-msg');
+            container.style.display = 'block';
+            msgBox.innerHTML = "رسالة الخطأ: " + msg + "\nالملف: " + url + "\nالسطر: " + lineNo;
+            return false;
+        };
+    </script>
     <div id="root"></div>
 
     <script type="module" src="js/firebase.js"></script>
