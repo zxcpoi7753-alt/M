@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (شامل: صائد الأخطاء + مسابقة التفسير + التحكم بالظهور)
+   (مع زر التثبيت الذكي PWA Install Button)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -53,27 +53,39 @@ const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
 const App = () => {
-    // إضافة visibility للحالة
+    // إعدادات التطبيق
     const [config, setConfig] = useState({ 
         texts: { siteTitle: '...', contact: {} }, 
         news: [], teachers: [], halaqat: [], schedules: [],
-        visibility: {} // افتراضي
+        visibility: {} 
     });
     
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
-    const [dataReady, setDataReady] = useState(false);
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
+    // --- منطق تثبيت التطبيق (PWA) ---
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [isInstalled, setIsInstalled] = useState(false);
+
     useEffect(() => {
+        // الاستماع لحدث التثبيت
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+            console.log("📱 زر التثبيت جاهز للظهور");
+        });
+
+        // التحقق مما إذا كان مثبتاً بالفعل
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            setIsInstalled(true);
+        }
+
+        // إعداد النوافذ
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
-
-        const handleDataReady = () => setDataReady(true);
-        window.addEventListener('data-ready', handleDataReady);
-        if (window.APP_DATA && window.APP_DATA.isReady) setDataReady(true);
 
         if (window.db && window.onSnapshot) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
@@ -85,9 +97,19 @@ const App = () => {
         }
     }, []);
 
-    const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
+    // دالة تنفيذ التثبيت
+    const handleInstallClick = async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        const { outcome } = await installPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setInstallPrompt(null);
+            setIsInstalled(true);
+            window.showGlobalAlert("مبروك 🎉", "تم تثبيت التطبيق بنجاح!\nالآن يمكنك استخدامه بدون إنترنت.");
+        }
+    };
 
-    // دالة التحقق من الظهور (الجديدة)
+    const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
     const isVisible = (section, key) => config.visibility?.[section]?.[key] !== false;
 
     // فلترة القائمة العلوية
@@ -112,6 +134,12 @@ const App = () => {
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
                 <div className="flex gap-2">
+                    {/* زر التثبيت يظهر فقط إذا كان متاحاً ولم يثبت بعد */}
+                    {installPrompt && !isInstalled && (
+                        <button onClick={handleInstallClick} className="px-3 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-black rounded-xl shadow-lg animate-pulse border-2 border-white">
+                            📲 تثبيت التطبيق
+                        </button>
+                    )}
                     <button onClick={() => window.location.reload()} className="p-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 shadow-sm">🔄</button>
                     <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 text-xl">🔒</a>
                 </div>
@@ -215,7 +243,6 @@ const App = () => {
                     </div>
                 )}
                 
-                {/* صفحة من نحن لم يتم إخفاؤها داخلياً لكن يمكن إخفاء زر الوصول إليها */}
                 <ErrorBoundary>{page === 'about' && <AboutSection texts={config.texts} />}</ErrorBoundary>
                 
                 {page === 'card' && (
