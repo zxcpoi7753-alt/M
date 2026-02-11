@@ -11,15 +11,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="الثريا">
     <link rel="apple-touch-icon" href="img/logo.png">
+
     <link rel="icon" type="image/png" href="img/logo.png">
-    
     <link rel="stylesheet" href="css/style.css">
 
-    <script src="js/tailwindcss.js"></script>
-    <script src="js/react.js"></script>
-    <script src="js/react-dom.js"></script>
-    <script src="js/babel.js"></script>
-    <script src="js/html2canvas.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -40,23 +40,12 @@
 </head>
 <body class="bg-gray-50 text-gray-900 select-none font-cairo">
     
-    <div id="debug-error" style="display:none; background: #fee2e2; color: #991b1b; padding: 20px; margin: 20px; border: 2px solid #b91c1c; border-radius: 10px; z-index: 9999; position: relative;">
-        <h3 style="margin-top:0">🔥 خطأ برمجي:</h3>
-        <pre id="debug-msg" style="white-space: pre-wrap; direction: ltr; text-align: left;"></pre>
-        <button onclick="location.reload()" style="background:#b91c1c; color:white; border:none; padding:10px 20px; border-radius:5px; margin-top:10px;">تحديث الصفحة</button>
-    </div>
-    <script>
-        window.onerror = function (msg, url, lineNo) {
-            document.getElementById('debug-error').style.display = 'block';
-            document.getElementById('debug-msg').innerHTML = msg + "\nFile: " + url + "\nLine: " + lineNo;
-            return false;
-        };
-    </script>
-
     <div id="root"></div>
 
     <script type="module" src="js/firebase.js"></script>
+
     <script type="text/babel" src="js/data_loader.js"></script>
+
     <script type="text/babel" src="js/components/ui/CustomModal.js"></script>
 
     <script type="text/babel" src="js/components/app/HomeSection.js"></script>
@@ -65,11 +54,11 @@
     <script type="text/babel" src="js/components/app/AboutSection.js"></script>
 
     <script type="text/babel" src="js/modules/calculators.js"></script>
-    <script type="text/babel" src="js/modules/quran_reader.js"></script>
+    <script type="text/babel" src="js/modules/hifz_test.js"></script>
+    <script type="text/babel" src="js/modules/quran.js"></script>
     <script type="text/babel" src="js/modules/azkar.js"></script>
+    <script type="text/babel" src="js/modules/quran_reader.js"></script>
     <script type="text/babel" src="js/modules/test.js"></script>
-    <script type="text/babel" src="js/modules/ui.js"></script>
-    <script type="text/babel" src="js/modules/visitors.js"></script>
 
     <script type="text/babel" src="js/components/extras/VirtuousTimes.js"></script>
     <script type="text/babel" src="js/components/extras/DailyWird.js"></script>
@@ -85,7 +74,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .catch((err) => console.log('SW Error:', err));
+                    .then((reg) => console.log('✅ Service Worker Registered!', reg.scope))
+                    .catch((err) => console.error('❌ SW Failed:', err));
             });
         }
     </script>
