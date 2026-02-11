@@ -1,19 +1,17 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (شامل: صائد الأخطاء + مسابقة التفسير)
+   (شامل: صائد الأخطاء + مسابقة التفسير + التحكم بالظهور)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
 
-// --- 1. صائد الأخطاء (يمنع الشاشة البيضاء) ---
+// --- 1. صائد الأخطاء ---
 class ErrorBoundary extends Component {
     constructor(props) {
         super(props);
         this.state = { hasError: false, errorInfo: "" };
     }
-    static getDerivedStateFromError(error) {
-        return { hasError: true };
-    }
+    static getDerivedStateFromError(error) { return { hasError: true }; }
     componentDidCatch(error, errorInfo) {
         this.setState({ errorInfo: error.toString() });
         console.error("🔥 خطأ في المكون:", error, errorInfo);
@@ -31,7 +29,7 @@ class ErrorBoundary extends Component {
     }
 }
 
-// استيراد آمن للمكونات
+// استيراد آمن
 const safeImport = (name) => window[name] || (() => <div className="text-center text-xs text-gray-400 py-2">جاري تحميل {name}...</div>);
 
 // تعريف المكونات
@@ -42,7 +40,7 @@ const QuranReader = safeImport('QuranReader');
 const AzkarApp = safeImport('AzkarApp');
 const DailyWird = safeImport('DailyWird');
 const QuranExam = safeImport('QuranExam');
-const TafseerExam = safeImport('TafseerExam'); // 🔥 إضافة مسابقة التفسير
+const TafseerExam = safeImport('TafseerExam');
 const VirtuousTimesWidget = safeImport('VirtuousTimesWidget');
 const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
@@ -55,7 +53,13 @@ const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
 const App = () => {
-    const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [] });
+    // إضافة visibility للحالة
+    const [config, setConfig] = useState({ 
+        texts: { siteTitle: '...', contact: {} }, 
+        news: [], teachers: [], halaqat: [], schedules: [],
+        visibility: {} // افتراضي
+    });
+    
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
     const [dataReady, setDataReady] = useState(false);
@@ -64,7 +68,6 @@ const App = () => {
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
     useEffect(() => {
-        // تفعيل النافذة الأنيقة
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
@@ -84,6 +87,21 @@ const App = () => {
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
 
+    // دالة التحقق من الظهور (الجديدة)
+    const isVisible = (section, key) => config.visibility?.[section]?.[key] !== false;
+
+    // فلترة القائمة العلوية
+    const navItems = [
+        {id: 'home', label: 'الرئيسية'},
+        {id: 'student_corner', label: 'ركن الطالب'},
+        {id: 'extras', label: 'واحة الزوار'},
+        {id: 'teachers', label: 'المعلمون'},
+        {id: 'students', label: 'الأوائل'},
+        {id: 'schedules', label: 'الجداول'},
+        {id: 'about', label: 'من نحن'},
+        {id: 'card', label: 'بطاقتي'}
+    ].filter(item => isVisible('nav', item.id));
+
     return (
         <div id="app-container">
             {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
@@ -100,9 +118,9 @@ const App = () => {
             </header>
 
             <nav className="no-scrollbar">
-                {['home','student_corner','extras','teachers','students','schedules','about','card'].map(t => (
-                    <button key={t} onClick={() => setPage(t)} className={page === t ? 'active' : ''}>
-                        {{home:'الرئيسية', student_corner:'ركن الطالب', extras:'واحة الزوار', teachers:'المعلمون', students:'الأوائل', schedules:'الجداول', about:'من نحن', card:'بطاقتي'}[t]}
+                {navItems.map(item => (
+                    <button key={item.id} onClick={() => setPage(item.id)} className={page === item.id ? 'active' : ''}>
+                        {item.label}
                     </button>
                 ))}
             </nav>
@@ -114,55 +132,77 @@ const App = () => {
 
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
-                        <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'effort' && <CalcEffort />}</ErrorBoundary>
+                        
+                        {isVisible('student', 'effort') && (
+                            <>
+                                <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'effort' && <CalcEffort />}</ErrorBoundary>
+                            </>
+                        )}
 
-                        <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'time' && <CalcTime />}</ErrorBoundary>
+                        {isVisible('student', 'time') && (
+                            <>
+                                <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'time' && <CalcTime />}</ErrorBoundary>
+                            </>
+                        )}
                         
-                        <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك (قديم)</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'test' && <TestHifz />}</ErrorBoundary>
+                        {isVisible('student', 'test') && (
+                            <>
+                                <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'test' && <TestHifz />}</ErrorBoundary>
+                            </>
+                        )}
                         
-                        <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'quran' && <QuranReader />}</ErrorBoundary>
+                        {isVisible('student', 'quran') && (
+                            <>
+                                <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'quran' && <QuranReader />}</ErrorBoundary>
+                            </>
+                        )}
                         
-                        <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}><span>📿 الأذكار</span><span>{activeFeature === 'azkar'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'azkar' && <AzkarApp />}</ErrorBoundary>
+                        {isVisible('student', 'azkar') && (
+                            <>
+                                <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}><span>📿 الأذكار</span><span>{activeFeature === 'azkar'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'azkar' && <AzkarApp />}</ErrorBoundary>
+                            </>
+                        )}
                     </div>
                 )}
 
-                {/* --- قسم واحة الزوار --- */}
+                {/* --- واحة الزوار --- */}
                 {page === 'extras' && (
                     <div className="space-y-4 max-w-lg mx-auto animate-in">
                         <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
                         
-                        {/* 1. منبه الأوقات الفاضلة */}
-                        <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>
+                        {isVisible('extras', 'virtuous') && <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>}
                         
-                        {/* 2. الورد اليومي */}
-                        <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>
+                        {isVisible('extras', 'wird') && <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>}
                         
-                        {/* 3. العداد الجماعي */}
-                        <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>
+                        {isVisible('extras', 'counter') && <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>}
 
-                        {/* 4. صيدلية القلوب */}
-                        <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary>
+                        {isVisible('extras', 'feeling') && (
+                            <>
+                                <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary>
+                            </>
+                        )}
                         
-                        {/* 5. المحاكي القرآني */}
-                        <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>
+                        {isVisible('extras', 'quran_exam') && <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>}
 
-                        {/* 6. 🔥 مسابقة التفسير (جديد) */}
-                        <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>
+                        {isVisible('extras', 'tafseer_exam') && <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>}
 
-                        {/* 7. صانع البطاقات */}
-                        <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
-                        <ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary>
+                        {isVisible('extras', 'card') && (
+                            <>
+                                <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
+                                <ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary>
+                            </>
+                        )}
                     </div>
                 )}
 
-                <ErrorBoundary>{page === 'teachers' && <TeachersSection teachers={config.teachers} />}</ErrorBoundary>
-                <ErrorBoundary>{page === 'schedules' && <SchedulesSection schedules={config.schedules} />}</ErrorBoundary>
+                {isVisible('nav', 'teachers') && <ErrorBoundary>{page === 'teachers' && <TeachersSection teachers={config.teachers} />}</ErrorBoundary>}
+                {isVisible('nav', 'schedules') && <ErrorBoundary>{page === 'schedules' && <SchedulesSection schedules={config.schedules} />}</ErrorBoundary>}
                 
                 {page === 'students' && (
                      <div className="space-y-6">
@@ -175,6 +215,7 @@ const App = () => {
                     </div>
                 )}
                 
+                {/* صفحة من نحن لم يتم إخفاؤها داخلياً لكن يمكن إخفاء زر الوصول إليها */}
                 <ErrorBoundary>{page === 'about' && <AboutSection texts={config.texts} />}</ErrorBoundary>
                 
                 {page === 'card' && (
