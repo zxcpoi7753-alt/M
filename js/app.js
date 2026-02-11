@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (شامل: صائد الأخطاء + الميزات الجديدة الآمنة)
+   (النسخة الذهبية: أمان + ميزات جديدة + تخزين أوفلاين ذكي)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -46,11 +46,19 @@ const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
-// 🔥 المكون الجديد (روضة المحبين) - معزول
+// 🔥 المكون الجديد (روضة المحبين)
 const RawdatHub = safeImport('RawdatHub');
 
 const App = () => {
-    const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [] });
+    // 🔥 التعديل الذكي هنا: تهيئة البيانات من الذاكرة المحلية فوراً (Offline First)
+    const [config, setConfig] = useState(() => {
+        const savedData = localStorage.getItem('app_offline_data');
+        return savedData ? JSON.parse(savedData) : { 
+            texts: { siteTitle: '...', contact: {} }, 
+            news: [], teachers: [], halaqat: [], schedules: [] 
+        };
+    });
+
     const [page, setPage] = useState('home');
     const [activeFeature, setActiveFeature] = useState(null);
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
@@ -61,10 +69,20 @@ const App = () => {
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
+        // جلب البيانات من فيربيس وتحديث الذاكرة المحلية
         if (window.db && window.onSnapshot) {
-            window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
-                if (doc.exists()) setConfig(prev => ({...prev, ...doc.data()}));
-            });
+            try {
+                window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
+                    if (doc.exists()) {
+                        const newData = doc.data();
+                        setConfig(prev => ({...prev, ...newData}));
+                        // 🔥 حفظ النسخة الجديدة في "الخزنة" للاستخدام لاحقاً بدون نت
+                        localStorage.setItem('app_offline_data', JSON.stringify(newData));
+                    }
+                });
+            } catch (e) {
+                console.log("⚠️ وضع الأوفلاين: استخدام البيانات المخزنة");
+            }
         }
     }, []);
 
@@ -85,11 +103,10 @@ const App = () => {
                 </div>
             </header>
 
-            {/* 🔥 القائمة الجديدة (تم إضافة روضة المحبين) */}
             <nav className="no-scrollbar">
                 {[
                     {id:'home', l:'الرئيسية'},
-                    {id:'rawdah', l:'روضة المحبين 💗'}, // جديد
+                    {id:'rawdah', l:'روضة المحبين 💗'}, // زر الميزة الجديدة
                     {id:'student_corner', l:'ركن الطالب'},
                     {id:'extras', l:'واحة الزوار'},
                     {id:'teachers', l:'المعلمون'},
@@ -109,7 +126,7 @@ const App = () => {
                     {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
                 </ErrorBoundary>
 
-                {/* 🔥 صفحة روضة المحبين الجديدة */}
+                {/* 🔥 صفحة روضة المحبين */}
                 {page === 'rawdah' && (
                     <ErrorBoundary>
                         <RawdatHub />
@@ -155,7 +172,7 @@ const App = () => {
                 
                 {page === 'students' && (
                      <div className="space-y-6">
-                        {config.halaqat.filter(h => !h.hidden).map(h => (
+                        {config.halaqat && config.halaqat.filter(h => !h.hidden).map(h => (
                             <div key={h.id} className="bg-white rounded-[2rem] shadow-md overflow-hidden border-t-8 border-emerald-500">
                                 <div className="bg-emerald-50 p-4 text-center font-black text-emerald-800 border-b border-emerald-100">حلقة {h.name}</div>
                                 <div className="p-4 space-y-2">{h.students.map((st, idx) => (<div key={st.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border hover:bg-white transition"><span className="font-bold text-sm">{idx+1}. {st.name}</span><span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-black shadow-sm">{st.rank}</span></div>))}</div>
