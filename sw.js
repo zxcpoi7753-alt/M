@@ -1,11 +1,11 @@
 /* =========================================
-   Service Worker: الحارس الذكي (المتسامح - Anti-Freeze)
-   الإصدار: V5 - يكمل التحميل حتى لو نقص ملف
+   Service Worker: الحارس الذكي (PWA)
+   الإصدار: V6 - (النسخة النهائية للتخزين الضخم)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v5'; 
+const CACHE_NAME = 'althuraya-offline-v6'; 
 
-// قائمة الملفات (حتى لو أخطأت في اسم واحد، لن يتوقف التطبيق)
+// قائمة الملفات (تأكد أن أسماء المجلدات data و js صغيرة كما هنا)
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -17,7 +17,7 @@ const ASSETS_TO_CACHE = [
   './css/fonts/Amiri-Bold.ttf',
   './css/fonts/Cairo-Black.ttf',
 
-  // المكتبات (تأكد أنها موجودة في مجلد js)
+  // المكتبات
   './js/tailwindcss.js',
   './js/react.js',
   './js/react-dom.js',
@@ -30,7 +30,7 @@ const ASSETS_TO_CACHE = [
   './js/admin.js',
   './js/data_loader.js',
 
-  // البيانات
+  // البيانات (أهم جزء)
   './data/quran.json',
   './data/azkar.json',
   './data/tafseer.json',
@@ -66,39 +66,31 @@ const ASSETS_TO_CACHE = [
   './js/components/ui/CustomModal.js'
 ];
 
-// 1. التثبيت (النسخة الذكية: لا تتوقف عند الخطأ)
+// 1. التثبيت (تحميل جماعي سريع)
 self.addEventListener('install', (evt) => {
   self.skipWaiting();
-  console.log('[SW] بدء التحميل الذكي...');
+  console.log('[SW] بدء التحميل V6...');
   
   evt.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      // نمر على الملفات واحداً تلو الآخر
-      for (const url of ASSETS_TO_CACHE) {
-          try {
-              const res = await fetch(url);
-              if (res.ok) {
-                  await cache.put(url, res);
-              } else {
-                  console.warn(`⚠️ ملف مفقود (404): ${url}`); // يسجل الخطأ ولا يتوقف
-              }
-          } catch (error) {
-              console.warn(`❌ تعذر تحميل: ${url}`); // يسجل الخطأ ولا يتوقف
-          }
-      }
+      // نستخدم Promise.all للسرعة + عدم التوقف عند خطأ واحد
+      const promises = ASSETS_TO_CACHE.map(url => 
+        fetch(url).then(res => {
+            if(res.ok) return cache.put(url, res);
+            throw new Error('Not OK');
+        }).catch(err => console.warn(`⚠️ تخطي ملف: ${url}`))
+      );
       
-      console.log('[SW] اكتملت العملية (تم تجاهل الملفات المفقودة)');
+      await Promise.all(promises);
       
-      // إبلاغ التطبيق بالنجاح
+      // إرسال رسالة النجاح
       const clients = await self.clients.matchAll({includeUncontrolled: true});
-      clients.forEach(client => {
-          client.postMessage({ type: 'CACHE_COMPLETE' });
-      });
+      clients.forEach(client => client.postMessage({ type: 'CACHE_COMPLETE' }));
     })
   );
 });
 
-// 2. التفعيل
+// 2. التفعيل (تنظيف القديم)
 self.addEventListener('activate', (evt) => {
   evt.waitUntil(
     caches.keys().then((keyList) => {
@@ -110,19 +102,15 @@ self.addEventListener('activate', (evt) => {
   self.clients.claim();
 });
 
-// 3. الجلب (Offline First)
+// 3. الجلب (Offline First) - هنا التعديل السحري
 self.addEventListener('fetch', (evt) => {
   if (evt.request.url.includes('firestore') || evt.request.url.includes('googleapis')) return;
+
   evt.respondWith(
-    caches.match(evt.request).then((res) => {
-      return res || fetch(evt.request).then(fetchRes => {
-          return caches.open(CACHE_NAME).then(cache => {
-              cache.put(evt.request.url, fetchRes.clone());
-              return fetchRes;
-          });
-      }).catch(() => {
-          // إذا فشل كل شيء، لا تفعل شيئاً (أو اعرض صفحة خطأ مخصصة)
-      });
+    // ignoreSearch: true >> هذه هي التي تصلح المشكلة!
+    // تعني: لو طلب الموقع quran.json?v=123 أعطه quran.json المخزن فوراً
+    caches.match(evt.request, { ignoreSearch: true }).then((res) => {
+      return res || fetch(evt.request);
     })
   );
 });
