@@ -1,41 +1,67 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (محدث ليشمل روضة المحبين)
+   (نسخة الإنقاذ: لا تظهر شاشة بيضاء أبداً)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
 
+// 1. مكون صائد الأخطاء (يمنع الشاشة البيضاء)
 class ErrorBoundary extends Component {
     constructor(props) { super(props); this.state = { hasError: false, errorInfo: "" }; }
     static getDerivedStateFromError(error) { return { hasError: true }; }
-    componentDidCatch(error, errorInfo) { this.setState({ errorInfo: error.toString() }); console.error("🔥 خطأ:", error); }
-    render() { if (this.state.hasError) return <div className="p-2 bg-red-50 text-red-600 text-xs text-center">خطأ بسيط، حاول التحديث</div>; return this.props.children; }
+    componentDidCatch(error, errorInfo) { 
+        this.setState({ errorInfo: error.toString() }); 
+        console.error("🔥 خطأ:", error); 
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="p-4 m-4 bg-red-50 border border-red-200 rounded-xl text-center">
+                    <h3 className="text-red-800 font-bold mb-2">⚠️ حدث خطأ في هذا القسم</h3>
+                    <p className="text-[10px] text-red-600 font-mono" dir="ltr">{this.state.errorInfo.slice(0, 100)}</p>
+                    <button onClick={() => window.location.reload()} className="mt-2 px-4 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-bold">تحديث الصفحة</button>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
 }
 
-const safeImport = (name) => window[name] || (() => <div className="text-center text-xs text-gray-400 py-2">جاري التحميل...</div>);
+// 2. دالة استيراد آمنة (تفحص هل المكون موجود أم لا)
+const safeImport = (name) => {
+    // نحاول جلب المكون من النافذة
+    const Comp = window[name];
+    // إذا لم نجده، نعرض رسالة انتظار بدلاً من الانهيار
+    if (!Comp) return () => <div className="p-4 text-center text-xs text-gray-400">⏳ جاري تحميل {name}... (أو تأكد من الملفات)</div>;
+    return Comp;
+};
 
-// استيراد المكونات
+// استيراد المكونات الأساسية
+const HomeSection = safeImport('HomeSection');
+const TeachersSection = safeImport('TeachersSection');
+const SchedulesSection = safeImport('SchedulesSection');
+const AboutSection = safeImport('AboutSection');
+
+// استيراد الميزات
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
 const QuranReader = safeImport('QuranReader');
 const AzkarApp = safeImport('AzkarApp');
 const DailyWird = safeImport('DailyWird');
-const QuranExam = safeImport('QuranExam');
-const TafseerExam = safeImport('TafseerExam');
 const VirtuousTimesWidget = safeImport('VirtuousTimesWidget');
 const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
 const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
+const QuranExam = safeImport('QuranExam');
+const TafseerExam = safeImport('TafseerExam');
 const CustomModal = window.CustomModal;
 
-// 🔥 المكون الجديد
-const RawdatHub = safeImport('RawdatHub');
-
-const HomeSection = safeImport('HomeSection');
-const TeachersSection = safeImport('TeachersSection');
-const SchedulesSection = safeImport('SchedulesSection');
-const AboutSection = safeImport('AboutSection');
+// 🔥 استيراد روضة المحبين (بشكل ديناميكي لمنع الانهيار)
+const RawdatHubWrapper = () => {
+    if (window.RawdatHub) return <window.RawdatHub />;
+    return <div className="p-10 text-center font-bold text-gray-400">⚠️ ملف روضة المحبين لم يتم تحميله بشكل صحيح.<br/><span className="text-[10px]">تأكد من وجود الملف في js/components/seerah/RawdatHub.js</span></div>;
+};
 
 const App = () => {
     const [config, setConfig] = useState({ texts: { siteTitle: '...', contact: {} }, news: [], teachers: [], halaqat: [], schedules: [], visibility: {} });
@@ -57,16 +83,21 @@ const App = () => {
             navigator.serviceWorker.addEventListener('message', (event) => {
                 if (event.data && event.data.type === 'CACHE_COMPLETE') {
                     setOfflineStatus('ready');
-                    window.showGlobalAlert("✅ اكتمل التحميل", "تم تحميل جميع البيانات بنجاح.");
+                    window.showGlobalAlert("✅ تم التحديث", "تم تحميل الملفات الجديدة بنجاح.");
                 }
             });
-            caches.match('data/quran.json').then(res => { if (res) setOfflineStatus('ready'); else setOfflineStatus('downloading'); });
+            // التحقق من حالة الكاش
+            caches.open('althuraya-offline-v8').then(cache => { // تأكد أن الرقم هنا يطابق sw.js
+                 cache.match('data/quran.json').then(res => { if (res) setOfflineStatus('ready'); });
+            });
         }
 
         if (window.db && window.onSnapshot) {
-            window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
-                if (doc.exists()) setConfig(prev => ({...prev, ...doc.data()}));
-            });
+            try {
+                window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
+                    if (doc.exists()) setConfig(prev => ({...prev, ...doc.data()}));
+                });
+            } catch (e) { console.log("Offline mode"); }
         }
     }, []);
 
@@ -80,10 +111,10 @@ const App = () => {
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
     const isVisible = (section, key) => config.visibility?.[section]?.[key] !== false;
 
-    // 🔥 القائمة المحدثة
+    // القائمة
     const navItems = [
         {id: 'home', label: 'الرئيسية'},
-        {id: 'rawdah', label: 'روضة المحبين'}, // الزر الجديد
+        {id: 'rawdah', label: 'روضة المحبين'},
         {id: 'student_corner', label: 'ركن الطالب'},
         {id: 'extras', label: 'واحة الزوار'},
         {id: 'teachers', label: 'المعلمون'},
@@ -96,13 +127,6 @@ const App = () => {
     return (
         <div id="app-container">
             {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
-
-            {offlineStatus === 'downloading' && (
-                <div className="bg-amber-100 text-amber-800 text-[10px] font-bold text-center py-1 px-4 border-b border-amber-200 animate-pulse flex justify-between items-center">
-                    <span>⏳ جاري تحميل بيانات الأوفلاين...</span>
-                    <span className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></span>
-                </div>
-            )}
 
             <header>
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
@@ -133,38 +157,39 @@ const App = () => {
                     {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
                 </ErrorBoundary>
 
-                {/* 🔥 صفحة روضة المحبين الجديدة */}
+                {/* 🔥 عرض روضة المحبين بأمان */}
                 {page === 'rawdah' && (
                     <ErrorBoundary>
-                        {window.RawdatHub && <RawdatHub />}
+                        <RawdatHubWrapper />
                     </ErrorBoundary>
                 )}
 
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
-                        {isVisible('student', 'effort') && <><div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort'?'active':''}`}><span>📅 خطة ختمي</span><span>{activeFeature==='effort'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'effort' && <CalcEffort />}</ErrorBoundary></>}
-                        {isVisible('student', 'time') && <><div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time'?'active':''}`}><span>🎯 دليل الختم</span><span>{activeFeature==='time'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'time' && <CalcTime />}</ErrorBoundary></>}
-                        {isVisible('student', 'test') && <><div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test'?'active':''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature==='test'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'test' && <TestHifz />}</ErrorBoundary></>}
-                        {isVisible('student', 'quran') && <><div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran'?'active':''}`}><span>📖 المصحف الشريف</span><span>{activeFeature==='quran'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'quran' && <QuranReader />}</ErrorBoundary></>}
-                        {isVisible('student', 'azkar') && <><div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar'?'active':''}`}><span>📿 الأذكار</span><span>{activeFeature==='azkar'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'azkar' && <AzkarApp />}</ErrorBoundary></>}
+                        <ErrorBoundary>{isVisible('student', 'effort') && <><div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort'?'active':''}`}><span>📅 خطة ختمي</span><span>{activeFeature==='effort'?'➖':'➕'}</span></div>{activeFeature === 'effort' && <CalcEffort />}</>}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('student', 'time') && <><div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time'?'active':''}`}><span>🎯 دليل الختم</span><span>{activeFeature==='time'?'➖':'➕'}</span></div>{activeFeature === 'time' && <CalcTime />}</>}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('student', 'test') && <><div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test'?'active':''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature==='test'?'➖':'➕'}</span></div>{activeFeature === 'test' && <TestHifz />}</>}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('student', 'quran') && <><div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran'?'active':''}`}><span>📖 المصحف الشريف</span><span>{activeFeature==='quran'?'➖':'➕'}</span></div>{activeFeature === 'quran' && <QuranReader />}</>}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('student', 'azkar') && <><div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar'?'active':''}`}><span>📿 الأذكار</span><span>{activeFeature==='azkar'?'➖':'➕'}</span></div>{activeFeature === 'azkar' && <AzkarApp />}</>}</ErrorBoundary>
                     </div>
                 )}
 
                 {page === 'extras' && (
                     <div className="space-y-4 max-w-lg mx-auto animate-in">
                         <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
-                        {isVisible('extras', 'virtuous') && <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>}
-                        {isVisible('extras', 'wird') && <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>}
-                        {isVisible('extras', 'counter') && <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>}
-                        {isVisible('extras', 'feeling') && <><div onClick={() => toggleFeature('feeling')} className={`student-btn bg-emerald-50 ${activeFeature === 'feeling'?'active':''}`}><span>💊 صيدلية القلوب</span><span>{activeFeature==='feeling'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary></>}
-                        {isVisible('extras', 'quran_exam') && <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>}
-                        {isVisible('extras', 'tafseer_exam') && <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>}
-                        {isVisible('extras', 'card') && <><div onClick={() => toggleFeature('card')} className={`student-btn bg-blue-50 ${activeFeature === 'card'?'active':''}`}><span>🎨 صانع البطاقات</span><span>{activeFeature==='card'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary></>}
+                        <ErrorBoundary>{isVisible('extras', 'virtuous') && window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('extras', 'wird') && window.DailyWird && <DailyWird />}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('extras', 'counter') && window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('extras', 'feeling') && <><div onClick={() => toggleFeature('feeling')} className={`student-btn bg-emerald-50 ${activeFeature === 'feeling'?'active':''}`}><span>💊 صيدلية القلوب</span><span>{activeFeature==='feeling'?'➖':'➕'}</span></div>{activeFeature === 'feeling' && <FeelingsPharmacy />}</>}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('extras', 'quran_exam') && window.QuranExam && <QuranExam />}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('extras', 'tafseer_exam') && window.TafseerExam && <TafseerExam />}</ErrorBoundary>
+                        <ErrorBoundary>{isVisible('extras', 'card') && <><div onClick={() => toggleFeature('card')} className={`student-btn bg-blue-50 ${activeFeature === 'card'?'active':''}`}><span>🎨 صانع البطاقات</span><span>{activeFeature==='card'?'➖':'➕'}</span></div>{activeFeature === 'card' && <CardMaker />}</>}</ErrorBoundary>
                     </div>
                 )}
 
-                {isVisible('nav', 'teachers') && <ErrorBoundary>{page === 'teachers' && <TeachersSection teachers={config.teachers} />}</ErrorBoundary>}
-                {isVisible('nav', 'schedules') && <ErrorBoundary>{page === 'schedules' && <SchedulesSection schedules={config.schedules} />}</ErrorBoundary>}
+                <ErrorBoundary>{isVisible('nav', 'teachers') && page === 'teachers' && <TeachersSection teachers={config.teachers} />}</ErrorBoundary>
+                <ErrorBoundary>{isVisible('nav', 'schedules') && page === 'schedules' && <SchedulesSection schedules={config.schedules} />}</ErrorBoundary>
+                
                 {page === 'students' && (
                      <div className="space-y-6">
                         {config.halaqat.filter(h => !h.hidden).map(h => (
@@ -176,6 +201,7 @@ const App = () => {
                     </div>
                 )}
                 <ErrorBoundary>{page === 'about' && <AboutSection texts={config.texts} />}</ErrorBoundary>
+                
                 {page === 'card' && (
                     <div className="max-w-md mx-auto space-y-6 animate-in">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center border-4 border-emerald-50">
