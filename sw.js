@@ -1,10 +1,11 @@
 /* =========================================
-   Service Worker: الحارس الذكي (PWA)
-   الإصدار: V4 - مع إشعار اكتمال التحميل
+   Service Worker: الحارس الذكي (المتسامح - Anti-Freeze)
+   الإصدار: V5 - يكمل التحميل حتى لو نقص ملف
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v4'; // قمنا بتغيير الإصدار لتحديث الكاش
+const CACHE_NAME = 'althuraya-offline-v5'; 
 
+// قائمة الملفات (حتى لو أخطأت في اسم واحد، لن يتوقف التطبيق)
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -16,7 +17,7 @@ const ASSETS_TO_CACHE = [
   './css/fonts/Amiri-Bold.ttf',
   './css/fonts/Cairo-Black.ttf',
 
-  // المكتبات
+  // المكتبات (تأكد أنها موجودة في مجلد js)
   './js/tailwindcss.js',
   './js/react.js',
   './js/react-dom.js',
@@ -29,13 +30,13 @@ const ASSETS_TO_CACHE = [
   './js/admin.js',
   './js/data_loader.js',
 
-  // البيانات (تأكد أن المسارات صحيحة 100%)
+  // البيانات
   './data/quran.json',
   './data/azkar.json',
   './data/tafseer.json',
   './data/pagesquran.json',
 
-  // الوحدات والمكونات
+  // الوحدات
   './js/modules/quran_reader.js',
   './js/modules/azkar.js',
   './js/modules/calculators.js',
@@ -43,6 +44,7 @@ const ASSETS_TO_CACHE = [
   './js/modules/visitors.js',
   './js/modules/ui.js',
 
+  // المكونات
   './js/components/app/HomeSection.js',
   './js/components/app/TeachersSection.js',
   './js/components/app/SchedulesSection.js',
@@ -64,18 +66,30 @@ const ASSETS_TO_CACHE = [
   './js/components/ui/CustomModal.js'
 ];
 
-// 1. التثبيت والتحميل
+// 1. التثبيت (النسخة الذكية: لا تتوقف عند الخطأ)
 self.addEventListener('install', (evt) => {
   self.skipWaiting();
-  console.log('[SW] بدء تحميل الملفات...');
+  console.log('[SW] بدء التحميل الذكي...');
   
   evt.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      // محاولة تحميل الملفات وإذا نجحت نرسل رسالة
-      await cache.addAll(ASSETS_TO_CACHE);
-      console.log('[SW] تم تحميل كل الملفات بنجاح!');
+      // نمر على الملفات واحداً تلو الآخر
+      for (const url of ASSETS_TO_CACHE) {
+          try {
+              const res = await fetch(url);
+              if (res.ok) {
+                  await cache.put(url, res);
+              } else {
+                  console.warn(`⚠️ ملف مفقود (404): ${url}`); // يسجل الخطأ ولا يتوقف
+              }
+          } catch (error) {
+              console.warn(`❌ تعذر تحميل: ${url}`); // يسجل الخطأ ولا يتوقف
+          }
+      }
       
-      // إرسال رسالة للصفحة بأن التحميل اكتمل
+      console.log('[SW] اكتملت العملية (تم تجاهل الملفات المفقودة)');
+      
+      // إبلاغ التطبيق بالنجاح
       const clients = await self.clients.matchAll({includeUncontrolled: true});
       clients.forEach(client => {
           client.postMessage({ type: 'CACHE_COMPLETE' });
@@ -106,6 +120,8 @@ self.addEventListener('fetch', (evt) => {
               cache.put(evt.request.url, fetchRes.clone());
               return fetchRes;
           });
+      }).catch(() => {
+          // إذا فشل كل شيء، لا تفعل شيئاً (أو اعرض صفحة خطأ مخصصة)
       });
     })
   );
