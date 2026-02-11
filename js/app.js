@@ -1,29 +1,22 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة الآمنة والمبسطة - Fix White Screen)
+   (نسخة الطوارئ - تم تعطيل الميزات الجديدة مؤقتاً)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
 
-// 1. صائد الأخطاء (يمنع الشاشة البيضاء)
+// صائد الأخطاء البسيط
 class ErrorBoundary extends Component {
     constructor(props) { super(props); this.state = { hasError: false }; }
     static getDerivedStateFromError(error) { return { hasError: true }; }
-    componentDidCatch(error, info) { console.error("Error:", error, info); }
-    render() {
-        if (this.state.hasError) return <div className="p-4 bg-red-50 text-red-600 text-center rounded-lg my-2">⚠️ حدث خطأ هنا</div>;
-        return this.props.children;
-    }
+    componentDidCatch(error, info) { console.error("Error:", error); }
+    render() { if (this.state.hasError) return <div className="text-red-500 text-center p-4">حدث خطأ بسيط</div>; return this.props.children; }
 }
 
-// 2. دالة استيراد آمنة
-const getComponent = (name) => {
-    const Comp = window[name];
-    if (!Comp) return () => <div className="text-gray-400 text-xs text-center py-2">⏳ جاري تحميل {name}...</div>;
-    return Comp;
-};
+// دالة استيراد آمنة
+const getComponent = (name) => window[name] || (() => <div className="text-gray-400 text-xs text-center py-2">جاري التحميل...</div>);
 
-// تعريف المكونات
+// استيراد المكونات الأساسية فقط
 const HomeSection = getComponent('HomeSection');
 const TeachersSection = getComponent('TeachersSection');
 const SchedulesSection = getComponent('SchedulesSection');
@@ -43,8 +36,8 @@ const QuranExam = getComponent('QuranExam');
 const TafseerExam = getComponent('TafseerExam');
 const CustomModal = window.CustomModal;
 
-// 🔥 المكون الجديد (روضة المحبين)
-const RawdatHub = getComponent('RawdatHub');
+// ❌ تم تعطيل روضة المحبين مؤقتاً لحل المشكلة
+const RawdatHub = () => <div className="p-10 text-center text-amber-600 font-bold bg-amber-50 rounded-xl border border-amber-200">🛠️ قسم روضة المحبين تحت الصيانة...</div>;
 
 const App = () => {
     const [config, setConfig] = useState({ texts: {}, visibility: {} });
@@ -53,46 +46,25 @@ const App = () => {
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
-    const [installPrompt, setInstallPrompt] = useState(null);
-    const [offlineStatus, setOfflineStatus] = useState('checking');
 
-    // إعدادات البداية
+    // إعدادات بسيطة
     useEffect(() => {
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
-
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); setInstallPrompt(e); });
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.addEventListener('message', (event) => {
-                if (event.data && event.data.type === 'CACHE_COMPLETE') {
-                    setOfflineStatus('ready');
-                    window.showGlobalAlert("✅ تم التحديث", "التطبيق جاهز للعمل بدون نت.");
-                }
-            });
-            caches.match('data/quran.json').then(res => { if (res) setOfflineStatus('ready'); });
-        }
 
         if (window.db && window.onSnapshot) {
             try {
                 window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (d) => {
                     if (d.exists()) setConfig(prev => ({ ...prev, ...d.data() }));
                 });
-            } catch (e) { console.log("Offline"); }
+            } catch (e) { console.log("Offline Mode"); }
         }
     }, []);
-
-    const handleInstallClick = async () => {
-        if (!installPrompt) return;
-        installPrompt.prompt();
-        const { outcome } = await installPrompt.userChoice;
-        if (outcome === 'accepted') setInstallPrompt(null);
-    };
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
     const isVisible = (section, key) => config.visibility?.[section]?.[key] !== false;
 
-    // القائمة
+    // القائمة (بدون الزر الجديد مؤقتاً إذا كان يسبب المشكلة)
     const navItems = [
         { id: 'home', label: 'الرئيسية' },
         { id: 'rawdah', label: 'روضة المحبين' },
@@ -115,11 +87,6 @@ const App = () => {
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle || 'الثريا'}</h1>
                 </div>
                 <div className="flex gap-2">
-                    {installPrompt && (
-                        <button onClick={handleInstallClick} className={`px-3 py-2 text-white text-xs font-black rounded-xl shadow-lg border-2 border-white transition flex items-center gap-1 ${offlineStatus === 'ready' ? 'bg-gradient-to-r from-emerald-500 to-green-600 animate-bounce' : 'bg-gray-400 cursor-wait'}`}>
-                            {offlineStatus === 'ready' ? '📲 تثبيت' : '⏳'}
-                        </button>
-                    )}
                     <button onClick={() => window.location.reload()} className="p-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 shadow-sm">🔄</button>
                     <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 text-xl">🔒</a>
                 </div>
@@ -137,7 +104,7 @@ const App = () => {
                 <ErrorBoundary>
                     {page === 'home' && <HomeSection config={config} studentName={studentName} showGlobalAlert={window.showGlobalAlert} setPage={setPage} />}
                     
-                    {/* 🔥 روضة المحبين */}
+                    {/* عرض المكون المؤقت */}
                     {page === 'rawdah' && <RawdatHub />}
 
                     {page === 'student_corner' && (
