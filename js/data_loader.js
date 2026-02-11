@@ -1,11 +1,13 @@
 /* =========================================
    محمل البيانات: js/data_loader.js
-   (الإصدار المصحح: يضيف أرقام السور المفقودة)
+   (تم إزالة ?v=time لإصلاح الأوفلاين)
    ========================================= */
 
 async function loadJSON(path) {
     try {
-        const response = await fetch(`${path}?v=${new Date().getTime()}`);
+        // 🔥 التعديل هنا: حذفنا ?v=${new Date().getTime()}
+        // الآن سيطلب الملف باسمه الصريح ليجده في الكاش
+        const response = await fetch(path); 
         if (!response.ok) throw new Error("404");
         return await response.json();
     } catch (e) {
@@ -28,19 +30,15 @@ async function initAppData() {
         loadJSON('data/tafseer.json')
     ]);
 
-    // 1. معالجة القرآن (الإصلاح الجوهري)
+    // 1. معالجة القرآن
     if (quranRaw) {
         let quranArray = [];
-        window.APP_DATA.quran = {}; // للنظام القديم
+        window.APP_DATA.quran = {}; 
 
-        // فحص هل هو كائن (مفاتيح "1", "2") أم مصفوفة
         if (!Array.isArray(quranRaw) && typeof quranRaw === 'object') {
-            // تحويل الكائن إلى مصفوفة + إضافة رقم السورة
             quranArray = Object.keys(quranRaw).map(key => {
                 const surah = quranRaw[key];
-                // 🔥 هنا الإصلاح: إضافة الرقم للسورة لأنه غير موجود داخل الكائن
                 surah.number = parseInt(key); 
-                // ملء النظام القديم
                 window.APP_DATA.quran[key] = surah;
                 return surah;
             });
@@ -51,10 +49,9 @@ async function initAppData() {
             });
         }
 
-        window.quranData = quranArray; // للنظام الجديد
+        window.quranData = quranArray;
         console.log(`✅ تم معالجة المصحف: ${quranArray.length} سورة`);
     } else {
-        // بيانات طوارئ
         const dummy = [{ number: 1, name: "الفاتحة", ayahs: [{ text: "بسم الله الرحمن الرحيم", number: 1 }] }];
         window.quranData = dummy;
         window.APP_DATA.quran = { 1: dummy[0] };
@@ -65,7 +62,7 @@ async function initAppData() {
         window.APP_DATA.tafseer = {};
         if (Array.isArray(tafseerRaw)) {
             tafseerRaw.forEach(t => {
-                const key = `${t.number}_${t.aya}`; // حسب ملفك (number للسورة, aya للآية)
+                const key = `${t.number}_${t.aya}`;
                 window.APP_DATA.tafseer[key] = t.text;
             });
         }
