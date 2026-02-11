@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (مع زر التثبيت الذكي PWA Install Button)
+   (مع مؤشر حالة الأوفلاين الذكي)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -14,25 +14,17 @@ class ErrorBoundary extends Component {
     static getDerivedStateFromError(error) { return { hasError: true }; }
     componentDidCatch(error, errorInfo) {
         this.setState({ errorInfo: error.toString() });
-        console.error("🔥 خطأ في المكون:", error, errorInfo);
+        console.error("🔥 خطأ:", error);
     }
     render() {
-        if (this.state.hasError) {
-            return (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-center my-2">
-                    <h3 className="text-red-600 font-bold text-sm">⛔ توقف هذا الجزء</h3>
-                    <p className="text-[10px] text-red-400 mt-1" dir="ltr">{this.state.errorInfo.slice(0, 50)}...</p>
-                </div>
-            );
-        }
+        if (this.state.hasError) return <div className="p-2 bg-red-50 text-red-600 text-xs text-center">خطأ بسيط، حاول التحديث</div>;
         return this.props.children;
     }
 }
 
-// استيراد آمن
-const safeImport = (name) => window[name] || (() => <div className="text-center text-xs text-gray-400 py-2">جاري تحميل {name}...</div>);
+const safeImport = (name) => window[name] || (() => <div className="text-center text-xs text-gray-400 py-2">جاري التحميل...</div>);
 
-// تعريف المكونات
+// استيراد المكونات
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
@@ -53,11 +45,10 @@ const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
 const App = () => {
-    // إعدادات التطبيق
+    // الإعدادات
     const [config, setConfig] = useState({ 
         texts: { siteTitle: '...', contact: {} }, 
-        news: [], teachers: [], halaqat: [], schedules: [],
-        visibility: {} 
+        news: [], teachers: [], halaqat: [], schedules: [], visibility: {} 
     });
     
     const [page, setPage] = useState('home');
@@ -66,53 +57,55 @@ const App = () => {
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
-    // --- منطق تثبيت التطبيق (PWA) ---
+    // --- منطق الأوفلاين والتثبيت ---
     const [installPrompt, setInstallPrompt] = useState(null);
-    const [isInstalled, setIsInstalled] = useState(false);
+    const [offlineStatus, setOfflineStatus] = useState('checking'); // checking, downloading, ready
 
     useEffect(() => {
-        // الاستماع لحدث التثبيت
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            setInstallPrompt(e);
-            console.log("📱 زر التثبيت جاهز للظهور");
-        });
-
-        // التحقق مما إذا كان مثبتاً بالفعل
-        if (window.matchMedia('(display-mode: standalone)').matches) {
-            setIsInstalled(true);
-        }
-
-        // إعداد النوافذ
         window.alert = (msg) => setModal({ show: true, title: 'تنبيه', msg });
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
+        // 1. الاستماع لزر التثبيت
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+        });
+
+        // 2. الاستماع لرسالة اكتمال التحميل من الـ Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data && event.data.type === 'CACHE_COMPLETE') {
+                    setOfflineStatus('ready');
+                    window.showGlobalAlert("✅ اكتمل التحميل", "تم تحميل جميع الملفات.\nيمكنك الآن استخدام التطبيق بدون إنترنت تماماً.");
+                }
+            });
+
+            // التحقق المبدئي: هل المصحف موجود في الكاش؟
+            caches.match('data/quran.json').then(res => {
+                if (res) setOfflineStatus('ready');
+                else setOfflineStatus('downloading');
+            });
+        }
+
+        // جلب البيانات الحية (فايربيس)
         if (window.db && window.onSnapshot) {
             window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
-                if (doc.exists()) {
-                    setConfig(prev => ({...prev, ...doc.data()}));
-                    if(doc.data().settings?.layoutScale) document.documentElement.style.setProperty('--layout-scale', doc.data().settings.layoutScale);
-                }
+                if (doc.exists()) setConfig(prev => ({...prev, ...doc.data()}));
             });
         }
     }, []);
 
-    // دالة تنفيذ التثبيت
     const handleInstallClick = async () => {
         if (!installPrompt) return;
         installPrompt.prompt();
         const { outcome } = await installPrompt.userChoice;
-        if (outcome === 'accepted') {
-            setInstallPrompt(null);
-            setIsInstalled(true);
-            window.showGlobalAlert("مبروك 🎉", "تم تثبيت التطبيق بنجاح!\nالآن يمكنك استخدامه بدون إنترنت.");
-        }
+        if (outcome === 'accepted') setInstallPrompt(null);
     };
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
     const isVisible = (section, key) => config.visibility?.[section]?.[key] !== false;
 
-    // فلترة القائمة العلوية
+    // القائمة
     const navItems = [
         {id: 'home', label: 'الرئيسية'},
         {id: 'student_corner', label: 'ركن الطالب'},
@@ -128,16 +121,29 @@ const App = () => {
         <div id="app-container">
             {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
 
+            {/* شريط حالة التحميل (يظهر فقط إذا لم يكتمل التحميل) */}
+            {offlineStatus === 'downloading' && (
+                <div className="bg-amber-100 text-amber-800 text-[10px] font-bold text-center py-1 px-4 border-b border-amber-200 animate-pulse flex justify-between items-center">
+                    <span>⏳ جاري تحميل بيانات الأوفلاين... لا تقطع الاتصال</span>
+                    <span className="w-4 h-4 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></span>
+                </div>
+            )}
+            {offlineStatus === 'ready' && !installPrompt && (
+                <div className="bg-emerald-100 text-emerald-800 text-[10px] font-bold text-center py-1 px-4 border-b border-emerald-200">
+                    ✅ التطبيق جاهز للعمل بدون نت 100%
+                </div>
+            )}
+
             <header>
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
                 <div className="flex gap-2">
-                    {/* زر التثبيت يظهر فقط إذا كان متاحاً ولم يثبت بعد */}
-                    {installPrompt && !isInstalled && (
-                        <button onClick={handleInstallClick} className="px-3 py-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-black rounded-xl shadow-lg animate-pulse border-2 border-white">
-                            📲 تثبيت التطبيق
+                    {/* زر التثبيت يظهر فقط عندما يكون التحميل جاهزاً أو قريباً */}
+                    {installPrompt && (
+                        <button onClick={handleInstallClick} className={`px-3 py-2 text-white text-xs font-black rounded-xl shadow-lg border-2 border-white transition flex items-center gap-1 ${offlineStatus === 'ready' ? 'bg-gradient-to-r from-emerald-500 to-green-600 animate-bounce' : 'bg-gray-400 cursor-wait'}`}>
+                            {offlineStatus === 'ready' ? '📲 تثبيت التطبيق' : '⏳ جاري التجهيز...'}
                         </button>
                     )}
                     <button onClick={() => window.location.reload()} className="p-2 rounded-xl bg-gray-100 text-xs font-bold text-gray-600 shadow-sm">🔄</button>
@@ -160,78 +166,29 @@ const App = () => {
 
                 {page === 'student_corner' && (
                     <div className="space-y-4 max-w-lg mx-auto">
-                        
-                        {isVisible('student', 'effort') && (
-                            <>
-                                <div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort' ? 'active' : ''}`}><span>📅 خطة ختمي</span><span>{activeFeature === 'effort'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'effort' && <CalcEffort />}</ErrorBoundary>
-                            </>
-                        )}
-
-                        {isVisible('student', 'time') && (
-                            <>
-                                <div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time' ? 'active' : ''}`}><span>🎯 دليل الختم</span><span>{activeFeature === 'time'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'time' && <CalcTime />}</ErrorBoundary>
-                            </>
-                        )}
-                        
-                        {isVisible('student', 'test') && (
-                            <>
-                                <div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test' ? 'active' : ''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature === 'test'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'test' && <TestHifz />}</ErrorBoundary>
-                            </>
-                        )}
-                        
-                        {isVisible('student', 'quran') && (
-                            <>
-                                <div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran' ? 'active' : ''}`}><span>📖 المصحف الشريف</span><span>{activeFeature === 'quran'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'quran' && <QuranReader />}</ErrorBoundary>
-                            </>
-                        )}
-                        
-                        {isVisible('student', 'azkar') && (
-                            <>
-                                <div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar' ? 'active' : ''}`}><span>📿 الأذكار</span><span>{activeFeature === 'azkar'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'azkar' && <AzkarApp />}</ErrorBoundary>
-                            </>
-                        )}
+                        {isVisible('student', 'effort') && <><div onClick={() => toggleFeature('effort')} className={`student-btn ${activeFeature === 'effort'?'active':''}`}><span>📅 خطة ختمي</span><span>{activeFeature==='effort'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'effort' && <CalcEffort />}</ErrorBoundary></>}
+                        {isVisible('student', 'time') && <><div onClick={() => toggleFeature('time')} className={`student-btn ${activeFeature === 'time'?'active':''}`}><span>🎯 دليل الختم</span><span>{activeFeature==='time'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'time' && <CalcTime />}</ErrorBoundary></>}
+                        {isVisible('student', 'test') && <><div onClick={() => toggleFeature('test')} className={`student-btn ${activeFeature === 'test'?'active':''}`}><span>🧠 اختبر حفظك</span><span>{activeFeature==='test'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'test' && <TestHifz />}</ErrorBoundary></>}
+                        {isVisible('student', 'quran') && <><div onClick={() => toggleFeature('quran')} className={`student-btn ${activeFeature === 'quran'?'active':''}`}><span>📖 المصحف الشريف</span><span>{activeFeature==='quran'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'quran' && <QuranReader />}</ErrorBoundary></>}
+                        {isVisible('student', 'azkar') && <><div onClick={() => toggleFeature('azkar')} className={`student-btn ${activeFeature === 'azkar'?'active':''}`}><span>📿 الأذكار</span><span>{activeFeature==='azkar'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'azkar' && <AzkarApp />}</ErrorBoundary></>}
                     </div>
                 )}
 
-                {/* --- واحة الزوار --- */}
                 {page === 'extras' && (
                     <div className="space-y-4 max-w-lg mx-auto animate-in">
                         <h2 className="text-center font-black text-2xl text-emerald-800 mb-2">🌱 واحة الزوار</h2>
-                        
                         {isVisible('extras', 'virtuous') && <ErrorBoundary>{window.VirtuousTimesWidget && <VirtuousTimesWidget />}</ErrorBoundary>}
-                        
                         {isVisible('extras', 'wird') && <ErrorBoundary>{window.DailyWird && <DailyWird />}</ErrorBoundary>}
-                        
                         {isVisible('extras', 'counter') && <ErrorBoundary>{window.GlobalKhatmaCounter && <GlobalKhatmaCounter />}</ErrorBoundary>}
-
-                        {isVisible('extras', 'feeling') && (
-                            <>
-                                <div onClick={() => toggleFeature('feeling')} className={`student-btn ${activeFeature === 'feeling' ? 'active' : ''} border-emerald-200 bg-emerald-50`}><span>💊 صيدلية القلوب</span><span>{activeFeature === 'feeling'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary>
-                            </>
-                        )}
-                        
+                        {isVisible('extras', 'feeling') && <><div onClick={() => toggleFeature('feeling')} className={`student-btn bg-emerald-50 ${activeFeature === 'feeling'?'active':''}`}><span>💊 صيدلية القلوب</span><span>{activeFeature==='feeling'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'feeling' && <FeelingsPharmacy />}</ErrorBoundary></>}
                         {isVisible('extras', 'quran_exam') && <ErrorBoundary>{window.QuranExam && <QuranExam />}</ErrorBoundary>}
-
                         {isVisible('extras', 'tafseer_exam') && <ErrorBoundary>{window.TafseerExam && <TafseerExam />}</ErrorBoundary>}
-
-                        {isVisible('extras', 'card') && (
-                            <>
-                                <div onClick={() => toggleFeature('card')} className={`student-btn ${activeFeature === 'card' ? 'active' : ''} border-blue-200 bg-blue-50`}><span>🎨 صانع البطاقات</span><span>{activeFeature === 'card'?'➖':'➕'}</span></div>
-                                <ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary>
-                            </>
-                        )}
+                        {isVisible('extras', 'card') && <><div onClick={() => toggleFeature('card')} className={`student-btn bg-blue-50 ${activeFeature === 'card'?'active':''}`}><span>🎨 صانع البطاقات</span><span>{activeFeature==='card'?'➖':'➕'}</span></div><ErrorBoundary>{activeFeature === 'card' && <CardMaker />}</ErrorBoundary></>}
                     </div>
                 )}
 
                 {isVisible('nav', 'teachers') && <ErrorBoundary>{page === 'teachers' && <TeachersSection teachers={config.teachers} />}</ErrorBoundary>}
                 {isVisible('nav', 'schedules') && <ErrorBoundary>{page === 'schedules' && <SchedulesSection schedules={config.schedules} />}</ErrorBoundary>}
-                
                 {page === 'students' && (
                      <div className="space-y-6">
                         {config.halaqat.filter(h => !h.hidden).map(h => (
@@ -242,9 +199,7 @@ const App = () => {
                         ))}
                     </div>
                 )}
-                
                 <ErrorBoundary>{page === 'about' && <AboutSection texts={config.texts} />}</ErrorBoundary>
-                
                 {page === 'card' && (
                     <div className="max-w-md mx-auto space-y-6 animate-in">
                         <div className="bg-white p-8 rounded-[2.5rem] shadow-xl text-center border-4 border-emerald-50">
