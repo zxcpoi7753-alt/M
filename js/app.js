@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة الماسية: تحديث ذكي + أوفلاين + ميزات جديدة)
+   (شامل زر التكبير + التحديث الذكي + السيرة الجديدة)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -34,7 +34,7 @@ const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
 const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
 const CustomModal = window.CustomModal;
-const RawdatHub = safeImport('RawdatHub');
+const RawdatHub = safeImport('RawdatHub'); // بوابة روضة المحبين
 
 const HomeSection = safeImport('HomeSection');
 const TeachersSection = safeImport('TeachersSection');
@@ -54,6 +54,9 @@ const App = () => {
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
+    // 🔥 حالة التكبير (الافتراضي: عادي)
+    const [isZoomed, setIsZoomed] = useState(false);
+
     useEffect(() => {
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
@@ -70,24 +73,29 @@ const App = () => {
         }
     }, []);
 
-    // 🔥 دالة التحديث الذكي (الإجبارية)
+    // 🔥 تأثير التكبير عند الضغط على الزر
+    useEffect(() => {
+        const root = document.documentElement;
+        // 1.25 يعني تكبير بنسبة 25% (مناسب جداً للقراءة)
+        root.style.setProperty('--layout-scale', isZoomed ? '1.25' : '1');
+    }, [isZoomed]);
+
+    // 🔥 دالة التحديث الذكي
     const handleSmartUpdate = () => {
-        // 1. فحص الإنترنت
         if (!navigator.onLine) {
             setModal({
                 show: true, 
                 title: '📴 لا يوجد إنترنت', 
-                msg: 'عذراً، أنت غير متصل بالإنترنت.\nلا يمكن تحديث التطبيق الآن.\n(البيانات الحالية محفوظة وتعمل بنجاح)'
+                msg: 'عذراً، أنت غير متصل بالإنترنت.\nلا يمكن تحديث التطبيق الآن.'
             });
             return;
         }
 
-        // 2. إذا وجد نت: تأكيد وحذف الكاش القديم
         if (confirm("هل تريد تحديث التطبيق لجلب آخر البيانات؟\n(سيتم إعادة تحميل الصفحة)")) {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(regs => {
-                    for(let reg of regs) reg.unregister(); // طرد الحارس القديم
-                    window.location.reload(true); // إعادة تحميل إجبارية
+                    for(let reg of regs) reg.unregister(); 
+                    window.location.reload(true); 
                 });
             } else {
                 window.location.reload(true);
@@ -107,11 +115,19 @@ const App = () => {
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
                 <div className="flex gap-2">
-                    {/* 🔥 زر التحديث الجديد */}
+                    
+                    {/* 🔥 زر وضع القراءة الكبير */}
+                    <button onClick={() => setIsZoomed(!isZoomed)} className={`flex items-center gap-1 px-3 py-2 rounded-xl border transition shadow-sm ${isZoomed ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200'}`}>
+                        <span className="text-sm">{isZoomed ? '📱' : '🔍'}</span>
+                        <span className="font-bold text-xs hidden sm:inline">{isZoomed ? 'تصغير' : 'تكبير'}</span>
+                    </button>
+
+                    {/* زر التحديث */}
                     <button onClick={handleSmartUpdate} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm active:scale-95 transition">
                         <span className="font-bold text-xs">تحديث</span>
                         <span className="text-sm">🔄</span>
                     </button>
+
                     <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 text-xl">🔒</a>
                 </div>
             </header>
