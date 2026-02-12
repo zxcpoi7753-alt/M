@@ -1,8 +1,9 @@
 /* =========================================
    ملف التصميم الرئيسي: css/style.css
-   النسخة: V6 Gold (شاملة ومستقرة)
+   النسخة: V7 Gold (دعم التكبير والتصميم الكبير)
    ========================================= */
-/* منع سحب الشاشة للتحديث */
+
+/* منع سحب الشاشة للتحديث (تجربة تطبيق أصلي) */
 body {
     overscroll-behavior-y: contain;
     touch-action: pan-y;
@@ -14,6 +15,12 @@ body {
     --accent: #fbbf24;      /* الذهبي */
     --bg-color: #f8fafc;    /* خلفية الموقع */
     --text-main: #1e293b;   /* لون النص */
+    --layout-scale: 1;      /* متغير التكبير (الافتراضي 1) */
+}
+
+/* 🔥 السحر هنا: التحكم في حجم الموقع كاملاً */
+html {
+    font-size: calc(16px * var(--layout-scale)); 
 }
 
 body {
@@ -26,12 +33,12 @@ body {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* --- الحاوية الرئيسية (لضبط التكبير والتصغير) --- */
+/* --- الحاوية الرئيسية --- */
 #app-container {
     transform-origin: top center;
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 80px; /* مسافة للفوتر */
+    padding-bottom: 80px;
 }
 
 /* --- الهيدر والناف بار --- */
@@ -55,17 +62,15 @@ nav {
     padding: 0.5rem 1rem;
     overflow-x: auto;
     position: sticky;
-    top: 64px; /* ارتفاع الهيدر تقريباً */
+    top: 4rem; /* تعديل ليتناسب مع الهيدر */
     z-index: 40;
-    scrollbar-width: none; /* إخفاء السكرول بار */
 }
-nav::-webkit-scrollbar { display: none; }
 
 nav button {
     flex-shrink: 0;
-    padding: 0.5rem 1.2rem;
+    padding: 0.6rem 1.4rem; /* تكبير الأزرار قليلاً */
     border-radius: 0.8rem;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: 800;
     border: none;
     cursor: pointer;
@@ -125,7 +130,7 @@ nav button.active {
     border-color: var(--brand);
 }
 
-/* --- ركن الطالب (الأزرار) --- */
+/* --- ركن الطالب --- */
 .student-btn {
     width: 100%;
     padding: 1.2rem;
@@ -149,7 +154,7 @@ nav button.active {
     box-shadow: 0 8px 15px rgba(5, 150, 105, 0.2);
 }
 
-/* --- تصميم الميزات الجديدة (الاختبار، المصحف، السبحة) --- */
+/* --- الميزات الجديدة --- */
 .feature-container {
     background: white;
     border-radius: 1.5rem;
@@ -168,133 +173,45 @@ nav button.active {
     direction: rtl;
 }
 
-/* أزرار الاختبار */
 .test-option-btn {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    background: white;
-    font-weight: 700;
-    color: #475569;
-    cursor: pointer;
-    transition: 0.2s;
+    width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 12px;
+    border: 2px solid #e2e8f0; background: white; font-weight: 700; color: #475569;
+    cursor: pointer; transition: 0.2s;
 }
 .test-option-btn:hover { border-color: var(--brand); color: var(--brand); }
 
-/* السبحة */
 .sebha-circle {
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    border: 8px solid var(--brand);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3.5rem;
-    font-weight: 900;
-    color: var(--brand);
-    margin: 20px auto;
-    cursor: pointer;
-    background: #f0fdf4;
-    user-select: none;
-    box-shadow: inset 0 0 20px rgba(5, 150, 105, 0.1);
+    width: 160px; height: 160px; border-radius: 50%;
+    border: 8px solid var(--brand); display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem; font-weight: 900; color: var(--brand);
+    margin: 20px auto; cursor: pointer; background: #f0fdf4;
+    user-select: none; box-shadow: inset 0 0 20px rgba(5, 150, 105, 0.1);
     transition: transform 0.1s;
 }
 .sebha-circle:active { transform: scale(0.95); background: #dcfce7; }
 
-/* --- لوحة الإدارة (Admin) --- */
-.admin-card {
-    background: white;
-    border-radius: 1.2rem;
-    padding: 1.2rem;
-    margin-bottom: 1rem;
-    border: 1px solid #f1f5f9;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-.admin-section-btn {
-    width: 100%;
-    text-align: right;
-    padding: 1rem;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 1rem;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    cursor: pointer;
-}
+/* --- الإدارة والرسائل --- */
+.admin-card { background: white; border-radius: 1.2rem; padding: 1.2rem; margin-bottom: 1rem; border: 1px solid #f1f5f9; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+.admin-section-btn { width: 100%; text-align: right; padding: 1rem; background: white; border: 1px solid #e2e8f0; border-radius: 1rem; margin-bottom: 0.5rem; font-weight: bold; display: flex; justify-content: space-between; cursor: pointer; }
 .admin-section-btn.active { background: var(--brand); color: white; border-color: var(--brand); }
 
-/* حالة العنصر المخفي */
-.item-hidden {
-    opacity: 0.6;
-    filter: grayscale(1);
-    border: 2px dashed #94a3b8 !important;
-    position: relative;
-    background: #f8fafc;
-}
-.item-hidden::after {
-    content: '👁️ مخفي';
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 10px;
-    font-weight: bold;
-    pointer-events: none;
-}
+.item-hidden { opacity: 0.6; filter: grayscale(1); border: 2px dashed #94a3b8 !important; position: relative; background: #f8fafc; }
+.item-hidden::after { content: '👁️ مخفي'; position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; pointer-events: none; }
 
-/* --- النوافذ والتوست --- */
-.modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-    z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px;
-    animation: fadeIn 0.2s;
-}
-.modal-content {
-    background: white; width: 100%; max-width: 400px; border-radius: 2rem; padding: 2rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); text-align: center; border: 4px solid white;
-}
-.toast-container {
-    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-    z-index: 2000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px;
-}
-.toast {
-    background: #1e293b; color: white; padding: 12px 20px; border-radius: 50px;
-    font-weight: bold; font-size: 0.9rem; text-align: center;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); animation: slideUp 0.4s ease-out;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-}
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s; }
+.modal-content { background: white; width: 100%; max-width: 400px; border-radius: 2rem; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); text-align: center; border: 4px solid white; }
+
+.toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 350px; }
+.toast { background: #1e293b; color: white; padding: 12px 20px; border-radius: 50px; font-weight: bold; font-size: 0.9rem; text-align: center; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); animation: slideUp 0.4s ease-out; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .toast.success { background: var(--brand); }
 .toast.error { background: #ef4444; }
 
-/* زر الحفظ العائم */
-.fab-save {
-    position: fixed; bottom: 20px; left: 20px;
-    background: #2563eb; color: white;
-    padding: 12px 24px; border-radius: 50px;
-    font-weight: 900; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-    z-index: 100; display: flex; align-items: center; gap: 8px;
-    border: 2px solid white; cursor: pointer;
-    transition: transform 0.2s;
-}
+.fab-save { position: fixed; bottom: 20px; left: 20px; background: #2563eb; color: white; padding: 12px 24px; border-radius: 50px; font-weight: 900; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); z-index: 100; display: flex; align-items: center; gap: 8px; border: 2px solid white; cursor: pointer; transition: transform 0.2s; }
 .fab-save:active { transform: scale(0.95); }
 
-/* أنيميشن */
 @keyframes slideUp { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* كلاس عام لإخفاء شريط التمرير (مهم للقوائم الأفقية) */
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-.no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-}
-
+/* كلاس عام لإخفاء شريط التمرير */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
