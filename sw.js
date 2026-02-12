@@ -1,9 +1,9 @@
 /* =========================================
    Service Worker: الحارس الذكي (Offline)
-   الإصدار: V10 - (شامل: مكتبات + روضة المحبين + السيرة)
+   الإصدار: V11 - (تم إضافة ملفات الإعدادات الجديدة)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v10'; 
+const CACHE_NAME = 'althuraya-offline-v11'; 
 
 const ASSETS_TO_CACHE = [
   './',
@@ -22,12 +22,12 @@ const ASSETS_TO_CACHE = [
   './js/data_loader.js',
   './js/firebase.js',
 
-  // 3. البيانات الأساسية (تأكد أن الملفات موجودة في مجلد data)
+  // 3. البيانات الأساسية
   './data/quran.json',
   './data/azkar.json',
   './data/tafseer.json',
   './data/pagesquran.json',
-  './data/seerah/prophet.json', // بيانات السيرة
+  './data/seerah/prophet.json',
 
   // 4. الوحدات والمكونات القديمة
   './js/modules/quran_reader.js',
@@ -51,17 +51,20 @@ const ASSETS_TO_CACHE = [
   './js/components/extras/TafseerExam.js',
   './js/components/ui/CustomModal.js',
 
-  // 🔥 5. ملفات روضة المحبين الجديدة
+  // 5. ملفات روضة المحبين
   './js/components/seerah/ProphetSeerah.js',
   './js/components/seerah/AsmaHusna.js',
-  './js/components/seerah/RawdatHub.js'
+  './js/components/seerah/RawdatHub.js',
+
+  // 🔥 6. ملفات الإعدادات الجديدة (تمت إضافتها هنا)
+  './js/components/settings/GeneralSettings.js',
+  './js/components/settings/SettingsModal.js'
 ];
 
 self.addEventListener('install', (evt) => {
   self.skipWaiting();
   evt.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      // تحميل الملفات واحداً تلو الآخر لضمان عدم الفشل الكامل
       const promises = ASSETS_TO_CACHE.map(url => 
         fetch(url).then(res => {
             if(res.ok) return cache.put(url, res);
