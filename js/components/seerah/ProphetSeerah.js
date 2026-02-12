@@ -1,9 +1,9 @@
 /* =========================================
-   المكون: سيرة النبي ﷺ (النسخة الآمنة)
+   المكون: سيرة النبي ﷺ (مع المعالج الذكي للبيانات المختلطة)
    المسار: js/components/seerah/ProphetSeerah.js
    ========================================= */
 (function() {
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useMemo } = React;
     const CustomModal = window.CustomModal;
 
     const ProphetSeerah = () => {
@@ -12,71 +12,100 @@
         const [selectedEvent, setSelectedEvent] = useState(null);
         const [filter, setFilter] = useState('all'); 
 
-        // معالج البيانات الآمن
-        const processRawData = (rawData) => {
-            try {
-                if (!rawData || !Array.isArray(rawData)) return [];
+        // --- 1. دالة فحص اللغة العربية ---
+        const isArabic = (text) => {
+            if (!text) return false;
+            // هذا النمط يتأكد من وجود حروف عربية في النص
+            return /[\u0600-\u06FF]/.test(text);
+        };
+
+        // --- 2. محلل CSV الذكي (لأن ملفك أصله Excel/CSV) ---
+        const parseCSV = (text) => {
+            const lines = text.split('\n');
+            const result = [];
+            
+            // تجاوز السطر الأول (العناوين)
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                // تقسيم السطر مع احترام علامات التنصيص " " للنصوص الطويلة
+                // هذا التعبير النمطي المعقد يفصل الفواصل التي خارج علامات التنصيص فقط
+                const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 
-                return rawData
-                    .filter(item => {
-                        const txt = (item.title || '') + (item.details || '');
-                        return /[\u0600-\u06FF]/.test(txt);
-                    })
-                    .map((item, index) => {
-                        let year = 0;
-                        if (item.hijri_year) {
-                            let yStr = item.hijri_year.toString();
-                            let num = parseInt(yStr.replace(/[^0-9]/g, '')) || 0;
-                            let isBefore = yStr.includes('ق') || yStr.includes('BH') || yStr.includes('-');
-                            year = isBefore ? -num : num;
-                        } else if (item.year) {
-                            year = parseInt(item.year);
-                        }
+                if (matches && matches.length >= 2) {
+                    // تنظيف النص من علامات التنصيص الزائدة
+                    const clean = (str) => str ? str.replace(/^"|"$/g, '').replace(/""/g, '"').trim() : '';
 
-                        let loc = { name: item.location_name || "مكة المكرمة", lat: null, lng: null };
-                        if (item.geo_coordinates) {
-                            const parts = item.geo_coordinates.split(',');
-                            if (parts.length === 2) {
-                                loc.lat = parseFloat(parts[0].trim());
-                                loc.lng = parseFloat(parts[1].trim());
-                            }
-                        } else if (item.location) {
-                            loc = item.location;
-                        }
+                    const title = clean(matches[1]); // العنوان عادة في العمود الثاني
+                    const details = matches[5] ? clean(matches[5]) : ''; // التفاصيل في العمود السادس
+                    const yearStr = clean(matches[2]); // السنة الهجرية
+                    
+                    // 🔥 الفلتر الخطير: إذا لم يكن العنوان أو التفاصيل بالعربي، تجاهل السطر
+                    if (!isArabic(title) && !isArabic(details)) continue;
 
-                        return {
-                            id: item.event_id || item.id || index,
-                            title: item.title,
-                            year: year,
-                            hijri: item.hijri_year || item.hijri || `${Math.abs(year)} ${year < 1 ? 'ق.هـ' : 'هـ'}`,
-                            type: year < 1 ? 'makkah' : 'madinah',
-                            details: item.details,
-                            location: loc,
-                            source: item.source_url || item.source || "كتب السيرة"
-                        };
-                    })
-                    .sort((a, b) => a.year - b.year);
-            } catch (e) {
-                console.error("خطأ في المعالجة", e);
-                return [];
+                    // معالجة السنة
+                    let year = 0;
+                    let type = 'madinah';
+                    if (yearStr.includes('ق') || yearStr.includes('-')) {
+                        year = -parseInt(yearStr.replace(/\D/g, '') || 53);
+                        type = 'makkah';
+                    } else {
+                        year = parseInt(yearStr.replace(/\D/g, '') || 1);
+                    }
+
+                    result.push({
+                        id: i,
+                        title: title,
+                        year: year,
+                        hijri: yearStr || 'غير محدد',
+                        type: type,
+                        details: details || 'لا توجد تفاصيل متاحة',
+                        location: { name: clean(matches[7]) || (year < 1 ? 'مكة المكرمة' : 'المدينة المنورة') },
+                        source: "كتب السيرة المعتمدة"
+                    });
+                }
             }
+            return result.sort((a, b) => a.year - b.year);
+        };
+
+        // --- 3. معالج JSON العادي (للاحتياط) ---
+        const processJSON = (data) => {
+            return data.map((item, idx) => ({
+                id: item.id || idx,
+                title: item.title,
+                year: item.year || (item.hijri_year?.includes('ق') ? -parseInt(item.hijri_year) : parseInt(item.hijri_year)) || 0,
+                hijri: item.hijri_year || item.hijri,
+                details: item.details,
+                location: { name: item.location_name || "موقع الحدث" },
+                type: (item.year < 1 || (item.hijri_year && item.hijri_year.includes('ق'))) ? 'makkah' : 'madinah'
+            })).sort((a, b) => a.year - b.year);
         };
 
         useEffect(() => {
+            // جلب الملف كنص (Text) وليس JSON مباشر لكي لا ينهار التطبيق
             fetch('data/seerah/prophet.json')
-                .then(res => res.ok ? res.json() : [])
-                .then(data => {
-                    setEvents(processRawData(data));
+                .then(res => res.text()) 
+                .then(textData => {
+                    try {
+                        // محاولة قراءته كـ JSON أولاً
+                        const jsonData = JSON.parse(textData);
+                        setEvents(processJSON(jsonData));
+                    } catch (e) {
+                        // إذا فشل (لأنه ملف CSV)، نستخدم المحلل الذكي
+                        console.log("تم اكتشاف ملف CSV، جاري التنظيف والترجمة...");
+                        const cleanData = parseCSV(textData);
+                        setEvents(cleanData);
+                    }
                     setLoading(false);
                 })
-                .catch(() => {
-                    // بيانات احتياطية عند الفشل
-                    setEvents([{ id: 1, year: -53, title: "مولد النبي ﷺ", details: "عام الفيل", hijri: "53 ق.هـ", location: {name: "مكة"}, type: 'makkah' }]);
+                .catch(err => {
+                    console.error("فشل التحميل", err);
                     setLoading(false);
                 });
         }, []);
 
-        if (loading) return <div className="p-10 text-center font-bold text-amber-800 animate-pulse flex flex-col items-center gap-4 py-20"><span className="text-5xl">📜</span><span>جاري فتح كتب السيرة...</span></div>;
+        if (loading) return <div className="p-10 text-center font-bold text-amber-800 animate-pulse flex flex-col items-center gap-4 py-20"><span className="text-5xl">📜</span><span>جاري معالجة كتب السيرة...</span></div>;
 
         const filteredEvents = events.filter(ev => {
             if (filter === 'makkah') return ev.year < 1;
@@ -94,11 +123,6 @@
                                 <span>📅 {selectedEvent.hijri}</span>
                                 <span>📍 {selectedEvent.location.name}</span>
                             </div>
-                            {selectedEvent.location.lat && (
-                                <a href={`https://www.google.com/maps/search/?api=1&query=${selectedEvent.location.lat},${selectedEvent.location.lng}`} target="_blank" className="block w-full text-center bg-emerald-50 text-emerald-700 py-2 rounded-lg text-xs font-bold border border-emerald-100 hover:bg-emerald-100">
-                                    🗺️ مشاهدة الموقع على الخريطة
-                                </a>
-                            )}
                             <div className="bg-white p-4 rounded-xl border leading-loose text-gray-700 font-bold text-justify max-h-60 overflow-y-auto">
                                 {selectedEvent.details}
                             </div>
@@ -133,6 +157,7 @@
                             </div>
                         </div>
                     ))}
+                    {filteredEvents.length === 0 && <div className="text-center py-10 text-gray-400 font-bold text-sm">لا توجد بيانات مطابقة</div>}
                 </div>
             </div>
         );
