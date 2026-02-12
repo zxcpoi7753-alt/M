@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة الماسية: تحديث جذري + تكبير + أوفلاين)
+   (النسخة البلاتينية: قائمة إعدادات مجمعة)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -42,7 +42,7 @@ const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
 const App = () => {
-    // تحميل البيانات من الذاكرة (Offline First)
+    // تحميل البيانات من الذاكرة
     const [config, setConfig] = useState(() => {
         const saved = localStorage.getItem('app_offline_data');
         return saved ? JSON.parse(saved) : { texts: { siteTitle: '...' }, news: [], teachers: [], halaqat: [], schedules: [] };
@@ -56,6 +56,9 @@ const App = () => {
 
     // حالة التكبير
     const [isZoomed, setIsZoomed] = useState(false);
+    
+    // 🔥 حالة قائمة الإعدادات (مفتوحة/مغلقة)
+    const [showSettings, setShowSettings] = useState(false);
 
     useEffect(() => {
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
@@ -79,39 +82,23 @@ const App = () => {
         root.style.setProperty('--layout-scale', isZoomed ? '1.25' : '1');
     }, [isZoomed]);
 
-    // 🔥🔥 دالة التحديث الجذري (Nuclear Update) 🔥🔥
+    // دالة التحديث الجذري
     const handleSmartUpdate = async () => {
-        // 1. فحص الإنترنت
+        setShowSettings(false); // إغلاق القائمة
         if (!navigator.onLine) {
-            setModal({
-                show: true, 
-                title: '📴 لا يوجد إنترنت', 
-                msg: 'عذراً، أنت غير متصل بالإنترنت.\nلا يمكن سحب التحديثات الجديدة.'
-            });
+            setModal({ show: true, title: '📴 لا يوجد إنترنت', msg: 'عذراً، لا يوجد اتصال بالإنترنت.' });
             return;
         }
 
-        // 2. طلب التأكيد
-        if (confirm("هل تريد تحديث التطبيق الآن؟\n(سيتم إعادة تحميل كافة البيانات لضمان وصول آخر الميزات)")) {
-            
-            // أ) طرد الـ Service Worker
+        if (confirm("هل تريد تحديث التطبيق الآن؟\n(سيتم إعادة تحميل كافة البيانات)")) {
             if ('serviceWorker' in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) {
-                    await registration.unregister();
-                }
+                for (let registration of registrations) await registration.unregister();
             }
-
-            // ب) مسح الكاش بالكامل (Cache Storage)
             if ('caches' in window) {
                 const keys = await caches.keys();
-                for (const key of keys) {
-                    await caches.delete(key);
-                }
+                for (const key of keys) await caches.delete(key);
             }
-
-            // ج) إعادة تحميل الصفحة برابط جديد لإجبار السيرفر (Timestamp)
-            // هذا يخدع المتصفح ليظن أنها صفحة جديدة تماماً
             window.location.replace(window.location.pathname + '?v=' + new Date().getTime());
         }
     };
@@ -122,26 +109,51 @@ const App = () => {
         <div id="app-container">
             {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
 
-            <header>
+            <header className="relative">
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
-                <div className="flex gap-2">
-                    
-                    {/* زر التكبير */}
-                    <button onClick={() => setIsZoomed(!isZoomed)} className={`flex items-center gap-1 px-3 py-2 rounded-xl border transition shadow-sm ${isZoomed ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200'}`}>
-                        <span className="text-sm">{isZoomed ? '📱' : '🔍'}</span>
-                        <span className="font-bold text-xs hidden sm:inline">{isZoomed ? 'تصغير' : 'تكبير'}</span>
+
+                {/* 🔥 قسم الإعدادات الجديد */}
+                <div className="relative">
+                    {/* زر الترس */}
+                    <button 
+                        onClick={() => setShowSettings(!showSettings)} 
+                        className={`w-10 h-10 flex items-center justify-center rounded-xl transition ${showSettings ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-50 text-gray-500'}`}
+                    >
+                        <span className="text-xl font-bold">⚙️</span>
                     </button>
 
-                    {/* 🔥 زر التحديث الجذري */}
-                    <button onClick={handleSmartUpdate} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm active:scale-95 transition">
-                        <span className="font-bold text-xs">تحديث</span>
-                        <span className="text-sm">🔄</span>
-                    </button>
+                    {/* القائمة المنسدلة */}
+                    {showSettings && (
+                        <>
+                            {/* طبقة شفافة لإغلاق القائمة عند الضغط خارجها */}
+                            <div className="fixed inset-0 z-40" onClick={() => setShowSettings(false)}></div>
+                            
+                            {/* محتوى القائمة */}
+                            <div className="absolute top-12 left-0 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in">
+                                <div className="p-2 space-y-1">
+                                    <div className="px-3 py-2 text-xs font-bold text-gray-400 border-b mb-1">الإعدادات العامة</div>
+                                    
+                                    <button onClick={() => { setIsZoomed(!isZoomed); setShowSettings(false); }} className="w-full flex items-center gap-3 px-3 py-3 hover:bg-emerald-50 rounded-xl transition text-right">
+                                        <span className="text-lg">{isZoomed ? '📱' : '🔍'}</span>
+                                        <span className="text-sm font-bold text-gray-700">{isZoomed ? 'تصغير العرض' : 'تكبير العرض'}</span>
+                                    </button>
 
-                    <a href="admin.html" className="p-2 rounded-xl text-gray-400 hover:text-emerald-600 text-xl">🔒</a>
+                                    <button onClick={handleSmartUpdate} className="w-full flex items-center gap-3 px-3 py-3 hover:bg-emerald-50 rounded-xl transition text-right">
+                                        <span className="text-lg">🔄</span>
+                                        <span className="text-sm font-bold text-gray-700">تحديث التطبيق</span>
+                                    </button>
+
+                                    <a href="admin.html" className="w-full flex items-center gap-3 px-3 py-3 hover:bg-red-50 rounded-xl transition text-right border-t mt-1">
+                                        <span className="text-lg">🔒</span>
+                                        <span className="text-sm font-bold text-gray-700">لوحة الإدارة</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </header>
 
