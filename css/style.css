@@ -1,56 +1,36 @@
 /* =========================================
    ملف التصميم الرئيسي: css/style.css
-   النسخة: V9 (ثبات القوائم + الوضع الليلي المطور + السيرة الجديدة)
+   النسخة: V12 (التصميم المتجاوب: جوال + سطح مكتب)
    ========================================= */
 
-/* منع سحب الشاشة للتحديث (تجربة تطبيق أصلي) */
-body {
-    overscroll-behavior-y: contain;
-    touch-action: pan-y;
-}
-
+/* --- إعدادات أساسية --- */
 :root {
-    /* ☀️ الألوان الفاتحة (Light Mode) */
-    --brand: #059669;       /* الأخضر الأساسي */
-    --brand-dark: #064e3b;  /* الأخضر الغامق */
-    --brand-light: #ecfdf5; /* خلفية خضراء فاتحة */
-    --accent: #fbbf24;      /* برتقالي/ذهبي */
-    
-    --bg-color: #f8fafc;    /* خلفية الموقع (رمادي فاتح جداً) */
-    --card-bg: #ffffff;     /* خلفية البطاقات (أبيض) */
-    --header-bg: rgba(255, 255, 255, 0.95); /* خلفية الهيدر (شفافة قليلاً) */
-    
-    --text-main: #1e293b;   /* النص الأساسي (كحلي غامق) */
-    --text-sec: #64748b;    /* النص الثانوي (رمادي) */
-    --text-inv: #ffffff;    /* النص المعكوس (أبيض) */
-    
-    --border-color: #e2e8f0;/* لون الحدود */
-    
-    --layout-scale: 1;      /* متغير التكبير */
+    /* الألوان الفاتحة */
+    --brand: #059669;
+    --brand-dark: #064e3b;
+    --brand-light: #ecfdf5;
+    --bg-color: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-sec: #64748b;
+    --border-color: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
-/* 🌙 الألوان الداكنة (Dark Mode) - تباين عالي */
+/* الألوان الداكنة */
 .dark-mode {
-    --brand: #10b981;        /* أخضر ساطع للظلام */
-    --brand-dark: #d1fae5;   /* النصوص الخضراء تصبح فاتحة */
-    --brand-light: #064e3b;  /* الخلفيات الخضراء تصبح غامقة */
-    --accent: #fbbf24;
-    
-    --bg-color: #0f172a;     /* خلفية الموقع (كحلي ليلي) */
-    --card-bg: #1e293b;      /* خلفية البطاقات (رمادي مزرق) */
-    --header-bg: rgba(30, 41, 59, 0.95); /* خلفية الهيدر في الليل */
-    
-    --text-main: #f8fafc;    /* النص الأساسي (أبيض ثلجي) */
-    --text-sec: #94a3b8;     /* النص الثانوي (رمادي فاتح) */
-    --text-inv: #0f172a;     /* النص المعكوس (أسود) */
-    
-    --border-color: #334155; /* حدود غامقة */
+    --brand: #10b981;
+    --brand-dark: #d1fae5;
+    --brand-light: #064e3b;
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f8fafc;
+    --text-sec: #94a3b8;
+    --border-color: #334155;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
-/* 🔥 التحكم في حجم الموقع كاملاً */
-html {
-    font-size: calc(16px * var(--layout-scale)); 
-}
+* { box-sizing: border-box; }
 
 body {
     font-family: 'Cairo', sans-serif;
@@ -60,259 +40,203 @@ body {
     padding: 0;
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* --- الحاوية الرئيسية --- */
+/* --- الحاوية الذكية (Smart Container) --- */
+/* هذه الحاوية تمنع الموقع من التمدد بشكل قبيح في الشاشات العريضة */
 #app-container {
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 80px;
+    padding-bottom: 90px; /* مسافة للناف بار */
+    margin: 0 auto; /* توسيط في الشاشات الكبيرة */
+    max-width: 100%; /* للجوال */
 }
 
-/* --- الهيدر والناف بار (التثبيت الذكي) --- */
-/* حاوية تجمع الهيدر والقائمة لتثبيتهما معاً */
+/* --- 💻 إعدادات سطح المكتب (للشاشات أكبر من 768px) --- */
+@media (min-width: 768px) {
+    #app-container {
+        max-width: 800px; /* تحديد عرض مريح للعين */
+        padding-bottom: 20px;
+        border-left: 1px solid var(--border-color);
+        border-right: 1px solid var(--border-color);
+        background-color: var(--bg-color);
+        min-height: 100vh;
+        box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    /* تكبير النصوص قليلاً في الكمبيوتر */
+    body { font-size: 1.1rem; }
+}
+
+/* --- الهيدر والقوائم --- */
 .sticky-header-container {
     position: sticky;
     top: 0;
     z-index: 100;
-    background-color: var(--bg-color); /* لمنع الشفافية خلف القوائم */
+    background-color: var(--bg-color);
 }
 
 header {
-    background-color: var(--header-bg);
-    padding: 0.8rem 1rem;
-    backdrop-filter: blur(8px); /* تأثير ضبابي جميل */
-    border-bottom: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 60px; /* ارتفاع ثابت */
-    box-sizing: border-box;
+    border-bottom: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
 }
 
 nav {
-    background-color: var(--header-bg);
+    background-color: var(--card-bg);
     border-bottom: 1px solid var(--border-color);
-    backdrop-filter: blur(8px);
     display: flex;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    gap: 0.8rem;
+    padding: 0.8rem 1rem;
     overflow-x: auto;
-    white-space: nowrap;
-    height: 50px; /* ارتفاع ثابت */
-    box-sizing: border-box;
-    align-items: center;
+    scrollbar-width: none; /* إخفاء السكرول */
 }
+nav::-webkit-scrollbar { display: none; }
 
-/* تحسين أزرار القائمة */
 nav button {
-    flex-shrink: 0;
-    padding: 0.4rem 1rem;
-    border-radius: 0.8rem;
-    font-size: 0.85rem;
+    white-space: nowrap;
+    padding: 0.6rem 1.2rem;
+    border-radius: 1rem;
     font-weight: 800;
-    border: 1px solid transparent;
+    font-size: 0.9rem;
+    border: none;
     cursor: pointer;
-    transition: all 0.2s;
     background-color: transparent;
     color: var(--text-sec);
+    transition: all 0.2s;
 }
 nav button.active {
     background-color: var(--brand);
-    color: var(--text-inv); /* لون النص يتغير حسب الوضع */
-    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3);
+    color: white; /* دائماً أبيض للتباين */
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
 }
 
-/* --- العناصر العامة (دعم الوضع الليلي) --- */
-.bg-white, .news-card, .seerah-card, .feature-container, .admin-card, .modal-content, .chapter-card {
-    background-color: var(--card-bg) !important;
-    color: var(--text-main);
-    border-color: var(--border-color) !important;
-}
-
-/* النصوص داخل الكروت */
-h1, h2, h3, h4, strong {
+/* --- البطاقات والعناصر --- */
+.news-card, .seerah-card, .feature-container, .chapter-card, .student-btn {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 1.5rem;
+    box-shadow: var(--shadow);
     color: var(--text-main);
 }
-p, span, small {
-    color: var(--text-sec); /* افتراضي، إلا إذا تم تجاوزه */
-}
 
-/* بطاقة الأخبار */
 .news-card {
     border-top: 6px solid var(--brand) !important;
-    border-radius: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    margin-bottom: 1rem;
     padding: 1.5rem;
-    position: relative;
-    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
 }
 
-.islamic-pattern {
-    opacity: 0.03;
-    background-image: radial-gradient(var(--brand) 0.5px, transparent 0.5px);
-    background-size: 20px 20px;
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+/* --- 🔥 الشبكة الذكية (Grid System) - الحل لمشكلة التزاحم 🔥 --- */
+.chapters-grid {
+    display: grid;
+    gap: 1rem;
+    padding: 0.5rem;
+    
+    /* للجوال: عمود واحد (بطاقات تحت بعض) */
+    grid-template-columns: 1fr; 
 }
 
-/* --- الجداول --- */
-.schedule-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
-.schedule-table th { background-color: var(--brand); color: white; padding: 10px; font-weight: 900; }
-.schedule-table td { padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color); font-weight: 700; color: var(--text-main); }
+/* للتابلت: عمودين */
+@media (min-width: 640px) {
+    .chapters-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
-/* --- أزرار ركن الطالب (تحسين التباين) --- */
-.student-btn {
-    width: 100%;
-    padding: 1.2rem;
-    border-radius: 1.5rem;
+/* للكمبيوتر: 3 أعمدة (إذا كانت الشاشة عريضة) */
+@media (min-width: 1024px) {
+    .chapters-grid { grid-template-columns: repeat(2, 1fr); } /* نكتفي بـ 2 للحفاظ على الحجم الكبير */
+}
+
+/* تصميم بطاقة الفصل */
+.chapter-card {
+    padding: 2rem 1.5rem; /* تكبير المساحة الداخلية */
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+    border: 2px solid transparent !important;
     background-color: var(--card-bg);
-    border: 2px solid var(--brand);
-    color: var(--brand); /* لون النص يتبع لون البراند (يتغير في الليلي) */
-    font-weight: 900;
-    margin-bottom: 0.8rem;
+}
+.chapter-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--brand) !important;
+}
+.chapter-icon { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+.chapter-title { font-weight: 900; font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main); }
+.chapter-desc { font-size: 0.85rem; color: var(--text-sec); }
+
+/* --- ركن الطالب (أزرار كبيرة ومريحة) --- */
+.student-btn {
+    padding: 1.5rem; /* مساحة أكبر للإصبع */
+    margin-bottom: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 2px solid var(--border-color); /* حدود واضحة */
     transition: 0.2s;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
-.student-btn span { color: inherit; } /* إجبار النصوص الداخلية على اتباع لون الزر */
-.student-btn:active { transform: scale(0.98); }
 .student-btn.active {
     background-color: var(--brand);
-    color: var(--text-inv);
-    box-shadow: 0 8px 15px rgba(5, 150, 105, 0.2);
+    color: white !important; /* فرض اللون الأبيض */
+    border-color: var(--brand);
+}
+.student-btn span { font-weight: 900; font-size: 1rem; }
+
+/* --- الجداول --- */
+.schedule-table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 1rem; }
+.schedule-table th { background-color: var(--brand); color: white; padding: 12px; }
+.schedule-table td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: center; }
+
+/* --- النوافذ المنبثقة (Modals) --- */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    z-index: 2000;
+    display: flex; justify-content: center; align-items: center; /* سنتر في الكمبيوتر */
+    padding: 1rem;
+    align-items: flex-end; /* في الجوال تظهر من الأسفل */
+}
+@media (min-width: 640px) {
+    .modal-overlay { align-items: center; } /* في الكمبيوتر تظهر في الوسط */
 }
 
-/* --- تصميم السيرة الجديد (الفصول) --- */
-.chapters-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    padding: 0.5rem;
-}
-
-.chapter-card {
-    border-radius: 1.5rem;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    border: 2px solid transparent !important;
-    transition: all 0.2s;
+.modal-content {
+    width: 100%;
+    max-width: 500px; /* لا تصبح عريضة جداً في الكمبيوتر */
     background-color: var(--card-bg);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-}
-.chapter-card:hover {
-    border-color: var(--brand) !important;
-    transform: translateY(-5px);
-}
-.chapter-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    display: block;
-}
-.chapter-title {
-    font-family: 'Amiri', serif;
-    font-weight: 900;
-    font-size: 1.1rem;
-    color: var(--text-main);
-    line-height: 1.4;
-}
-.chapter-desc {
-    font-size: 0.75rem;
-    color: var(--text-sec);
-    margin-top: 0.3rem;
-    font-weight: bold;
-}
-
-/* شريط التقدم للسيرة */
-.progress-bar-container {
-    background-color: var(--border-color);
-    height: 8px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 1rem 0;
-}
-.progress-bar-fill {
-    height: 100%;
-    background-color: var(--brand);
-    transition: width 0.5s ease;
-}
-
-/* --- الإضافات الأخرى --- */
-.feature-container {
-    border-radius: 1.5rem;
-    padding: 1.5rem;
+    border-radius: 2rem 2rem 0 0; /* حواف دائرية من الأعلى للجوال */
+    padding: 2rem;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+    animation: slideUp 0.3s ease-out;
     border: 1px solid var(--border-color);
-    margin-bottom: 1rem;
-    animation: fadeIn 0.3s ease-out;
+}
+@media (min-width: 640px) {
+    .modal-content {
+        border-radius: 2rem; /* حواف دائرية كاملة للكمبيوتر */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
 }
 
-.quran-text {
-    font-family: 'Amiri', serif;
-    line-height: 2.6;
-    font-size: 1.5rem;
-    color: var(--text-main);
-    text-align: center;
-    direction: rtl;
-}
-
-/* أزرار الاختبار */
-.test-option-btn {
-    width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 12px;
-    border: 2px solid var(--border-color); background-color: var(--card-bg); 
-    font-weight: 700; color: var(--text-sec);
-    cursor: pointer; transition: 0.2s;
-}
-.test-option-btn:hover { border-color: var(--brand); color: var(--brand); }
-
-/* السبحة */
-.sebha-circle {
-    width: 160px; height: 160px; border-radius: 50%;
-    border: 8px solid var(--brand); display: flex; align-items: center; justify-content: center;
-    font-size: 3.5rem; font-weight: 900; color: var(--brand);
-    margin: 20px auto; cursor: pointer; background-color: var(--brand-light); /* خلفية متغيرة */
-    user-select: none; box-shadow: inset 0 0 20px rgba(5, 150, 105, 0.1);
-    transition: transform 0.1s;
-}
-.sebha-circle:active { transform: scale(0.95); }
-
-/* --- النوافذ (Modals) --- */
-.modal-overlay { 
-    position: fixed; inset: 0; 
-    background: rgba(0,0,0,0.7); 
-    backdrop-filter: blur(4px); 
-    z-index: 2000; /* أعلى من كل شيء */
-    display: flex; justify-content: center; align-items: center; 
-    padding: 20px; 
-    animation: fadeIn 0.2s; 
-}
-.modal-content { 
-    width: 100%; max-width: 400px; 
-    border-radius: 2rem; padding: 2rem; 
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); 
-    text-align: center; 
-    border: 2px solid var(--border-color);
-}
-
-.animate-slide-up { animation: slideUp 0.3s ease-out; }
-.animate-in { animation: fadeIn 0.4s ease-out; }
-
-@keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* إخفاء شريط التمرير */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* إصلاح المدخلات (Inputs) في الوضع الليلي */
-input, textarea, select {
+/* تحسين المدخلات */
+input, select, textarea {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color) !important;
     background-color: var(--bg-color) !important;
     color: var(--text-main) !important;
-    border-color: var(--border-color) !important;
+    font-size: 1rem;
+    outline: none;
 }
+input:focus { border-color: var(--brand) !important; }
+
+/* إخفاء السكرول بار */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
