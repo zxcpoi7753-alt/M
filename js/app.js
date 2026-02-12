@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (شامل زر التكبير + التحديث الذكي + السيرة الجديدة)
+   (النسخة الماسية: تحديث جذري + تكبير + أوفلاين)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -34,7 +34,7 @@ const FeelingsPharmacy = safeImport('FeelingsPharmacy');
 const CardMaker = safeImport('CardMaker');
 const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
 const CustomModal = window.CustomModal;
-const RawdatHub = safeImport('RawdatHub'); // بوابة روضة المحبين
+const RawdatHub = safeImport('RawdatHub');
 
 const HomeSection = safeImport('HomeSection');
 const TeachersSection = safeImport('TeachersSection');
@@ -54,7 +54,7 @@ const App = () => {
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
 
-    // 🔥 حالة التكبير (الافتراضي: عادي)
+    // حالة التكبير
     const [isZoomed, setIsZoomed] = useState(false);
 
     useEffect(() => {
@@ -73,33 +73,46 @@ const App = () => {
         }
     }, []);
 
-    // 🔥 تأثير التكبير عند الضغط على الزر
+    // تأثير التكبير
     useEffect(() => {
         const root = document.documentElement;
-        // 1.25 يعني تكبير بنسبة 25% (مناسب جداً للقراءة)
         root.style.setProperty('--layout-scale', isZoomed ? '1.25' : '1');
     }, [isZoomed]);
 
-    // 🔥 دالة التحديث الذكي
-    const handleSmartUpdate = () => {
+    // 🔥🔥 دالة التحديث الجذري (Nuclear Update) 🔥🔥
+    const handleSmartUpdate = async () => {
+        // 1. فحص الإنترنت
         if (!navigator.onLine) {
             setModal({
                 show: true, 
                 title: '📴 لا يوجد إنترنت', 
-                msg: 'عذراً، أنت غير متصل بالإنترنت.\nلا يمكن تحديث التطبيق الآن.'
+                msg: 'عذراً، أنت غير متصل بالإنترنت.\nلا يمكن سحب التحديثات الجديدة.'
             });
             return;
         }
 
-        if (confirm("هل تريد تحديث التطبيق لجلب آخر البيانات؟\n(سيتم إعادة تحميل الصفحة)")) {
+        // 2. طلب التأكيد
+        if (confirm("هل تريد تحديث التطبيق الآن؟\n(سيتم إعادة تحميل كافة البيانات لضمان وصول آخر الميزات)")) {
+            
+            // أ) طرد الـ Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(regs => {
-                    for(let reg of regs) reg.unregister(); 
-                    window.location.reload(true); 
-                });
-            } else {
-                window.location.reload(true);
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
             }
+
+            // ب) مسح الكاش بالكامل (Cache Storage)
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (const key of keys) {
+                    await caches.delete(key);
+                }
+            }
+
+            // ج) إعادة تحميل الصفحة برابط جديد لإجبار السيرفر (Timestamp)
+            // هذا يخدع المتصفح ليظن أنها صفحة جديدة تماماً
+            window.location.replace(window.location.pathname + '?v=' + new Date().getTime());
         }
     };
 
@@ -116,13 +129,13 @@ const App = () => {
                 </div>
                 <div className="flex gap-2">
                     
-                    {/* 🔥 زر وضع القراءة الكبير */}
+                    {/* زر التكبير */}
                     <button onClick={() => setIsZoomed(!isZoomed)} className={`flex items-center gap-1 px-3 py-2 rounded-xl border transition shadow-sm ${isZoomed ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-500 border-gray-200'}`}>
                         <span className="text-sm">{isZoomed ? '📱' : '🔍'}</span>
                         <span className="font-bold text-xs hidden sm:inline">{isZoomed ? 'تصغير' : 'تكبير'}</span>
                     </button>
 
-                    {/* زر التحديث */}
+                    {/* 🔥 زر التحديث الجذري */}
                     <button onClick={handleSmartUpdate} className="flex items-center gap-1 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm active:scale-95 transition">
                         <span className="font-bold text-xs">تحديث</span>
                         <span className="text-sm">🔄</span>
