@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة النهائية: نظيفة + مرتبطة بالإعدادات)
+   (النسخة النهائية: نظيفة + بدون تنبيهات مزعجة)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -13,7 +13,7 @@ class ErrorBoundary extends Component {
     render() { if (this.state.hasError) return <div className="text-red-500 text-xs text-center p-2">⚠️ خطأ في العرض</div>; return this.props.children; }
 }
 
-// استيراد آمن للمكونات
+// استيراد آمن
 const safeImport = (name) => {
     const Comp = window[name];
     if (!Comp) return () => <div className="text-center text-xs text-gray-400 py-4 border border-dashed rounded-lg bg-gray-50">⏳ جاري التحميل...</div>;
@@ -21,13 +21,11 @@ const safeImport = (name) => {
 };
 
 // --- تعريف المكونات ---
-// 1. المكونات الأساسية
 const HomeSection = safeImport('HomeSection');
 const TeachersSection = safeImport('TeachersSection');
 const SchedulesSection = safeImport('SchedulesSection');
 const AboutSection = safeImport('AboutSection');
 
-// 2. الميزات والوحدات
 const CalcEffort = safeImport('CalcEffort');
 const CalcTime = safeImport('CalcTime');
 const TestHifz = safeImport('TestHifz');
@@ -43,11 +41,11 @@ const GlobalKhatmaCounter = safeImport('GlobalKhatmaCounter');
 const CustomModal = window.CustomModal;
 const RawdatHub = safeImport('RawdatHub');
 
-// 3. 🔥 نظام الإعدادات الجديد (الملفات التي أضفناها)
+// نظام الإعدادات
 const SettingsModal = safeImport('SettingsModal');
 
 const App = () => {
-    // تحميل البيانات (Offline First)
+    // تحميل البيانات
     const [config, setConfig] = useState(() => {
         const saved = localStorage.getItem('app_offline_data');
         return saved ? JSON.parse(saved) : { texts: { siteTitle: '...' }, news: [], teachers: [], halaqat: [], schedules: [] };
@@ -58,19 +56,15 @@ const App = () => {
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     
-    // إدارة النوافذ
+    // النوافذ والحالات
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false); // للتحكم بظهور الإعدادات
-
-    // حالة التكبير (يتم تمريرها للإعدادات)
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isZoomed, setIsZoomed] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
 
-    // تهيئة البيانات والأنظمة
     useEffect(() => {
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
 
-        // الاستماع لقاعدة البيانات
         if (window.db && window.onSnapshot) {
             try {
                 window.onSnapshot(window.doc(window.db, "appData", "mainConfig"), (doc) => {
@@ -84,12 +78,12 @@ const App = () => {
         }
     }, []);
 
-    // تأثير التكبير
+    // تطبيق التكبير
     useEffect(() => {
         document.documentElement.style.setProperty('--layout-scale', isZoomed ? '1.25' : '1');
     }, [isZoomed]);
 
-    // 🔥 دالة التحديث الجذري (Scorched Earth Update)
+    // 🔥 دالة التحديث الصامتة (يتم استدعاؤها بعد موافقة المستخدم في الإعدادات)
     const handleSmartUpdate = async () => {
         setIsSettingsOpen(false); // إغلاق الإعدادات
 
@@ -98,45 +92,43 @@ const App = () => {
             return;
         }
 
-        if (confirm("هل تريد تحديث التطبيق الآن؟\n(سيتم إغلاق التطبيق وإعادة فتحه)")) {
-            setIsUpdating(true);
-            
-            try {
-                // 1. إلغاء تسجيل Service Worker
-                if ('serviceWorker' in navigator) {
-                    const registrations = await navigator.serviceWorker.getRegistrations();
-                    await Promise.all(registrations.map(r => r.unregister()));
-                }
-
-                // 2. حذف الكاش بالكامل
-                if ('caches' in window) {
-                    const keys = await caches.keys();
-                    await Promise.all(keys.map(key => caches.delete(key)));
-                }
-
-                // 3. الانتظار قليلاً للتأكد من الحذف
-                setTimeout(() => {
-                    // 4. الانتقال لرابط "جديد" لإجبار المتصفح على التحميل من السيرفر
-                    // استخدام replace يمنع العودة للخلف، واستخدام الوقت يمنع الكاش
-                    window.location.replace(window.location.pathname + '?v=' + new Date().getTime());
-                }, 1000);
-
-            } catch (error) {
-                console.error("Update failed", error);
-                window.location.reload(true);
+        // هنا لا يوجد confirm لأن المستخدم وافق مسبقاً في النافذة الأنيقة
+        setIsUpdating(true);
+        
+        try {
+            // 1. تنظيف Service Workers
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(registrations.map(r => r.unregister()));
             }
+
+            // 2. تنظيف الكاش
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map(key => caches.delete(key)));
+            }
+
+            // 3. إعادة تحميل إجبارية بعد ثانية
+            setTimeout(() => {
+                const timestamp = new Date().getTime();
+                window.location.replace(window.location.pathname + '?v=' + timestamp);
+            }, 1000);
+
+        } catch (error) {
+            console.error("Update failed", error);
+            window.location.reload(true);
         }
     };
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
 
-    // شاشة التحميل أثناء التحديث
+    // شاشة التحميل (تظهر فقط عند الضغط على تحديث)
     if (isUpdating) {
         return (
-            <div className="fixed inset-0 bg-emerald-600 z-[9999] flex flex-col items-center justify-center text-white p-4">
-                <div className="text-5xl animate-spin mb-6">🔄</div>
-                <h2 className="text-2xl font-black mb-2">جاري التحديث...</h2>
-                <p className="text-emerald-100 text-center text-sm">يتم تنظيف الملفات القديمة وجلب أحدث نسخة.</p>
+            <div className="fixed inset-0 bg-emerald-600 z-[9999] flex flex-col items-center justify-center text-white p-4 animate-in">
+                <div className="w-24 h-24 border-4 border-white border-t-transparent rounded-full animate-spin mb-6"></div>
+                <h2 className="text-3xl font-black mb-2">جاري التحديث...</h2>
+                <p className="text-emerald-100 font-bold text-center">يرجى الانتظار، نقوم بجلب أحدث نسخة لك 🚀</p>
             </div>
         );
     }
@@ -146,23 +138,22 @@ const App = () => {
             {/* نافذة التنبيهات العامة */}
             {window.CustomModal && <CustomModal isOpen={modal.show} onClose={() => setModal({ ...modal, show: false })} title={modal.title}><p className="font-bold text-gray-700 leading-relaxed whitespace-pre-line">{modal.msg}</p></CustomModal>}
 
-            {/* الهيدر (تم تنظيفه ليحتوي الإعدادات فقط) */}
             <header className="relative">
                 <div className="flex items-center gap-2" onClick={() => setPage('home')}>
                     <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-lg cursor-pointer">ث</div>
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
 
-                {/* زر الإعدادات (يفتح النافذة المجمعة) */}
+                {/* زر الإعدادات فقط */}
                 <button 
                     onClick={() => setIsSettingsOpen(true)} 
-                    className="w-10 h-10 bg-gray-50 rounded-xl text-xl flex items-center justify-center shadow-sm border border-gray-100 active:scale-95 transition"
+                    className="w-10 h-10 bg-gray-50 rounded-xl text-xl flex items-center justify-center shadow-sm border border-gray-100 active:scale-95 transition hover:bg-emerald-50"
                 >
                     ⚙️
                 </button>
             </header>
 
-            {/* 🔥 نافذة الإعدادات المجمعة (مودال) */}
+            {/* نافذة الإعدادات المجمعة */}
             <ErrorBoundary>
                 {window.SettingsModal && (
                     <SettingsModal 
@@ -175,7 +166,6 @@ const App = () => {
                 )}
             </ErrorBoundary>
 
-            {/* شريط التنقل العلوي */}
             <nav className="no-scrollbar">
                 {[
                     {id:'home', l:'الرئيسية'},
