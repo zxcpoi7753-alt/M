@@ -1,6 +1,6 @@
 /* =========================================
    ملف التطبيق الرئيسي: js/app.js
-   (النسخة البلاتينية: قائمة إعدادات مجمعة)
+   (نسخة التحديث الصارم + الإعدادات + السيرة)
    ========================================= */
 
 const { useState, useEffect, Component } = React;
@@ -53,12 +53,9 @@ const App = () => {
     const [studentName, setStudentName] = useState(localStorage.getItem('st_name') || '');
     const [halaqaName, setHalaqaName] = useState(localStorage.getItem('st_halaqa') || '');
     const [modal, setModal] = useState({ show: false, title: '', msg: '' });
-
-    // حالة التكبير
     const [isZoomed, setIsZoomed] = useState(false);
-    
-    // 🔥 حالة قائمة الإعدادات (مفتوحة/مغلقة)
     const [showSettings, setShowSettings] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false); // حالة تحميل للتحديث
 
     useEffect(() => {
         window.showGlobalAlert = (title, msg) => setModal({ show: true, title, msg });
@@ -76,34 +73,64 @@ const App = () => {
         }
     }, []);
 
-    // تأثير التكبير
     useEffect(() => {
         const root = document.documentElement;
         root.style.setProperty('--layout-scale', isZoomed ? '1.25' : '1');
     }, [isZoomed]);
 
-    // دالة التحديث الجذري
+    // 🔥🔥🔥 دالة التحديث النووي (Nuclear Update V2) 🔥🔥🔥
     const handleSmartUpdate = async () => {
-        setShowSettings(false); // إغلاق القائمة
+        setShowSettings(false);
+        
         if (!navigator.onLine) {
-            setModal({ show: true, title: '📴 لا يوجد إنترنت', msg: 'عذراً، لا يوجد اتصال بالإنترنت.' });
+            setModal({ show: true, title: '📴 لا يوجد إنترنت', msg: 'عذراً، يجب توفر الإنترنت لجلب آخر نسخة.' });
             return;
         }
 
-        if (confirm("هل تريد تحديث التطبيق الآن؟\n(سيتم إعادة تحميل كافة البيانات)")) {
-            if ('serviceWorker' in navigator) {
-                const registrations = await navigator.serviceWorker.getRegistrations();
-                for (let registration of registrations) await registration.unregister();
+        if (confirm("هل تريد تحديث التطبيق الآن؟\n(سيتم إغلاق التطبيق وإعادة فتحه لضمان وصول آخر الميزات)")) {
+            setIsUpdating(true); // إظهار مؤشر التحميل
+            
+            try {
+                // 1. إيقاف وإلغاء تسجيل كل الـ Service Workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    await Promise.all(registrations.map(r => r.unregister()));
+                }
+
+                // 2. حذف جميع أنواع الكاش المخزن
+                if ('caches' in window) {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(key => caches.delete(key)));
+                }
+
+                // 3. تأخير إجباري (1.5 ثانية) لضمان أن المتصفح قد "نسي" الملفات القديمة
+                setTimeout(() => {
+                    // 4. إعادة تحميل الصفحة برابط عشوائي تماماً لكسر كاش المتصفح العنيد
+                    // نضيف 'timestamp' و 'random' لضمان أن الرابط جديد 100%
+                    const timestamp = new Date().getTime();
+                    const random = Math.floor(Math.random() * 10000);
+                    window.location.href = window.location.pathname + `?update=${timestamp}&r=${random}`;
+                }, 1500);
+
+            } catch (error) {
+                console.error("Update failed", error);
+                window.location.reload(true);
             }
-            if ('caches' in window) {
-                const keys = await caches.keys();
-                for (const key of keys) await caches.delete(key);
-            }
-            window.location.replace(window.location.pathname + '?v=' + new Date().getTime());
         }
     };
 
     const toggleFeature = (name) => setActiveFeature(activeFeature === name ? null : name);
+
+    // شاشة تحميل أثناء التحديث
+    if (isUpdating) {
+        return (
+            <div className="fixed inset-0 bg-emerald-600 z-[9999] flex flex-col items-center justify-center text-white p-4">
+                <div className="text-4xl animate-spin mb-4">🔄</div>
+                <h2 className="text-2xl font-black mb-2">جاري التحديث...</h2>
+                <p className="text-emerald-100 text-center">يتم تنظيف الملفات القديمة وجلب أحدث نسخة.<br/>يرجى الانتظار...</p>
+            </div>
+        );
+    }
 
     return (
         <div id="app-container">
@@ -115,9 +142,7 @@ const App = () => {
                     <h1 className="text-xl font-black text-emerald-800">{config.texts?.siteTitle}</h1>
                 </div>
 
-                {/* 🔥 قسم الإعدادات الجديد */}
                 <div className="relative">
-                    {/* زر الترس */}
                     <button 
                         onClick={() => setShowSettings(!showSettings)} 
                         className={`w-10 h-10 flex items-center justify-center rounded-xl transition ${showSettings ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-50 text-gray-500'}`}
@@ -125,14 +150,10 @@ const App = () => {
                         <span className="text-xl font-bold">⚙️</span>
                     </button>
 
-                    {/* القائمة المنسدلة */}
                     {showSettings && (
                         <>
-                            {/* طبقة شفافة لإغلاق القائمة عند الضغط خارجها */}
                             <div className="fixed inset-0 z-40" onClick={() => setShowSettings(false)}></div>
-                            
-                            {/* محتوى القائمة */}
-                            <div className="absolute top-12 left-0 w-48 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in">
+                            <div className="absolute top-12 left-0 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in">
                                 <div className="p-2 space-y-1">
                                     <div className="px-3 py-2 text-xs font-bold text-gray-400 border-b mb-1">الإعدادات العامة</div>
                                     
@@ -142,8 +163,8 @@ const App = () => {
                                     </button>
 
                                     <button onClick={handleSmartUpdate} className="w-full flex items-center gap-3 px-3 py-3 hover:bg-emerald-50 rounded-xl transition text-right">
-                                        <span className="text-lg">🔄</span>
-                                        <span className="text-sm font-bold text-gray-700">تحديث التطبيق</span>
+                                        <span className="text-lg">🚀</span>
+                                        <span className="text-sm font-bold text-gray-700">تحديث إجباري</span>
                                     </button>
 
                                     <a href="admin.html" className="w-full flex items-center gap-3 px-3 py-3 hover:bg-red-50 rounded-xl transition text-right border-t mt-1">
