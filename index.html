@@ -21,6 +21,7 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class', // تفعيل الوضع الليلي
             theme: {
                 extend: {
                     fontFamily: {
@@ -36,7 +37,7 @@
         }
     </script>
 </head>
-<body class="bg-gray-50 text-gray-900 select-none font-cairo">
+<body class="bg-gray-50 text-gray-900 select-none font-cairo transition-colors duration-300">
     
     <div id="root"></div>
 
@@ -67,6 +68,9 @@
     <script type="text/babel" src="js/components/seerah/ProphetSeerah.js"></script>
     <script type="text/babel" src="js/components/seerah/AsmaHusna.js"></script>
     <script type="text/babel" src="js/components/seerah/RawdatHub.js"></script>
+
+    <script type="text/babel" src="js/components/settings/GeneralSettings.js"></script>
+    <script type="text/babel" src="js/components/settings/SettingsModal.js"></script>
 
     <script type="text/babel" src="js/app.js"></script>
 
