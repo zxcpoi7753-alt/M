@@ -1,6 +1,5 @@
 /* =========================================
-   المكون: سيرة النبي ﷺ (مع المعالج الذكي للبيانات المختلطة)
-   المسار: js/components/seerah/ProphetSeerah.js
+   المكون: السيرة النبوية (التصميم الاحترافي الكبير)
    ========================================= */
 (function() {
     const { useState, useEffect, useMemo } = React;
@@ -10,154 +9,153 @@
         const [events, setEvents] = useState([]);
         const [loading, setLoading] = useState(true);
         const [selectedEvent, setSelectedEvent] = useState(null);
-        const [filter, setFilter] = useState('all'); 
+        const [activeTab, setActiveTab] = useState('makkah'); // makkah, madinah, all
 
-        // --- 1. دالة فحص اللغة العربية ---
-        const isArabic = (text) => {
-            if (!text) return false;
-            // هذا النمط يتأكد من وجود حروف عربية في النص
-            return /[\u0600-\u06FF]/.test(text);
-        };
-
-        // --- 2. محلل CSV الذكي (لأن ملفك أصله Excel/CSV) ---
+        // --- المعالج الذكي (المصحح) ---
         const parseCSV = (text) => {
             const lines = text.split('\n');
             const result = [];
             
-            // تجاوز السطر الأول (العناوين)
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
 
-                // تقسيم السطر مع احترام علامات التنصيص " " للنصوص الطويلة
-                // هذا التعبير النمطي المعقد يفصل الفواصل التي خارج علامات التنصيص فقط
+                // تقسيم ذكي يتجاهل الفواصل داخل النصوص
                 const matches = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
                 
                 if (matches && matches.length >= 2) {
-                    // تنظيف النص من علامات التنصيص الزائدة
                     const clean = (str) => str ? str.replace(/^"|"$/g, '').replace(/""/g, '"').trim() : '';
 
-                    const title = clean(matches[1]); // العنوان عادة في العمود الثاني
-                    const details = matches[5] ? clean(matches[5]) : ''; // التفاصيل في العمود السادس
-                    const yearStr = clean(matches[2]); // السنة الهجرية
+                    const title = clean(matches[1]); 
+                    const hijriStr = clean(matches[2]); // مثل: 53 ق هـ
+                    const details = matches[5] ? clean(matches[5]) : '';
                     
-                    // 🔥 الفلتر الخطير: إذا لم يكن العنوان أو التفاصيل بالعربي، تجاهل السطر
-                    if (!isArabic(title) && !isArabic(details)) continue;
+                    // فلتر اللغة: تجاهل الفرنسي
+                    if (!/[\u0600-\u06FF]/.test(title)) continue;
 
-                    // معالجة السنة
+                    // معالجة السنة وتحديد النوع (مكي/مدني)
                     let year = 0;
-                    let type = 'madinah';
-                    if (yearStr.includes('ق') || yearStr.includes('-')) {
-                        year = -parseInt(yearStr.replace(/\D/g, '') || 53);
+                    let type = 'madinah'; // الافتراضي
+                    
+                    // كشف مكة (قبل الهجرة)
+                    if (hijriStr.includes('ق') || hijriStr.includes('قبل') || hijriStr.includes('-')) {
                         type = 'makkah';
+                        // استخراج الرقم فقط
+                        const num = parseInt(hijriStr.replace(/\D/g, '')) || 0;
+                        year = -num; 
                     } else {
-                        year = parseInt(yearStr.replace(/\D/g, '') || 1);
+                        // المدينة (بعد الهجرة)
+                        const num = parseInt(hijriStr.replace(/\D/g, '')) || 0;
+                        year = num;
+                        // تصحيح: إذا كان الرقم صغيراً جداً بدون "ق"، نعتبره مدني
+                        if (year > 0) type = 'madinah';
                     }
 
                     result.push({
                         id: i,
                         title: title,
                         year: year,
-                        hijri: yearStr || 'غير محدد',
-                        type: type,
-                        details: details || 'لا توجد تفاصيل متاحة',
-                        location: { name: clean(matches[7]) || (year < 1 ? 'مكة المكرمة' : 'المدينة المنورة') },
-                        source: "كتب السيرة المعتمدة"
+                        hijri: hijriStr || 'غير محدد',
+                        type: type, // makkah OR madinah
+                        details: details || '...',
+                        location: clean(matches[7]) || (type === 'makkah' ? 'مكة المكرمة' : 'المدينة المنورة')
                     });
                 }
             }
+            // الترتيب الزمني
             return result.sort((a, b) => a.year - b.year);
         };
 
-        // --- 3. معالج JSON العادي (للاحتياط) ---
-        const processJSON = (data) => {
-            return data.map((item, idx) => ({
-                id: item.id || idx,
-                title: item.title,
-                year: item.year || (item.hijri_year?.includes('ق') ? -parseInt(item.hijri_year) : parseInt(item.hijri_year)) || 0,
-                hijri: item.hijri_year || item.hijri,
-                details: item.details,
-                location: { name: item.location_name || "موقع الحدث" },
-                type: (item.year < 1 || (item.hijri_year && item.hijri_year.includes('ق'))) ? 'makkah' : 'madinah'
-            })).sort((a, b) => a.year - b.year);
-        };
-
         useEffect(() => {
-            // جلب الملف كنص (Text) وليس JSON مباشر لكي لا ينهار التطبيق
             fetch('data/seerah/prophet.json')
-                .then(res => res.text()) 
-                .then(textData => {
-                    try {
-                        // محاولة قراءته كـ JSON أولاً
-                        const jsonData = JSON.parse(textData);
-                        setEvents(processJSON(jsonData));
-                    } catch (e) {
-                        // إذا فشل (لأنه ملف CSV)، نستخدم المحلل الذكي
-                        console.log("تم اكتشاف ملف CSV، جاري التنظيف والترجمة...");
-                        const cleanData = parseCSV(textData);
-                        setEvents(cleanData);
-                    }
+                .then(res => res.text())
+                .then(text => {
+                    const data = parseCSV(text);
+                    setEvents(data);
                     setLoading(false);
                 })
-                .catch(err => {
-                    console.error("فشل التحميل", err);
-                    setLoading(false);
-                });
+                .catch(e => setLoading(false));
         }, []);
 
-        if (loading) return <div className="p-10 text-center font-bold text-amber-800 animate-pulse flex flex-col items-center gap-4 py-20"><span className="text-5xl">📜</span><span>جاري معالجة كتب السيرة...</span></div>;
-
-        const filteredEvents = events.filter(ev => {
-            if (filter === 'makkah') return ev.year < 1;
-            if (filter === 'madinah') return ev.year >= 1;
-            return true;
+        // فلترة العرض حسب التبويب
+        const displayEvents = events.filter(ev => {
+            if (activeTab === 'all') return true;
+            return ev.type === activeTab;
         });
 
+        if (loading) return <div className="text-center py-20 font-bold text-gray-400 text-xl animate-pulse">جاري تجهيز كتاب السيرة...</div>;
+
         return (
-            <div className="bg-amber-50/50 min-h-screen rounded-3xl p-2 animate-in">
+            <div className="animate-in pb-20">
+                {/* 1. نافذة التفاصيل (كبيرة وواضحة) */}
                 {CustomModal && selectedEvent && (
-                    <CustomModal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title="تفاصيل الحدث">
-                        <div className="text-right space-y-4">
-                            <h3 className="font-amiri text-xl font-black text-amber-800 border-b pb-2">{selectedEvent.title}</h3>
-                            <div className="flex justify-between items-center text-xs font-bold text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
-                                <span>📅 {selectedEvent.hijri}</span>
-                                <span>📍 {selectedEvent.location.name}</span>
+                    <CustomModal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title="تـفـاصـيـل الـحـدث">
+                        <div className="space-y-4 text-right">
+                            <h2 className="font-amiri text-3xl font-black text-amber-800 leading-normal border-b pb-4">
+                                {selectedEvent.title}
+                            </h2>
+                            <div className="flex gap-2 flex-wrap">
+                                <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-lg font-bold text-sm">📅 {selectedEvent.hijri}</span>
+                                <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg font-bold text-sm">📍 {selectedEvent.location}</span>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border leading-loose text-gray-700 font-bold text-justify max-h-60 overflow-y-auto">
+                            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 text-lg leading-loose text-gray-700 font-semibold text-justify">
                                 {selectedEvent.details}
                             </div>
                         </div>
                     </CustomModal>
                 )}
 
-                <div className="bg-white p-3 rounded-2xl shadow-sm border-b-4 border-amber-200 mb-6 sticky top-0 z-20">
-                    <div className="flex justify-between items-center mb-2">
-                        <h1 className="font-amiri text-lg font-black text-amber-900">أحداث السيرة</h1>
-                        <span className="text-[10px] bg-amber-100 px-2 py-1 rounded text-amber-800 font-bold">{filteredEvents.length} حدث</span>
-                    </div>
-                    <div className="flex justify-center gap-2">
-                        <button onClick={()=>setFilter('all')} className={`flex-1 py-2 rounded-xl text-[10px] font-bold transition ${filter==='all'?'bg-amber-600 text-white shadow-lg':'bg-gray-50 text-gray-500'}`}>الكل</button>
-                        <button onClick={()=>setFilter('makkah')} className={`flex-1 py-2 rounded-xl text-[10px] font-bold transition ${filter==='makkah'?'bg-amber-600 text-white shadow-lg':'bg-gray-50 text-gray-500'}`}>مكة 🕋</button>
-                        <button onClick={()=>setFilter('madinah')} className={`flex-1 py-2 rounded-xl text-[10px] font-bold transition ${filter==='madinah'?'bg-green-600 text-white shadow-lg':'bg-gray-50 text-gray-500'}`}>المدينة 🕌</button>
-                    </div>
+                {/* 2. العنوان الرئيسي */}
+                <div className="text-center mb-6">
+                    <h1 className="font-amiri text-3xl font-black text-amber-900 mb-2">رحلة النور ﷺ</h1>
+                    <p className="text-gray-500 font-bold text-sm">تتبع خطى الحبيب من المولد إلى الرفيق الأعلى</p>
                 </div>
 
-                <div className="relative pb-32 px-2 max-w-2xl mx-auto">
-                    <div className="absolute top-0 bottom-0 left-1/2 w-1 bg-gradient-to-b from-amber-200 via-orange-300 to-amber-200 -ml-[2px] rounded-full"></div>
-                    {filteredEvents.map((ev, index) => (
-                        <div key={ev.id} className={`mb-6 flex justify-between items-center w-full group ${index % 2 === 0 ? 'flex-row-reverse' : ''}`}>
-                            <div className="w-[45%]"></div>
-                            <div className={`z-10 w-10 h-10 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 border-4 shadow-lg transition group-hover:scale-110 ${ev.year < 1 ? 'bg-amber-100 text-amber-800 border-white' : 'bg-green-100 text-green-800 border-white'}`}>
-                                {Math.abs(ev.year)}
-                            </div>
-                            <div onClick={() => setSelectedEvent(ev)} className="w-[45%] bg-white p-3 rounded-2xl shadow-sm border border-amber-50 cursor-pointer active:scale-95 transition hover:shadow-md hover:border-amber-300 relative overflow-hidden">
-                                <div className={`absolute top-0 right-0 w-1 h-full ${ev.year < 1 ? 'bg-amber-400' : 'bg-green-500'}`}></div>
-                                <h3 className="font-black text-xs text-gray-800 mb-1 truncate pl-2">{ev.title}</h3>
-                                <p className="text-[9px] text-gray-500 line-clamp-2 leading-relaxed pl-1">{ev.details}</p>
+                {/* 3. التبويبات الكبيرة (Tabs) */}
+                <div className="flex bg-white p-2 rounded-2xl shadow-sm border border-gray-200 mb-6 sticky top-0 z-30">
+                    <button onClick={() => setActiveTab('makkah')} className={`flex-1 py-3 rounded-xl font-black text-sm transition ${activeTab === 'makkah' ? 'bg-amber-500 text-white shadow-lg' : 'text-gray-500'}`}>
+                        مكة المكرمة 🕋
+                    </button>
+                    <button onClick={() => setActiveTab('madinah')} className={`flex-1 py-3 rounded-xl font-black text-sm transition ${activeTab === 'madinah' ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-500'}`}>
+                        المدينة 🕌
+                    </button>
+                </div>
+
+                {/* 4. قائمة الأحداث (تصميم البطاقات الكبير) */}
+                <div className="space-y-6">
+                    {displayEvents.map((ev, idx) => (
+                        <div key={ev.id} onClick={() => setSelectedEvent(ev)} className="seerah-card cursor-pointer group hover:border-amber-400">
+                            {/* شريط جانبي ملون */}
+                            <div className={`absolute top-0 right-0 w-2 h-full ${ev.type === 'makkah' ? 'bg-amber-400' : 'bg-emerald-500'}`}></div>
+                            
+                            <div className="pr-4"> {/* مسافة للشريط */}
+                                <div className="flex justify-between items-start">
+                                    <span className={`seerah-date-badge ${ev.type === 'makkah' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                                        {ev.hijri}
+                                    </span>
+                                    {/* رقم تسلسلي */}
+                                    <span className="text-gray-200 font-black text-4xl -mt-2">#{idx + 1}</span>
+                                </div>
+                                
+                                <h3 className="seerah-title group-hover:text-amber-600 transition">{ev.title}</h3>
+                                
+                                <p className="seerah-text line-clamp-3">
+                                    {ev.details}
+                                </p>
+                                
+                                <div className="mt-4 flex items-center gap-1 text-amber-600 text-sm font-bold">
+                                    <span>اقرأ المزيد</span>
+                                    <span>⬅️</span>
+                                </div>
                             </div>
                         </div>
                     ))}
-                    {filteredEvents.length === 0 && <div className="text-center py-10 text-gray-400 font-bold text-sm">لا توجد بيانات مطابقة</div>}
+                    
+                    {displayEvents.length === 0 && (
+                        <div className="text-center py-10 bg-white rounded-2xl border border-dashed">
+                            <p className="text-gray-400 font-bold">لا توجد أحداث في هذا القسم</p>
+                        </div>
+                    )}
                 </div>
             </div>
         );
