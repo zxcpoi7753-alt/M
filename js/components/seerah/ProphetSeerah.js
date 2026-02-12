@@ -1,189 +1,191 @@
 /* =========================================
-   المكون: السيرة النبوية (المعالج الاحترافي CSV V2)
+   المكون: السيرة النبوية (نظام الفصول والرحلة - V3)
    المسار: js/components/seerah/ProphetSeerah.js
    ========================================= */
 (function() {
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useMemo } = React;
     const CustomModal = window.CustomModal;
+
+    // تعريف الفصول الستة (مراحل السيرة)
+    const CHAPTERS = [
+        { id: 1, title: "النشأة والنبوة", icon: "👶", desc: "من المولد حتى نزول الوحي", color: "bg-amber-100 text-amber-800 border-amber-200" },
+        { id: 2, title: "الجهر بالدعوة", icon: "📣", desc: "سنوات الصبر في مكة", color: "bg-orange-100 text-orange-800 border-orange-200" },
+        { id: 3, title: "الهجرة والتأسيس", icon: "🐫", desc: "الطريق إلى المدينة وبناء الدولة", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+        { id: 4, title: "الغزوات الكبرى", icon: "⚔️", desc: "بدر، أحد، الخندق..", color: "bg-red-100 text-red-800 border-red-200" },
+        { id: 5, title: "الفتوحات والوفود", icon: "🏳️", desc: "صلح الحديبية وفتح مكة", color: "bg-blue-100 text-blue-800 border-blue-200" },
+        { id: 6, title: "الوداع والرحيل", icon: "👋", desc: "حجة الوداع والرفيق الأعلى", color: "bg-purple-100 text-purple-800 border-purple-200" }
+    ];
 
     const ProphetSeerah = () => {
         const [events, setEvents] = useState([]);
         const [loading, setLoading] = useState(true);
-        const [selectedEvent, setSelectedEvent] = useState(null);
-        const [activeTab, setActiveTab] = useState('makkah'); 
+        const [activeChapter, setActiveChapter] = useState(null); // الفصل المختار
+        const [selectedEvent, setSelectedEvent] = useState(null); // تفاصيل الحدث
 
-        // --- 1. دالة تفكيك CSV الاحترافية (تتعامل مع الفواصل داخل النصوص) ---
+        // --- 1. معالج CSV الاحترافي (نفس المنطق القوي السابق) ---
         const parseLine = (text) => {
             const result = [];
             let cell = '';
             let inQuotes = false;
-            
             for (let i = 0; i < text.length; i++) {
                 const char = text[i];
-                if (char === '"') {
-                    inQuotes = !inQuotes; // تبديل حالة الاقتباس
-                } else if (char === ',' && !inQuotes) {
-                    result.push(cell.trim()); // نهاية الخلية
-                    cell = '';
-                } else {
-                    cell += char; // إضافة الحرف
-                }
+                if (char === '"') inQuotes = !inQuotes;
+                else if (char === ',' && !inQuotes) { result.push(cell.trim()); cell = ''; }
+                else cell += char;
             }
-            result.push(cell.trim()); // إضافة آخر خلية
+            result.push(cell.trim());
             return result;
         };
 
-        // --- 2. المعالج الذكي للبيانات ---
+        // --- 2. تصنيف الأحداث للفصول ---
+        const assignChapter = (year) => {
+            if (year <= -13) return 1; // قبل البعثة ونزول الوحي
+            if (year > -13 && year < 1) return 2; // العهد المكي
+            if (year === 1) return 3; // الهجرة
+            if (year >= 2 && year <= 5) return 4; // الغزوات الأولى
+            if (year >= 6 && year <= 9) return 5; // الفتوحات
+            if (year >= 10) return 6; // الوفاة
+            return 1; // افتراضي
+        };
+
         const processData = (text) => {
             const lines = text.split('\n');
             const result = [];
             
-            // تخطي سطر العناوين (أول سطر)
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
+                const cols = parseLine(line);
+                if (cols.length < 2) continue;
 
-                // استخدام الدالة الاحترافية للتقسيم
-                const columns = parseLine(line);
-                
-                // التأكد من وجود بيانات كافية
-                if (columns.length < 2) continue;
+                const title = cols[1].replace(/["]/g, '');
+                if (!/[\u0600-\u06FF]/.test(title)) continue; // فلتر اللغة
 
-                const title = columns[1];      // العنوان
-                const hijriStr = columns[2];   // التاريخ الهجري
-                const details = columns[5];    // التفاصيل
-                const locationRaw = columns[7];// الموقع
-
-                // فلتر اللغة: تجاهل السطر إذا لم يكن العنوان عربياً
-                if (!/[\u0600-\u06FF]/.test(title)) continue;
-
-                // معالجة السنة والنوع (مكي / مدني)
+                const hijriStr = cols[2].replace(/["]/g, '');
                 let year = 0;
-                let type = 'madinah'; // الافتراضي
 
-                // تنظيف التاريخ من الرموز
-                const cleanHijri = hijriStr.replace(/["]/g, '');
-
-                if (cleanHijri.includes('ق') || cleanHijri.includes('قبل') || cleanHijri.includes('-')) {
-                    // مكي (قبل الهجرة)
-                    type = 'makkah';
-                    const num = parseInt(cleanHijri.replace(/\D/g, '')) || 0;
-                    year = -num; 
+                // استخراج السنة بدقة
+                if (hijriStr.includes('ق') || hijriStr.includes('-')) {
+                    year = -parseInt(hijriStr.replace(/\D/g, '') || 0);
                 } else {
-                    // مدني (بعد الهجرة)
-                    const num = parseInt(cleanHijri.replace(/\D/g, '')) || 0;
-                    year = num;
-                    if (year === 0 && !cleanHijri.includes('ق')) type = 'madinah'; // حالات خاصة
-                }
-
-                // تحديد اسم الموقع
-                let finalLocation = locationRaw ? locationRaw.replace(/["]/g, '') : '';
-                if (!finalLocation || finalLocation.length < 2) {
-                    finalLocation = (type === 'makkah' ? 'مكة المكرمة' : 'المدينة المنورة');
+                    year = parseInt(hijriStr.replace(/\D/g, '') || 0);
                 }
 
                 result.push({
                     id: i,
-                    title: title.replace(/["]/g, ''),
+                    title: title,
+                    hijri: hijriStr,
                     year: year,
-                    hijri: cleanHijri || 'غير محدد',
-                    type: type,
-                    details: details ? details.replace(/["]/g, '') : '...',
-                    location: finalLocation
+                    details: cols[5] ? cols[5].replace(/["]/g, '') : '...',
+                    chapterId: assignChapter(year) // توزيع تلقائي
                 });
             }
-            
-            // ترتيب الأحداث زمنياً
             return result.sort((a, b) => a.year - b.year);
         };
 
         useEffect(() => {
-            setLoading(true);
             fetch('data/seerah/prophet.json')
                 .then(res => res.text())
                 .then(text => {
-                    const data = processData(text);
-                    console.log("Events Loaded:", data.length); // للتأكد في الكونسول
-                    setEvents(data);
+                    setEvents(processData(text));
                     setLoading(false);
                 })
-                .catch(e => {
-                    console.error("Error loading Seerah:", e);
-                    setLoading(false);
-                });
+                .catch(() => setLoading(false));
         }, []);
 
-        const displayEvents = events.filter(ev => ev.type === activeTab);
+        // تصفية الأحداث حسب الفصل المختار
+        const chapterEvents = useMemo(() => {
+            if (!activeChapter) return [];
+            return events.filter(e => e.chapterId === activeChapter.id);
+        }, [activeChapter, events]);
 
-        if (loading) return <div className="text-center py-20 font-bold text-gray-400 text-xl animate-pulse flex flex-col items-center gap-4"><span className="text-4xl">📜</span><span>جاري قراءة السيرة...</span></div>;
+        if (loading) return <div className="p-10 text-center animate-pulse text-gray-400 font-bold">📖 جاري تجهيز الفصول...</div>;
 
         return (
             <div className="animate-in pb-20">
-                {/* 1. نافذة التفاصيل */}
+                {/* نافذة التفاصيل */}
                 {CustomModal && selectedEvent && (
                     <CustomModal isOpen={!!selectedEvent} onClose={() => setSelectedEvent(null)} title="تفاصيل الحدث">
-                        <div className="space-y-4 text-right">
-                            <h2 className="font-amiri text-2xl font-black text-amber-800 border-b pb-3 leading-normal">
-                                {selectedEvent.title}
-                            </h2>
-                            <div className="flex gap-2 flex-wrap">
-                                <span className={`px-3 py-1 rounded-lg font-bold text-xs shadow-sm ${selectedEvent.type==='makkah'?'bg-amber-100 text-amber-800':'bg-emerald-100 text-emerald-800'}`}>📅 {selectedEvent.hijri}</span>
-                                <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg font-bold text-xs shadow-sm">📍 {selectedEvent.location}</span>
-                            </div>
-                            <div className="bg-amber-50/30 p-4 rounded-2xl border border-amber-100 text-lg leading-loose text-gray-800 font-medium text-justify font-amiri">
+                        <div className="text-right space-y-4">
+                            <h2 className="font-amiri text-2xl font-black text-emerald-800 border-b pb-3">{selectedEvent.title}</h2>
+                            <div className="bg-emerald-50 text-emerald-800 px-3 py-1 rounded-lg font-bold text-xs inline-block">📅 {selectedEvent.hijri}</div>
+                            <div className="text-lg leading-loose text-gray-700 font-medium text-justify font-amiri">
                                 {selectedEvent.details}
                             </div>
                         </div>
                     </CustomModal>
                 )}
 
-                {/* 2. العنوان */}
-                <div className="text-center mb-6 pt-2">
-                    <h1 className="font-amiri text-3xl font-black text-amber-900 mb-1">رحلة النور ﷺ</h1>
-                    <p className="text-gray-400 font-bold text-xs">من المولد إلى الرفيق الأعلى</p>
-                </div>
-
-                {/* 3. التبويبات */}
-                <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200 mb-6 sticky top-0 z-30 mx-2">
-                    <button onClick={() => setActiveTab('makkah')} className={`flex-1 py-3 rounded-xl font-black text-base transition flex items-center justify-center gap-2 ${activeTab === 'makkah' ? 'bg-amber-500 text-white shadow-md' : 'text-gray-400 hover:bg-gray-50'}`}>
-                        <span>🕋</span> مكة
-                    </button>
-                    <button onClick={() => setActiveTab('madinah')} className={`flex-1 py-3 rounded-xl font-black text-base transition flex items-center justify-center gap-2 ${activeTab === 'madinah' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-400 hover:bg-gray-50'}`}>
-                        <span>🕌</span> المدينة
-                    </button>
-                </div>
-
-                {/* 4. القائمة */}
-                <div className="space-y-4 px-2">
-                    {displayEvents.map((ev, idx) => (
-                        <div key={ev.id} onClick={() => setSelectedEvent(ev)} className="seerah-card cursor-pointer group hover:border-amber-400 relative overflow-hidden bg-white rounded-3xl shadow-sm border border-gray-100 p-5 transition active:scale-95">
-                            <div className={`absolute top-0 right-0 w-2 h-full ${ev.type === 'makkah' ? 'bg-amber-400' : 'bg-emerald-500'}`}></div>
-                            
-                            <div className="pr-3">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className={`px-2 py-1 rounded-md font-black text-[10px] ${ev.type === 'makkah' ? 'bg-amber-50 text-amber-800 border border-amber-100' : 'bg-emerald-50 text-emerald-800 border border-emerald-100'}`}>
-                                        {ev.hijri}
-                                    </span>
-                                    <span className="text-gray-100 font-black text-4xl absolute left-4 top-1 select-none -z-0 opacity-40">#{idx + 1}</span>
+                {/* --- الواجهة الرئيسية: إما الشبكة (الفصول) أو القائمة (الأحداث) --- */}
+                {!activeChapter ? (
+                    // 1. عرض شبكة الفصول
+                    <>
+                        <div className="text-center mb-6 pt-2">
+                            <h1 className="font-amiri text-3xl font-black text-emerald-900">رحلة الخلود ﷺ</h1>
+                            <p className="text-gray-400 font-bold text-xs mt-1">اختر مرحلة لاستعراض أحداثها</p>
+                        </div>
+                        
+                        <div className="chapters-grid">
+                            {CHAPTERS.map(ch => (
+                                <div key={ch.id} onClick={() => setActiveChapter(ch)} className="chapter-card group">
+                                    <span className="chapter-icon group-hover:scale-110 transition-transform">{ch.icon}</span>
+                                    <h3 className="chapter-title">{ch.title}</h3>
+                                    <p className="chapter-desc">{ch.desc}</p>
+                                    <div className={`mt-3 h-1 w-1/3 mx-auto rounded-full ${ch.color.split(' ')[0]}`}></div>
                                 </div>
-                                
-                                <h3 className="font-amiri text-xl font-black text-gray-800 mb-2 group-hover:text-amber-700 transition relative z-10 leading-snug">{ev.title}</h3>
-                                
-                                <p className="text-gray-500 font-semibold text-xs line-clamp-2 leading-relaxed relative z-10">
-                                    {ev.details}
-                                </p>
+                            ))}
+                        </div>
+                    </>
+                ) : (
+                    // 2. عرض أحداث الفصل المختار
+                    <div className="animate-slide-up">
+                        {/* شريط العنوان والرجوع (مثبت) */}
+                        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur shadow-sm p-3 rounded-b-2xl mb-4 border-b border-gray-100 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => setActiveChapter(null)} className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition">
+                                    ➜
+                                </button>
+                                <div>
+                                    <h2 className="font-bold text-sm text-gray-800">{activeChapter.title}</h2>
+                                    <p className="text-[10px] text-gray-400">{chapterEvents.length} حدث</p>
+                                </div>
                             </div>
+                            <span className="text-2xl">{activeChapter.icon}</span>
                         </div>
-                    ))}
-                    
-                    {displayEvents.length === 0 && (
-                        <div className="text-center py-12 bg-white rounded-[2rem] border-2 border-dashed border-gray-200 m-2 flex flex-col items-center justify-center gap-2">
-                            <span className="text-4xl grayscale opacity-50">🕋</span>
-                            <p className="text-gray-400 font-bold">لا توجد أحداث هنا</p>
-                            <p className="text-[10px] text-gray-300">تأكد من صحة ملف البيانات</p>
+
+                        {/* قائمة الأحداث */}
+                        <div className="space-y-4 px-2">
+                            {chapterEvents.length > 0 ? (
+                                chapterEvents.map((ev, idx) => (
+                                    <div key={ev.id} onClick={() => setSelectedEvent(ev)} className="seerah-card relative cursor-pointer active:scale-95 transition hover:shadow-md">
+                                        <div className="flex gap-4">
+                                            {/* التاريخ الجانبي */}
+                                            <div className="flex flex-col items-center justify-center min-w-[60px] border-l border-gray-100 pl-4">
+                                                <span className="text-2xl font-black text-gray-200">#{idx + 1}</span>
+                                                <span className="text-[10px] font-bold bg-gray-50 px-2 py-1 rounded text-gray-500 mt-1">{ev.hijri}</span>
+                                            </div>
+                                            
+                                            {/* المحتوى */}
+                                            <div className="flex-1 py-1">
+                                                <h3 className="font-amiri text-lg font-bold text-gray-800 mb-1 leading-snug">{ev.title}</h3>
+                                                <p className="text-xs text-gray-500 line-clamp-2">{ev.details}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-20 text-gray-300 font-bold">
+                                    لا توجد أحداث مسجلة في هذه الفترة
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
+                        
+                        {/* زر إنهاء الفصل */}
+                        <button onClick={() => setActiveChapter(null)} className="w-full mt-8 py-4 bg-emerald-50 text-emerald-700 font-bold rounded-2xl border border-emerald-100">
+                            عودة للفصول الرئيسية 📚
+                        </button>
+                    </div>
+                )}
             </div>
         );
     };
