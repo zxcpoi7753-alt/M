@@ -1,9 +1,9 @@
 /* =========================================
    Service Worker: الحارس الذكي (Offline)
-   الإصدار: V11 - (تم إضافة ملفات الإعدادات الجديدة)
+   الإصدار: V13 - (شامل: الخطوط المحلية + التحديثات)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v11'; 
+const CACHE_NAME = 'althuraya-offline-v13'; 
 
 const ASSETS_TO_CACHE = [
   './',
@@ -56,9 +56,18 @@ const ASSETS_TO_CACHE = [
   './js/components/seerah/AsmaHusna.js',
   './js/components/seerah/RawdatHub.js',
 
-  // 🔥 6. ملفات الإعدادات الجديدة (تمت إضافتها هنا)
+  // 6. ملفات الإعدادات الجديدة
   './js/components/settings/GeneralSettings.js',
-  './js/components/settings/SettingsModal.js'
+  './js/components/settings/SettingsModal.js',
+
+  // 🔥 7. ملفات الخطوط المحلية (تعمل بدون نت)
+  './fonts/Cairo-Regular.ttf',
+  './fonts/Cairo-Medium.ttf',
+  './fonts/Cairo-Bold.ttf',
+  './fonts/Cairo-Black.ttf',
+  './fonts/Amiri-Regular.ttf',
+  './fonts/Amiri-Bold.ttf',
+  './fonts/Amiri-Slanted.ttf'
 ];
 
 self.addEventListener('install', (evt) => {
