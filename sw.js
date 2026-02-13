@@ -3,7 +3,7 @@
    الإصدار: V13 - (شامل: الخطوط المحلية + التحديثات)
    ========================================= */
 
-const CACHE_NAME = 'althuraya-offline-v13'; 
+const CACHE_NAME = 'althuraya-offline-v14'; 
 
 const ASSETS_TO_CACHE = [
   './',
@@ -55,6 +55,13 @@ const ASSETS_TO_CACHE = [
   './js/components/seerah/ProphetSeerah.js',
   './js/components/seerah/AsmaHusna.js',
   './js/components/seerah/RawdatHub.js',
+   
+// 🔥 أضف هذا السطر الجديد:
+'./js/components/seerah/DuaSection.js', 
+
+// 🔥 وأضف ملف البيانات:
+'./data/duas.json',
+
 
   // 6. ملفات الإعدادات الجديدة
   './js/components/settings/GeneralSettings.js',
