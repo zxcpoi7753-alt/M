@@ -1,7 +1,53 @@
 /* =========================================
    ملف التصميم الرئيسي: css/style.css
-   النسخة: V12 (التصميم المتجاوب: جوال + سطح مكتب)
+   النسخة: V13 (تم إضافة الخطوط المحلية Offline)
    ========================================= */
+
+/* --- 1. تعريف خطوط القاهرة (لواجهة التطبيق) --- */
+@font-face {
+    font-family: 'Cairo';
+    src: url('../fonts/Cairo-Regular.ttf');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Cairo';
+    src: url('../fonts/Cairo-Medium.ttf');
+    font-weight: 500;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Cairo';
+    src: url('../fonts/Cairo-Bold.ttf');
+    font-weight: 700;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Cairo';
+    src: url('../fonts/Cairo-Black.ttf');
+    font-weight: 900;
+    font-display: swap;
+}
+
+/* --- 2. تعريف خطوط الأميري (للقرآن والأحاديث) --- */
+@font-face {
+    font-family: 'Amiri';
+    src: url('../fonts/Amiri-Regular.ttf');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Amiri';
+    src: url('../fonts/Amiri-Bold.ttf');
+    font-weight: 700;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Amiri';
+    src: url('../fonts/Amiri-Slanted.ttf');
+    font-style: italic;
+    font-display: swap;
+}
 
 /* --- إعدادات أساسية --- */
 :root {
@@ -44,19 +90,18 @@ body {
 }
 
 /* --- الحاوية الذكية (Smart Container) --- */
-/* هذه الحاوية تمنع الموقع من التمدد بشكل قبيح في الشاشات العريضة */
 #app-container {
     width: 100%;
     min-height: 100vh;
-    padding-bottom: 90px; /* مسافة للناف بار */
-    margin: 0 auto; /* توسيط في الشاشات الكبيرة */
-    max-width: 100%; /* للجوال */
+    padding-bottom: 90px;
+    margin: 0 auto;
+    max-width: 100%;
 }
 
-/* --- 💻 إعدادات سطح المكتب (للشاشات أكبر من 768px) --- */
+/* --- 💻 إعدادات سطح المكتب --- */
 @media (min-width: 768px) {
     #app-container {
-        max-width: 800px; /* تحديد عرض مريح للعين */
+        max-width: 800px;
         padding-bottom: 20px;
         border-left: 1px solid var(--border-color);
         border-right: 1px solid var(--border-color);
@@ -64,8 +109,6 @@ body {
         min-height: 100vh;
         box-shadow: 0 0 20px rgba(0,0,0,0.05);
     }
-
-    /* تكبير النصوص قليلاً في الكمبيوتر */
     body { font-size: 1.1rem; }
 }
 
@@ -94,7 +137,7 @@ nav {
     gap: 0.8rem;
     padding: 0.8rem 1rem;
     overflow-x: auto;
-    scrollbar-width: none; /* إخفاء السكرول */
+    scrollbar-width: none;
 }
 nav::-webkit-scrollbar { display: none; }
 
@@ -112,7 +155,7 @@ nav button {
 }
 nav button.active {
     background-color: var(--brand);
-    color: white; /* دائماً أبيض للتباين */
+    color: white;
     box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
 }
 
@@ -131,29 +174,23 @@ nav button.active {
     margin-bottom: 1.5rem;
 }
 
-/* --- 🔥 الشبكة الذكية (Grid System) - الحل لمشكلة التزاحم 🔥 --- */
+/* --- 🔥 الشبكة الذكية (Grid System) --- */
 .chapters-grid {
     display: grid;
     gap: 1rem;
     padding: 0.5rem;
-    
-    /* للجوال: عمود واحد (بطاقات تحت بعض) */
     grid-template-columns: 1fr; 
 }
-
-/* للتابلت: عمودين */
 @media (min-width: 640px) {
     .chapters-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
-/* للكمبيوتر: 3 أعمدة (إذا كانت الشاشة عريضة) */
 @media (min-width: 1024px) {
-    .chapters-grid { grid-template-columns: repeat(2, 1fr); } /* نكتفي بـ 2 للحفاظ على الحجم الكبير */
+    .chapters-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* تصميم بطاقة الفصل */
 .chapter-card {
-    padding: 2rem 1.5rem; /* تكبير المساحة الداخلية */
+    padding: 2rem 1.5rem;
     text-align: center;
     transition: transform 0.2s, border-color 0.2s;
     cursor: pointer;
@@ -168,19 +205,19 @@ nav button.active {
 .chapter-title { font-weight: 900; font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-main); }
 .chapter-desc { font-size: 0.85rem; color: var(--text-sec); }
 
-/* --- ركن الطالب (أزرار كبيرة ومريحة) --- */
+/* --- ركن الطالب --- */
 .student-btn {
-    padding: 1.5rem; /* مساحة أكبر للإصبع */
+    padding: 1.5rem;
     margin-bottom: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 2px solid var(--border-color); /* حدود واضحة */
+    border: 2px solid var(--border-color);
     transition: 0.2s;
 }
 .student-btn.active {
     background-color: var(--brand);
-    color: white !important; /* فرض اللون الأبيض */
+    color: white !important;
     border-color: var(--brand);
 }
 .student-btn span { font-weight: 900; font-size: 1rem; }
@@ -196,19 +233,19 @@ nav button.active {
     background: rgba(0,0,0,0.6);
     backdrop-filter: blur(5px);
     z-index: 2000;
-    display: flex; justify-content: center; align-items: center; /* سنتر في الكمبيوتر */
+    display: flex; justify-content: center; align-items: center;
     padding: 1rem;
-    align-items: flex-end; /* في الجوال تظهر من الأسفل */
+    align-items: flex-end;
 }
 @media (min-width: 640px) {
-    .modal-overlay { align-items: center; } /* في الكمبيوتر تظهر في الوسط */
+    .modal-overlay { align-items: center; }
 }
 
 .modal-content {
     width: 100%;
-    max-width: 500px; /* لا تصبح عريضة جداً في الكمبيوتر */
+    max-width: 500px;
     background-color: var(--card-bg);
-    border-radius: 2rem 2rem 0 0; /* حواف دائرية من الأعلى للجوال */
+    border-radius: 2rem 2rem 0 0;
     padding: 2rem;
     box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
     animation: slideUp 0.3s ease-out;
@@ -216,7 +253,7 @@ nav button.active {
 }
 @media (min-width: 640px) {
     .modal-content {
-        border-radius: 2rem; /* حواف دائرية كاملة للكمبيوتر */
+        border-radius: 2rem;
         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
     }
 }
