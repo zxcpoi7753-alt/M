@@ -1,0 +1,862 @@
+[
+  {
+    "id": 16,
+    "title": "أدعية القرآن الكريم",
+    "items": [
+      {
+        "id": 25,
+        "arabic": "وَجَّهْتُ وَجْهِيَ لِلَّذِي فَطَرَ السَّموَاتِ وَالْأَرْضَ حَنِيفاً وَمَا أَنَا مِنَ الْمُشْرِكِينَ، إِنَّ صَلَاتِي، وَنُسُكِي، وَمَحْيَايَ، وَمَمَاتِي للهِ رَبِّ الْعَالَمِينَ، لَا شَرِيكَ لَهُ وَبِذَلِكَ أُمِرْتُ وَأَنَا مِنَ الْمُسْلِمِينَ. اللَّهُمَّ أَنْتَ الْمَلِكُ لَا إِلَهَ إِلَّا أَنْتَ، أَنْتَ رَبِّي وَأَنَا عَبْدُكَ، ظَلَمْتُ نَفْسِي وَاعْتَرَفْتُ بَذَنْبِي فَاغْفِرْ لِي ذُنُوبِي جَمِيعاً إِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ، وَاهْدِنِي لأّحْسَنِ الْأَخْلَاقِ لَا يَهْدِي لأَحْسَنِهَا إِلَّا أَنْتَ، وَاصْرِفْ عَنِّي سَيِّئَهَا لَا يَصْرِفُ عَنِّي سَيِّئَهَا إِلَّا أَنْتَ، لَبَّيْكَ وَسَعْدَيْكَ، وَالْخَيْرُ كُلُّهُ بِيَدَيْكَ، وَالشَّرُّ لَيْسَ إِلَيْكَ، أَنَا بِكَ وَإِلَيْكَ، تَبَارَكْتَ وَتَعَالَيْتَ، أَسْتَغْفِرُكَ وَأَتُوبُ إِلَيْكَ",
+        "translation": "I have turned my face sincerely towards He who has brought forth the heavens and the Earth and I am not of those who associate (others with Allah). Indeed my prayer, my sacrifice, my life and my death are for Allah, Lord of the worlds, no partner has He, with this I am commanded and I am of the Muslims. O Allah, You are the Sovereign, none has the right to be worshipped except You. You are my Lord and I am Your servant, I have wronged my own soul and have acknowledged my sin, so forgive me all my sins for no one forgives sins except You. Guide me to the best of characters for none can guide to it other than You, and deliver me from the worst of characters for none can deliver me from it other than You. Here I am, in answer to Your call, happy to serve you. All good is within Your hands and evil does not stem from You. I exist by your will and will return to you. Blessed and High are You, I seek Your forgiveness and repent unto You",
+        "reference": "Muslim 1/534",
+        "transliteration": "Wajjahtu wajhiya lillathee fataras-samawati wal-arda haneefan wama ana minal-mushrikeen, inna salatee wanusukee wamahyaya wamamatee lillahi rabbil-AAalameen, la shareeka lahu wabithalika omirtu wa-ana minal-muslimeen. Allahumma antal-maliku la ilaha illa ant. anta rabbee wa-ana AAabduk, thalamtu nafsee waAAtaraftu bithanbee faghfir lee thunoobee jameeAAan innahu la yaghfiruth-thunooba illa ant.wahdinee li-ahsanil-akhlaqi la yahdee li-ahsaniha illa ant, wasrif AAannee sayyi-aha la yasrifu AAannee sayyi-aha illa ant, labbayka wasaAAdayk,walkhayru kulluhu biyadayk, washsharru laysa ilayk, ana bika wa-ilayk, tabarakta wataAAalayt, astaghfiruka wa-atoobu ilayk"
+      },
+      {
+        "id": 26,
+        "arabic": "اللَّهُمَّ بَاعِدْ بَيْنِي وَبَيْنَ خَطَايَايَ كَمَا بَاعَدْتَ بَيْنَ الْمَشْرِقِ وَالْمَغْرِبِ، اللَّهُمَّ نَقِّنِي مِنْ خَطَايَايَ، كَمَا يُنَقَّى الثَّوْبُ الْأَ بْيَضُ مِنَ الدَّنَسِ، اللَّهُمَّ اغْسِلْنِي مِنْ خَطَايَايَ بِالثَّلْجِ وّالْمَاءِ وَالْبَرَدِ",
+        "translation": "O Allah! separate me from my sins as You have separated the East from the West. O Allah, cleanse me of my transgressions as the white garment is cleansed of stains. O Allah! wash away my sins with ice and water and frost.",
+        "reference": "Al-Bukhari 1/181, Muslim 1/419",
+        "transliteration": "Allaahumma baa'id baynee wa bayna khataayaaya kamaa baa'adta baynal-mashriqi walmaghribi, Allaahumma naqqinee min khataayaaya kamaa yunaqqath-thawbul-'abyadhu minad-danasi, Allaahum-maghsilnee min khataayaaya, bith-thalji walmaa'i walbarad"
+      },
+      {
+        "id": 27,
+        "arabic": "سُبْحَانَكَ اللَّهُمَّ وَبِحَمْدِكَ، وَتَبَارَكَ اسْمُكَ، وَتَعَالَى جَدُّكَ، وَلَا إِلَهَ غَيْرُكَ",
+        "translation": "Glory is to You O Allah, and praise. Blessed is Your Name and Exalted is Your Majesty. There is none worthy of worship but You.",
+        "reference": "Abu Dawud, Ibn Majah, An-Nasa'i, At-Tirmithi. See Al-Albani, Sahih At-Tirmithi 1/77 and Sahih Ibn Majah 1/135",
+        "transliteration": "Subhaanaka Allaahumma wa bihamdika, wa tabaarakasmuka, wa ta'aalaa jadduka, wa laa 'ilaaha ghayruka"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "جميع الأوقات",
+    "items": [
+      {
+        "id": 6,
+        "arabic": "الْحَمْدُ للهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
+        "translation": "Praise is to Allah Who gives us life after He has caused us to die and to Him is the return.",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 11/113; Muslim 4/2083",
+        "transliteration": "Alhamdu lillaahil-lathee 'ahyaanaa ba'da maa 'amaatanaa wa'ilayhin-nushoor"
+      },
+      {
+        "id": 7,
+        "arabic": "لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدَ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ. سُبْحَانَ اللهِ، وَالْحَمْدُ للهِ، ولَا إِلَهَ إِلَّا اللهُ، وَاللهُ أَكْبَرُ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ العَلِيِّ الْعَظيِمِ، ربِّ اغْفِرلِي",
+        "translation": "There is none worth of worship but Allah alone, Who has no partner, His is the dominion and to Him belongs all praise, and He is able to do all things. Glory is to Allah. Praise is to Allah. There is none worth of worship but Allah. Allah is the Most Great. There is no might and no power except by Allah's leave, the Exalted, the Mighty. My Lord, forgive me.",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 3/39, Ibn Majah 2/335",
+        "transliteration": "Laa 'illaha 'illallahu wahdahu la shareeka lahu, lahul-mulku wa lahul-hamdu, wa Huwa 'alaa kulli shay'in Qadeer Subhaanallahi, walhamdu lillaahi, wa laa 'ilaha 'illallahu, wallaahu 'akbar, wa laa hawla wa laa Quwwata 'illaa billaahil-'Aliyyil-'Adheem, Rabbighfir lee"
+      },
+      {
+        "id": 8,
+        "arabic": "الْحَمْدُ للهِ الَّذِي عَافَانِي فِي جَسَدِي، وَرَدَّ عَلَيَّ رُوحِي، وَأَذِنَ لِي بِذِكْرِهِ",
+        "translation": "Praise is to Allah Who gave strength to my body and returned my soul to me and permitted me to remember Him.",
+        "reference": "At-Tirmithi 5/473. See Al-Albani's Sahih Tirmithi 3/144",
+        "transliteration": "Alhamdu lillaahil-lathee 'aafaanee fee jasadee, wa radda 'alayya roohee, wa 'athina lee bithikrihi"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "مسجد",
+    "items": [
+      {
+        "id": 9,
+        "arabic": " الْحَمْدُ للهِ الَّذِي كَسَانِي هَذَا (الثَّوبَ) وَرَزَقَنِيهِ مِنْ غَيْرِ حَوْلٍ مِنِّي وَلَا قُوَّةٍ",
+        "translation": "Praise is to Allah Who has clothed me with this (garment) and provided it for me, though I was powerless myself and incapable.",
+        "reference": "Al-Bukhari, Muslim, Abu Dawud, Ibn Majah, At-Tirmithi. See also 'Irwa'ul-Ghalil 7/47",
+        "transliteration": "Alhamdu lillaahil-lathee kasaanee haathaa (aththawba) wa razaqaneehi min ghayri hawlim-minnee wa laa quwwatin"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "الوضوء",
+    "items": [
+      {
+        "id": 10,
+        "arabic": "اللَّهُمَّ لَكَ الْحَمْدُ أَنْتَ كَسَوْتَنِيهِ، أَسْأَلُكَ مِنْ خَيْرِهِ وَخَيْرِ مَا صُنِعَ لَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّهِ وَشَرِّ مَا صُنِعَ لَهُ",
+        "translation": "O Allah, praise is to You. You have clothed me. I ask You for its goodness and the goodness of what it has been made for, and I seek Your protection from the evil of it and the evil of what it has been made for.",
+        "reference": "Abu Dawud and At-Tirmithi. See also Al-Albani, Mukhtasar Shamd'il At-Tirmithi, p. 47",
+        "transliteration": "Allaahumma lakal-hamdu 'Anta kasawtaneehi, 'as'aluka min khayrihi wa khayri maa suni'a lahu, wa 'a'oothu bika min sharrihi wa sharri ma suni'a lahu"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "الصلاة",
+    "items": [
+      {
+        "id": 11,
+        "arabic": "تُبْلِي وَيُخْلِفُ اللهُ تَعَالَى",
+        "translation": "May Allah replace it when it is worn out.",
+        "reference": "Abu Dawud 4/41. See also Al-Albani Sahih Abu Dawud 2/760",
+        "transliteration": "Tublee wa yukhliful-laahu ta'aalaa"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "بعد الصلاة",
+    "items": [
+      {
+        "id": 12,
+        "arabic": "[بِسْمِ اللهِ] اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْخُبُْثِ وَالْخَبَائِثِ",
+        "translation": "(Before entering) [In the Name of Allah] . (Then) O Allah , I seek protection in You from the male and female unclean spirits.",
+        "reference": "Al-Bukhari 1/45, Muslim 1/283, Fathul-Bari 1/244",
+        "transliteration": "[Bismillaahi] Allaahumma 'innee 'a'oothu bika minal-khubthi walkhabaa'ith"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "شكر الله والثناء عليه",
+    "items": [
+      {
+        "id": 13,
+        "arabic": "غُفْرَانَكَ",
+        "translation": "I seek Your forgiveness",
+        "reference": "Abu Dawud, Ibn Majah, Ibn Al-Qayyim's Zadul-Ma'ad, 2/387 and At-Tirmithi. An-Nasa'i recorded it in 'Amalul-Yawm wal-Laylah",
+        "transliteration": "Ghufraanaka"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "مغفرة",
+    "items": [
+      {
+        "id": 14,
+        "arabic": "بِسْمِ اللهِ",
+        "translation": "In the Name of Allah",
+        "reference": "Abu Dawud 3/347, At-Tirmithi 4/288, Sahih At-Tirmithi 2/167, Ibn Majah, and Ahmad. 'Irwa'ul-Ghain 1/122",
+        "transliteration": "Bismillaah"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "رزق",
+    "items": [
+      {
+        "id": 16,
+        "arabic": "أَشْهَدُ أَنْ لَا إِلَهَ إلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ",
+        "translation": "I bear witness that none has the right to be worshipped but Allah alone, Who has no partner; and I bear witness that Muhammad is his Messenger.",
+        "reference": "Muslim 1/209",
+        "transliteration": "Ash-hadu 'an laa 'ilaaha 'illallaahu wahdahu laa shareeka lahu wa 'ash-hadu 'anna Muhammadan 'abduhu wa Rasooluhu."
+      },
+      {
+        "id": 17,
+        "arabic": "اللَّهُمَّ اجْعَلْنِي مِنَ التَّوَّابِينَ وَاجْعَلْنِي مِنَ الْمُتَطَهِّرِينَ",
+        "translation": "O Allah, make me among those who turn to You in repentance, and make me among those who are purified.",
+        "reference": "At-Tirmithi 1/78. See also Al-Albani, Sahih At- Tirmithi 1/18 ",
+        "transliteration": "Allaahummaj'alnee minat-tawwaabeena waj'alnee minal-mutatahhireen"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "حماية",
+    "items": [
+      {
+        "id": 18,
+        "arabic": "بِسْمِ اللهِ، تَوَكَّلْتُ عَلَى اللهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+        "translation": "In the Name of Allah, I have placed my trust in Allah, there is no might and no power except by Allah.",
+        "reference": "Abu Dawud 4/325, At-Tirmithi 5/490. See also Al-Albani, Sahih At-Tirmithi 3/151",
+        "transliteration": "Bismillaahi, tawakkaltu 'alallaahi, wa laa hawla wa laa quwwata ‘ illaa billaah"
+      },
+      {
+        "id": 19,
+        "arabic": "الَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أّوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ",
+        "translation": "O Allah, I seek refuge in You lest I misguide others , or I am misguided by others , lest I cause others to err or I am caused to err , lest I abuse others or be abused, and lest I behave foolishly or meet with the foolishness of others.",
+        "reference": "Abu Dawud, Ibn Majah, An-Nasa'i, At-Tirmithi. See also Al-Albani, Sahih At-Tirmithi 3/152 and Sahih Ibn Majah 2/336",
+        "transliteration": "Allaahumma 'innee 'a'oothu bika 'an 'adhilla, 'aw 'udhalla, 'aw 'azilla, 'aw 'uzalla, 'aw 'adhlima, 'aw 'udhlama, 'aw 'ajhala 'aw yujhala 'alayya"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "title": "إرشاد",
+    "items": [
+      {
+        "id": 85,
+        "arabic": "لاَ إِلَهَ إِلَّا أنْـت سُـبْحانَكَ إِنِّي كُنْـتُ مِنَ الظّـالِميـن",
+        "translation": "There is none worthy of worship but You, glory is to You. Surely, I was among the wrongdoers.",
+        "reference": "Surah Al-Anbiya - 21:87",
+        "transliteration": "Laa 'ilaaha 'illaa 'Anta subhaanaka 'innee kuntu minadh-dhaalimeen"
+      },
+      {
+        "id": 84,
+        "arabic": "اللّهُـمَّ رَحْمَتَـكَ أَرْجـوفَلا تَكِلـني إِلى نَفْـسي طَـرْفَةَ عَـيْن، وَأَصْلِـحْ لي شَأْنـي كُلَّـه لَا إِلَهَ إِلَّا أنْـت",
+        "translation": "O Allah, I hope for Your mercy. Do not leave me to myself even for the blinking of an eye (i.e. a moment). Correct all of my affairs for me. There is none worthy of worship but You.",
+        "reference": "Abu Dawud 4/324, Ahmad 5/42. Al-Albani graded it as good in Sahih Abu Dawud 3/959.",
+        "transliteration": "Allaahumma rahmataka 'arjoo falaa takilnee 'ilaa nafsee tarfata 'aynin, wa 'aslih lee sha'nee kullahu, laa'ilaaha 'illaa 'Anta"
+      },
+      {
+        "id": 83,
+        "arabic": "لا إلَهَ إلاَّ اللَّهُ الْعَظـيمُ الْحَلِـيمْ، لا إلَهَ إلاَّ اللَّهُ   رَبُّ العَـرْشِ العَظِيـمِ، لا إلَهَ إلاَّ اللَّهُ  رَبُّ السَّمَـوّاتِ ورّبُّ الأَرْضِ ورَبُّ العَرْشِ الكَـريم",
+        "translation": "There is none worthy of worship but Allah the Mighty, the Forbearing. There is none worthy of worship but Allah, Lord of the Magnificent Throne. There is none worthy of worship but Allah, Lord of the heavens and Lord of the earth, and Lord of the Noble Throne.",
+        "reference": "Al-Bukhari 8/154, Muslim 4/2092",
+        "transliteration": "Laa 'ilaaha 'illallaahul-'Adheemul-Haleem, laa 'ilaaha 'illallaahu Rabbul-'Arshil-'Adheem, laa 'ilaaha 'illallaahu Rabbus-samaawaati wa Rabbul-'ardhi wa Rabbul-'Arshil-Kareem"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "title": "يوم القيامة",
+    "items": [
+      {
+        "id": 86,
+        "arabic": "حَسْبُـنا اللهُ وَنِعْـمَ الوَكـيل",
+        "translation": "Allah is sufficient for us and the best of those on whom to depend.",
+        "reference": "Surah Al-Imran 3:173",
+        "transliteration": "Hasbunallaahu wa ni'amal-wakeel"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "الناس",
+    "items": [
+      {
+        "id": 20,
+        "arabic": "بِسْمِ اللهِ وَلَجْنَا، وَ بِسْمِ اللهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا",
+        "translation": "In the Name of Allah we enter , in the Name of Allah we leave , and upon our Lord we depend [then say As-Salaamu 'Alaykum to those present]",
+        "reference": "Abu Dawud 4/325. Muslim {Hadith no. 2018) says that one should mention the Name of Allah when entering the home and when beginning to eat; and that the devil, hearing this, says: \"There is no shelter for us here tonight and no food.\"",
+        "transliteration": "Bismillaahi walajnaa, wa bismillaahi kharajnaa, wa 'alaa Rabbana tawakkalnaa"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "أطفال",
+    "items": [
+      {
+        "id": 21,
+        "arabic": "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ",
+        "translation": "O Allah, open before me the doors of Your mercy.",
+        "reference": "Muslim 1/494",
+        "transliteration": "Allaahum-maftah lee 'abwaaba rahmatika"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "يثق",
+    "items": [
+      {
+        "id": 22,
+        "arabic": "اللَّهُمَّ إَنِّي أَسْأَلُكَ مِنْ فَضْلِكَ",
+        "translation": "O Allah, I ask for Your favor.",
+        "reference": "Abu Dawud 465",
+        "transliteration": "Allaahumma 'innee 'as'aluka min fadhlika"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "إيمان إحسان",
+    "items": [
+      {
+        "id": 23,
+        "arabic": "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ",
+        "translation": "There is no might and no power except by Allah.",
+        "reference": "Al-Bukhari 1/152, Muslim 1/288",
+        "transliteration": "Laa hawla wa laa quwwata 'illaa billaah"
+      },
+      {
+        "id": 24,
+        "arabic": "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّداً الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَاماً مَحْمُوداً الَّذِي وَعَدْتَهُ، [إَنَّكَ لَا تُخْلِفُ الْمِيعَادَ]",
+        "translation": "O Allah , Lord of this perfect call and established prayer. Grant Muhammad the intercession and favor, and raise him to the honored station You have promised him, [verily You do not neglect promises].",
+        "reference": "Al-Bukhari 1/152, and the addition between brackets is from Al-Bayhaqi 1/410 with a good (Hasan) chain of narration. See 'Abdul-Azlz bin Baz's Tuhfatul-'Akhyar, pg. 38",
+        "transliteration": "Allaahumma Rabba haathihid-da 'watit-taammati wassalaatil-qaa'imati, 'aati Muhammadanil-waseelata walfadheelata, wab 'ath-hu maqaamam-mahmoodanil-lathee wa'adtahu, ['innaka laa tukhliful-mee'aad]"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "title": "رحمة الله",
+    "items": [
+      {
+        "id": 28,
+        "arabic": "سُبْحَانَ رَبِّيَ الْعَظِيمِ",
+        "translation": "Glory to my Lord the Exalted.",
+        "reference": "Abu Dawud, Ibn Majah, An-Nasa'i, At-Tirmithi, and Ahmad. See Al-Albani's Sahih At-Tirmithi 1/83",
+        "transliteration": "Subhaana Rabbiyal-'Adheem"
+      },
+      {
+        "id": 29,
+        "arabic": "سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي",
+        "translation": "Glory is to You , O Allah , our Lord , and praise is Yours . O Allah , forgive me.",
+        "reference": "Al-Bukhari 1/99, Muslim 1/350",
+        "transliteration": "Subhaanaka Allaahumma Rabbanaa wa bihamdika Allaahum-maghfir lee"
+      },
+      {
+        "id": 30,
+        "arabic": "سُبُّوحٌ، قُدُوسٌ، رَبُّ الْمَلَائِكَةِ وَالرُّوحِ",
+        "translation": "Glory (to You) , Most Holy (are You) , Lord of the angels and the Spirit.",
+        "reference": "Muslim 1/353, Abu Dawud 1/230",
+        "transliteration": "Subboohun, Quddoosun, Rabbul-malaa'ikati warrooh"
+      },
+      {
+        "id": 31,
+        "arabic": "اللَّهُمَّ لَكَ رَكَعْتُ، وَبِكَ آمَنْتُ، وَلَكَ أَسْلَمْتُ خَشَعَ لَكَ سَمْعِي، وَبَصَرِي وَمُخِّي، وَعَظْمِي، وَعَصَبِي، وَمَا اسْتَقَلَّ بِهِ قَدَمِي",
+        "translation": "O Allah! to You I bow (in prayer) and in You I believe and to You I have submitted. Before You my hearing is humbled, as is my sight, my mind, my bones, my nerves and what my feet have mounted upon (for travel).",
+        "reference": "Muslim 1/534, Abu Dawud, An-Nasa'i and At- Tirmithi",
+        "transliteration": "Allaahumma laka raka'tu, wa bika 'aamantu, wa laka 'aslamtu khasha'a laka sam'ee, wa basaree, wa mukhkhee, wa 'adhmee, wa 'asabee, wa mastaqalla bihi qadamee"
+      },
+      {
+        "id": 32,
+        "arabic": "سُبْحَانَ ذِي الْجَبَرُوتِ، وَالْمَلَكُوتِ، وَالْكِبْرِيَاءِ، وَالْعَظَمَةِ",
+        "translation": "Glory is to You, Master of power, of dominion, of majesty and greatness.",
+        "reference": "Abu Dawud 1/230, An-Nasa'i and Ahmad. Its chain of narration is good (Hasan)",
+        "transliteration": "Subhaana thil-jabarooti, walmalakooti, walkibriyaa'i, wal'adhamati"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "حزن",
+    "items": [
+      {
+        "id": 33,
+        "arabic": "سَمِعَ اللهُ لِمَنْ حَمِدَهُ",
+        "translation": "Allah hears whoever praises Him.",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 2/282",
+        "transliteration": "Sami'allaahu liman hamidah"
+      },
+      {
+        "id": 34,
+        "arabic": "رَبَّنَا وَلَكَ الْحَمْدُ، حَمْداً كَثِيراً طَيِّباً مُبَارَكاً فِيهِ",
+        "translation": "Our Lord, praise is Yours, abundant, good and blessed praise.",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 2/284",
+        "transliteration": " Rabbanaa wa lakal-hamd, hamdan i katheeran tayyiban mubaarakanfeeh"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "title": "خسارة",
+    "items": [
+      {
+        "id": 35,
+        "arabic": "سُبْحَانَ رَبِّيَ الأَعْلَى",
+        "translation": "Glory is to my Lord, the Most High.",
+        "reference": "Abu Dawud, Ibn Majah, An-Nasa'i, At-Tirmithi, and Ahmad. See also Al-Albani, Sahih At-Tirmithi 1/83",
+        "transliteration": "Subhaana Rabbiyal-A 'laa"
+      },
+      {
+        "id": 29,
+        "arabic": "سُبْحَانَكَ اللَّهُمَّ رَبَّنَا وَبِحَمْدِكَ اللَّهُمَّ اغْفِرْ لِي",
+        "translation": "Glory is to You , O Allah , our Lord , and praise is Yours . O Allah , forgive me.",
+        "reference": "Al-Bukhari 1/99, Muslim 1/350",
+        "transliteration": "Subhaanaka Allaahumma Rabbanaa wa bihamdika Allaahum-maghfir lee"
+      },
+      {
+        "id": 30,
+        "arabic": "سُبُّوحٌ، قُدُوسٌ، رَبُّ الْمَلَائِكَةِ وَالرُّوحِ",
+        "translation": "Glory (to You) , Most Holy (are You) , Lord of the angels and the Spirit.",
+        "reference": "Muslim 1/353, Abu Dawud 1/230",
+        "transliteration": "Subboohun, Quddoosun, Rabbul-malaa'ikati warrooh"
+      },
+      {
+        "id": 36,
+        "arabic": "اللَّهُمَّ لَكَ سَجَدْتُ وَبِكَ آمَنْتُ، وَلَكَ أَسْلَمْتُ، سَجَدَ وَجْهِيَ لِلَّذِي خَلَقَهُ، وَصَوَّرَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، تَبَارَكَ اللهُ أَحْسَنُ الْخَالِقِينَ",
+        "translation": "O Allah, to You I prostrate myself and in You I believe. To You I have submitted. My face is prostrated to the One Who created it, fashioned it, and gave it hearing and sight. Blessed is Allah, the Best of creators.",
+        "reference": "Muslim 1/534 and others",
+        "transliteration": "Allaahumma laka sajadtu wa bika 'aamantu, wa laka 'aslamtu, sajada wajhiya lillathee khalaqahu, wa sawwarahu, wa shaqqa sam'ahu wa basarahu, tabaarakallaahu 'ahsanul-khaaliqeen"
+      },
+      {
+        "id": 32,
+        "arabic": "سُبْحَانَ ذِي الْجَبَرُوتِ، وَالْمَلَكُوتِ، وَالْكِبْرِيَاءِ، وَالْعَظَمَةِ",
+        "translation": "Glory is to You, Master of power, of dominion, of majesty and greatness.",
+        "reference": "Abu Dawud 1/230, An-Nasa'i and Ahmad. Its chain of narration is good (Hasan)",
+        "transliteration": "Subhaana thil-jabarooti, walmalakooti, walkibriyaa'i, wal'adhamati"
+      },
+      {
+        "id": 37,
+        "arabic": "اللَّهُمَّ إِنِّي أَعُوذُ بِرِضَاكَ مِنْ سَخَطِكَ، وَبِمُعَافَاتِكَ مَنْ عُقُوبَتِكَ، وَاَعُوذُ بِكَ مِنْكَ، لَا أُحصِي ثَنَاءً عَلَيْكَ أَنْتَ كَمَا أَثْنَيْتَ عَلَى نَفْسِكَ",
+        "translation": "O Allah, I seek protection in Your pleasure from Your anger, and I seek protection in Your forgiveness from Your punishment. I seek protection in You from You. I cannot count Your praises. You are as You have praised Yourself.",
+        "reference": "Muslim 1/352",
+        "transliteration": "Allaahumma 'innee 'a'oothu biridhaaka min sakhatika, wa bimu'aafaatika min 'uqoobatika wa 'a'oothu bika minka, laa 'uhsee thanaa'an 'alayka 'Anta kamaa 'athnayta 'alaa nafsika"
+      },
+      {
+        "id": 38,
+        "arabic": "اللَّهُمَّ اغْفِرْ لِي ذَنْبِي كُلَّهُ، دِقَّهُ وَجِلَّهُ، وَأَوَّلَهُ وَآخِرَهُ وَعَلَانِيَتَهُ وَسِرَّهُ",
+        "translation": "O Allah, forgive me all my sins, great and small, the first and the last, those that are apparent and those that are hidden.",
+        "reference": "Muslim 1/350",
+        "transliteration": "Allaahum-maghfir lee thanbee kullahu, diqqahu wa jillahu, wa 'awwalahu wa 'aakhirahu wa 'alaaniyata hu wa sirrahu"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "الصباح والمساء",
+    "items": [
+      {
+        "id": 39,
+        "arabic": "رَبِّ اغْفِرْ لِي رَبِّ اغْفِرْ لِي",
+        "translation": "Lord, forgive me. My Lord, forgive me.",
+        "reference": "Abu Dawud 1/231. See also Al-Albani, Sahih ibn Madjah 1/148",
+        "transliteration": "Rabbighfir lee, Rabbighfir lee"
+      },
+      {
+        "id": 40,
+        "arabic": "اللَّهُمَّ اغْفِرْ لِي، وَارْحَمْنِي، وَاهْدِنِي، وَاجْبُرْنِي، وَعَافِنِي، وَارْزُقْنِي، وَارْفَعْنِي",
+        "translation": "O Allah forgive me, have mercy on me, guide me, support me, protect me, provide for me and elevate me.",
+        "reference": "Abu Dawud, Ibn Majah, At-Tirmithi. See also Al-Albani, Sahih At-Tirmithi 1/90 and Sahih Ibn Majah 1/148",
+        "transliteration": "Allaahum-maghfir lee, warhamnee, wahdinee, wajburnee, wa 'aafinee, warzuqnee, warfa'nee"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "المنزل",
+    "items": [
+      {
+        "id": 41,
+        "arabic": "سَجَدَ وَجْهِيَ لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، بِحَوْلِهِ وَقُوَّتِهِ، فَتَبَارَكَ اللهُ أَحسَنُ الْخَالِقِينَ",
+        "translation": "I have prostrated my face to the One Who created it, and gave it hearing and sight by His might and His power. Glory is to Allah, the Best of creators.",
+        "reference": "At-Tirmithi 2/474, Ahmad 6/30, and Al-Hakim",
+        "transliteration": "Sajada wajhiya lillathee khalaqahu, wa shaqqa sam'ahu wa basarahu bihawlihi wa quwwatihi. Fatabaarakallaahu 'ahsanul-khaaliqeen"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "ملابس",
+    "items": [
+      {
+        "id": 42,
+        "arabic": "التَّحِيَّاتُ للهِ، وَالصَّلَوَاتُ، وَالطَّيِّبَاتُ، السَّلَامُ عَلَيْكَ أَيُّهَا النَّبِيُّ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ، السَّلَامُ عَلَيْنَا وَعَلَى عِبَادِ اللهِ الصَّالِحِينَ. أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا اللهُ وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ",
+        "translation": "All greetings of humility are for Allah, and all prayers and goodness. Peace be upon you, O Prophet, and the mercy of Allah and His blessings. Peace be upon us and upon the righteous slaves of Allah. I bear witness that there is none worthy of worship but Allah, and I bear witness that Muhammad is His slave and His Messenger.",
+        "reference": "Al-Bukhari, Muslim 1/301. See also Al-Asqalani, Fathul-Bal 1/13",
+        "transliteration": "Attahiyyaatu lillaahi wassalawaatu , wattayyibaatu , assalaamu 'alayka 'ayyuhan-Nabiyyu wa rahmatullaahi wa barakaatuhu, assalaamu 'alaynaa wa 'alaa 'ibaadillaahis-saaliheen. 'Ash-hadu 'an laa 'ilaaha 'illallaahu wa 'ash-hadu 'anna Muhammadan 'abduhu wa Rasooluhu"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "الأكل",
+    "items": [
+      {
+        "id": 43,
+        "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ، كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ، اللَّهُمَّ بَارِكَ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا بَارَكْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ، إِنَّكَ حَمِيدٌ مَجِيدٌ",
+        "translation": "O Allah, bestow Your favor on Muhammad and on the family of Muhammad as You have bestowed Your favor on Ibrahim and on the family of Ibrahim, You are Praiseworthy, Most Glorious. O Allah, bless Muhammad and the family of Muhammad as You have blessed Ibrahim and the family of Ibrahim, You are Praiseworthy, Most Glorious.",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 6/408",
+        "transliteration": "Allaahumma salli 'alaa Muhammadin wa 'alaa 'aali Muhammadin, kamaa sallayta 'alaa 'Ibraaheema wa 'alaa 'aali 'Ibraaheema, 'innaka Hameedun Majeed. Allaahumma baarik 'alaa Muhammadin wa 'alaa 'aali Muhammadin, kamaa baarakta 'alaa 'Ibraaheema wa 'alaa 'aali 'Ibraaheema, 'innaka Hameedun Majeed"
+      },
+      {
+        "id": 60,
+        "arabic": "اللَّهُمَّ صَلِّ وَسَلَّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
+        "translation": "Oh Allah, we ask you for peace and blessings upon our prophet Muhamed.",
+        "reference": "At-Tabrani, Sahih at-Targhib wa at-Tarhib 1/273",
+        "transliteration": "Allahumma salli wa sallim 'alaa nabiyyinaa Muhammadin"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "المنام",
+    "items": [
+      {
+        "id": 44,
+        "arabic": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عَذَابِ الْقَبْرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الْمَسِيحِ الدَّجَّالِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الْمَحْيَا وَالْمَمَاتِ. اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ الْمَأْثَمِ وَالْمَغْرَمِ",
+        "translation": "O Allah, I seek refuge in You from the punishment of the grave, and I seek refuge in You from the trial of the False Messiah, and I seek refuge in You from the trials of life and death. O Allah, I seek refuge in You from sin and from debt.",
+        "reference": "Al-Bukhari 1/202, Muslim 1/412",
+        "transliteration": "Allaahumma 'innee 'a'oothu bika min 'athaabil-qabri, wa 'a'oothu bika min fitnatil-maseehid-dajjaali, wa 'a'oothu bika min fitnatil-mahyaa walmamaati. Allaahumma 'innee 'a'oothu bika minal-ma'thami walmaghrami"
+      },
+      {
+        "id": 45,
+        "arabic": "اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي ظُلْماً كَثِيراً، وَلَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ، فَاغْفِرْ لِي مَغْفِرَةً مِنْ عِنْدِكَ وَارْحَمْنِي إِنَّكَ أَنْتَ الْغَفُورُ الرَّحِيمُ",
+        "translation": "O Allah, I have greatly wronged myself and no one forgives sins but You. So, grant me forgiveness and have mercy on me. Surely, you are Forgiving, Merciful.",
+        "reference": "Al-Bukhari 8/168, Muslim 4/2078",
+        "transliteration": "Allaahumma 'innee dhalamtu nafsee dhulman katheeran, wa laa yaghfiruth-thunooba 'illaa 'Anta, faghfir lee maghfiratan min 'indika warhamnee 'innaka 'Antal-Ghafoorur-Raheem"
+      },
+      {
+        "id": 176,
+        "arabic": "اللَّهُمَّ اغْفِرْ لِي مَا قَدَّمْتُ وَمَا أَخَّرْتُ، وَمَا أَسْرَرْتُ، وَمَا أَعْلَنْتُ، وَمَا أَسْرَفْتُ، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي. أَنْتَ الْمُقَدِّمُ، وَأَنْتَ الْمُؤَخِّرُ لَا إِلهَ إِلَاَّ أَنْتَ",
+        "translation": "O Allah, forgive me what I have sent before me and what I have left behind me, what I have concealed and what I have done openly, what I have done in excess , and what You are better aware of than I . You are the One Who sends forth and You are the One Who delays . There is none worthy of worship but You.",
+        "reference": "Muslim 1/534",
+        "transliteration": "Allaahum-maghfir lee maa qaddamtu, wa maa 'akhkhartu, wa maa 'asrartu, wa maa 'a'lantu, wa maa 'asraftu, wa maa 'Anta 'a'lamu bihi minnee. 'Antal-Muqaddimu, wa 'Antal-Mu'akhkhiru laa 'ilaaha 'illaa 'Anta"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "title": "مرحاض",
+    "items": [
+      {
+        "id": 46,
+        "arabic": " أَسْتَغْفِرُ اللهَ , أَسْتَغْفِرُ اللهَ , أَسْتَغْفِرُ اللهَ وَأَتُوبُ إِلَيْهِ",
+        "translation": "I seek the forgiveness of Allah and repent to him.",
+        "reference": "Muslim 1/414",
+        "transliteration": "Astaghfirullaah, Astaghfirullaah, Astaghfirullaaha wa 'atoobu 'ilayhi"
+      },
+      {
+        "id": 47,
+        "arabic": "لَا إِلَهَ إِلَّا اللهُ وَحَدْهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+        "translation": "None has the right to be worshipped but Allah alone, Who has no partner. His is the dominion and His is the praise. He brings life and He causes death, and He is Able to do all things.",
+        "reference": "At-Tirmithi 5/515, Ahmad 4/227. See its checking in Ibn Al-Qayyim Al-Jawziyyah's Zddul-Ma'ad 1/300.",
+        "transliteration": "Laa 'ilaaha 'illallaahu wahdahu laa shareeka lahu, lahul-mulku wa lahul-hamdu yuhyee wa yumeetu wa Huwa 'alaa kulli shay'in Qadeer"
+      },
+      {
+        "id": 48,
+        "arabic": " اللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ",
+        "translation": "O Allah, You are Peace and from You comes peace . Blessed are You , O Owner of majesty and honor",
+        "reference": "Muslim 1/414",
+        "transliteration": "Allaahumma 'Antas-Salaamu wa minkas-salaamu, tabaarakta yaa Thal-Jalaali wal-'Ikraam"
+      },
+      {
+        "id": 49,
+        "arabic": "اللَّهُمَّ لَا مَانِعَ لِمَا أَعْطَيْتَ، وَلَا مُعْطِيَ لِمَا مَنَعْتَ، وَلَا يَنْفَعُ ذَا الْجَدِّ مِنْكَ الْجَدُّ",
+        "translation": "O Allah, there is none who can withhold what You give, and none may give what You have withheld and the might of the mighty person cannot benefit him against You.",
+        "reference": "Al-Bukhari 1/255, Muslim 1/414",
+        "transliteration": "Allaahumma laa maani'a limaa 'a'tayta, wa laa mu'tiya limaa mana'ta, wa laa yanfa'u thal-jaddi minkal-jadd"
+      },
+      {
+        "id": 50,
+        "arabic": "اللَّهُمَّ أَعِنَّي عَلَى ذِكْرِكَ، وَشُكْرِكَ، وَحُسْنِ عِبَادَتِكَ",
+        "translation": "O Allah, help me to remember You, to give You thanks , and to perform Your worship in the best manner.",
+        "reference": "Abu Dawud 2/86, An-Nasa'i 3/53. See also Al-Albani Sahih Abu Dawud 1 /284",
+        "transliteration": "Allaahumma 'a'innee 'alaa thikrika, wa shukrika, wahusni 'ibaadatika"
+      },
+      {
+        "id": 158,
+        "arabic": "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+        "translation": "Our Lord! Grant us good in this world and good in the hereafter, and save us from the chastisement of the fire.",
+        "reference": "Surah Al-Baqarah - 2:201",
+        "transliteration": "Rabbana atina fid-dunya hasanatan wa fil 'akhirati hasanatan waqina 'adhaban-nar"
+      },
+      {
+        "id": 173,
+        "arabic": "اَللَّهُمَّ اِنَّكَ عَفُوٌّ ، تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي ",
+        "translation": "O Allah You are The One Who forgives greatly, and loves to forgive, so forgive me",
+        "reference": "At-Tirmidhi 3513, Ibn Majah",
+        "transliteration": "Allahumma innaka `afuwwun tuhibbul `afwa fa`fu `annee"
+      },
+      {
+        "id": 51,
+        "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نَافِعاً، وَرِزْقاً طَيِّباً، وَعَمَلاً مُتَقَبَّلاً",
+        "translation": "O Allah, I ask You for knowledge that is of benefit , a good provision , and deeds that will be accepted.",
+        "reference": "Ibn Majah and others. See Al-Albani, Sahih Ibn Majah 1/152 and Majma'uz-Zawd'id 10/111.",
+        "transliteration": "Allaahumma 'innee 'as'aluka 'ilman naafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbalan"
+      },
+      {
+        "id": 52,
+        "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْجَنَّةَ وَأَعُوذُ بِكَ مِنَ النَّارِ",
+        "translation": "O Allah , I ask You for Paradise and seek Your protection from the Fire.",
+        "reference": "Abu Dawud. See also Al-Albani, Sahih Ibn Majah 2/328",
+        "transliteration": "Allaahumma 'innee 'as'alukal-jannata wa 'a'oothu bika minan-naar"
+      },
+      {
+        "id": 78,
+        "arabic": "سُبْحَانَ اللهِ ، والْحَمْدُ للهِ ، وَاللهُ أَكْبَرُ",
+        "translation": "Glory is to Allah, praise is to Allah, Allah is the Most Great!",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 7/71, Muslim 4/2091",
+        "transliteration": "Subhaanallaahi, Walhamdu lillaahi, Wallaahu 'Akbar"
+      },
+      {
+        "id": 16,
+        "arabic": "أَشْهَدُ أَنْ لَا إِلَهَ إلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، وَأَشْهَدُ أَنَّ مُحَمَّداً عَبْدُهُ وَرَسُولُهُ",
+        "translation": "I bear witness that none has the right to be worshipped but Allah alone, Who has no partner; and I bear witness that Muhammad is his Messenger.",
+        "reference": "Muslim 1/209",
+        "transliteration": "Ash-hadu 'an laa 'ilaaha 'illallaahu wahdahu laa shareeka lahu wa 'ash-hadu 'anna Muhammadan 'abduhu wa Rasooluhu."
+      },
+      {
+        "id": 53,
+        "arabic": "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبُخْلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ، وَأَعُوذُ بِكَ مِنْ أَنْ أُرَدَّ إِلَى أَرْذَلِ الْعُمُرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الدُّنْيَا وَعَذَابِ الْقَبْرِ",
+        "translation": "O Allah , I seek Your protection from miserliness, I seek Your protection from cowardice, and I seek Your protection from being returned to feeble old age . I seek Your protection from the trials of this world and from the torment of the grave.",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 6/35",
+        "transliteration": "Allaahumma 'innee 'a'oothu bika minal-bukhli, wa 'a'oothu bika minal-jubni, wa 'a'oothu bika min 'an 'uradda 'ilaa 'arthalil-'umuri, wa 'a'oothu bika min fitnatid-dunyaa wa 'athaabil-qabri"
+      },
+      {
+        "id": 54,
+        "arabic": "لَا إِلَهَ إِلَّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ، لَا إِلَهَ إِلَّا اللهُ، وَلَا نَعْبُدُ إِلَّا إِيَّاهُ، لَه النِّعْمَةُ وَلَهُ الْفَضْلُ وَلَهُ الثَّنَاءُ الْحَسَنُ، لَا إِلَهَ إِلَّا اللهُ مُخْلِصِينَ لَهُ الدِّينَ وَلَوْ كَرِهَ الْكَافِرُونَ",
+        "translation": "None has the right to be worshipped but Allah alone, He has no partner, His is the dominion and His is the praise and He is Able to do all things. There is no power and no might except by Allah . None has the right to be worshipped but Allah, and we do not worship any other besides Him . His is grace , and His is bounty and to Him belongs the most excellent praise. None has the right to be worshipped but Allah . (We are) sincere in making our religious devotion to Him, even though the disbelievers may dislike it.",
+        "reference": "Muslim 1/415",
+        "transliteration": "Laa 'ilaaha 'illallaahu wahdahu laa shareeka lahu, lahul-mulku, wa lahul-hamdu wa Huwa 'alaa kulli shay 'in Qadeer. Laa hawla wa laa quwwata 'illaa billaahi, laa 'ilaaha 'illallaahu, wa laa na'budu 'illaa 'iyyaahu, lahun-ni'matu wa lahul-fadhlu wa lahuth-thanaa'ul-hasanu, laa 'ilaaha 'illallaahu mukhliseena lahud-deena wa law karihal-kaafiroon"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "title": "في سفر",
+    "items": [
+      {
+        "id": 55,
+        "arabic": "اللهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+        "translation": "Allah! There is none worthy of worship but He, the Ever Living, the One Who sustains and protects all that exists. Neither slumber nor sleep overtakes Him. To Him belongs whatever is in the heavens and whatever is on the earth. Who is he that can intercede with Him except with His Permission? He knows what happens to them in this world, and what will happen to them in the Hereafter. And they will never compass anything of His Knowledge except that which He wills. His Throne extends over the heavens and the earth, and He feels no fatigue in guarding and preserving them. And He is the Most High, the Most Great.",
+        "reference": "Surah Al-Baqarah - 2:255, Al-Quran",
+        "transliteration": "Allaahu laa 'ilaaha 'illaa Huwal-Hayyul-Qayyoom, laa ta'khuthuhu sinatun wa laa nawm, lahu maa fis-samaawaati wa maafil-'ardh, man thal-lathee yashfa'u 'indahu 'illaa bi'ithnih, ya'lamu maa bayna 'aydeehim wa maa khalfahum, wa laa yuheetoona bishay'im-min 'ilmihi 'illaa bimaa shaa'a, wasi'a kursiyyuhus-samaawaati wal'ardh, wa laa ya'ooduhu hifdhuhumaa, wa Huwal-'Aliyyul- 'Adheem"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "title": "مطر",
+    "items": [
+      {
+        "id": 56,
+        "arabic": "قُلْ هُوَ اللهُ أَحَدٌ ۞ اللهُ الصَّمَدُ ۞ لَمْ يَلِدْ وَلَمْ يُولَدْ ۞ وَلَمْ يَكُنْ لَهُ كُفُوًا أَحَدٌ",
+        "translation": "He is Allah (the) One. The Self-Sufficient Master, Whom all creatures need, He begets not nor was He begotten, and there is none equal to Him.",
+        "reference": "Surah Al-Ikhlas 112:1-4, Al Quran",
+        "transliteration": "Bismillaahir-Rahmaanir-Raheem. Qul Huwallaahu 'Ahad. Allaahus-Samad. Lam yalid wa lam yoolad. Wa lam yakun lahu kufuwan 'ahad"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "title": "ضد الشرك والشيطان والشر",
+    "items": [
+      {
+        "id": 57,
+        "arabic": "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۞ مِنْ شَرِّ مَا خَلَقَ ۞ وَمِنْ شَرِّ غَاسِقٍ إِذَا وَقَبَ ۞ وَمِنْ شَرِّ النَّفَّاثَاتِ فِي الْعُقَدِ ۞ وَمِنْ شَرِّ حَاسِدٍ إِذَا حَسَدَ",
+        "translation": "I seek refuge with (Allah) the Lord of the daybreak, from the evil of what He has created, and from the evil of the darkening (night) as it comes with its darkness, and from the evil of those who practice witchcraft when they blow in the knots, and from the evil of the envier when he envies.",
+        "reference": "Surah Al-Falaq 113:1-5, Al Quran",
+        "transliteration": "Bismillaahir-Rahmaanir-Raheem. Qul 'a'oothu birabbil-falaq. Min sharri maa khalaq. Wa min sharri ghaasiqin 'ithaa waqab. Wa min sharrin-naffaathaati fil-'uqad. Wa min sharri haasidin 'ithaa hasad"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "title": "الناس المرضى",
+    "items": [
+      {
+        "id": 58,
+        "arabic": "قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۞ مَلِكِ النَّاسِ ۞ إِلَهِ النَّاسِ ۞ مِنْ شَرِّ الْوَسْوَاسِ الْخَنَّاسِ ۞ الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ ۞ مِنَ الْجِنَّةِ وَالنَّاسِ",
+        "translation": "I seek refuge with (Allah) the Lord of mankind, the King of mankind , the God of mankind , from the evil of the whisperer who withdraws, who whispers in the breasts of mankind, of jinns and men.",
+        "reference": "Surah An-Nas 114:1-6, Al Quran",
+        "transliteration": "Bismillaahir-Rahmaanir-Raheem . Qul 'a'oothu birabbin-naas . Malikin-naas . 'Ilaahin-naas . Min sharril-waswaasil-khannaas. Allathee yuwaswisu fee sudoorin-naas. Minal-jinnati wannaas"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "title": "إساءة",
+    "items": [
+      {
+        "id": 59,
+        "arabic": "اللَّهُمَّ إِنِّي أَسْتَخِيرُكَ بِعِلْمَكَ، وَأَسْتَقْدِرُكَ بِقُدْرَتِكَ، وَأَسْأَلُكَ مِنْ فَضْلِكَ الْعَظِيمِ، فَإِنَّكَ تَقْدِرُ وَلَا أَقْدِرُ، وَتَعْلَمُ، وَلَا أَعْلَمُ، وَأَنْتَ عَلَّامُ الْغُيُوبِ، اللَّهُمَّ إِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ- خَيْرٌ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي- عَاجِلِهِ وَآجِلِهِ- فَاقْدُرْهُ لِي وَيَسِّرْهُ لِي ثُمَّ بَارِكْ لِي فِيهِ، وَإِنْ كُنْتَ تَعْلَمُ أَنَّ هَذَا الْأَمْرَ شَرٌّ لِي فِي دِينِي وَمَعَاشِي وَعَاقِبَةِ أَمْرِي- عَاجِلِهِ وَآجِلِهِ- فَاصْرِفْهُ عَنِّي وَاصْرِفْنِي عَنْهُ وَاقْدُرْ لِيَ الْخَيْرَ حَيْثُ كَانَ ثُمَّ أَرْضِنِي بِهِ",
+        "translation": "O Allah, I seek the counsel of Your Knowledge, and I seek the help of Your Omnipotence, and I beseech You for Your Magnificent Grace. Surely, You are Capable and I am not. You know and I know not, and You are the Knower of the unseen. O Allah, if You know that this matter [then mention the thing to be decided] is good for me in my religion and in my life and for my welfare in the life to come, - [or say: in this life and the afterlife] - then ordain it for me and make it easy for me, then bless me in it. And if You know that this matter is bad for me in my religion and in my life and for my welfare in the life to come, - [or say: in this life and the afterlife] - then distance it from me, and distance me from it, and ordain for me what is good wherever it may be, and help me to be content with it.\nWhoever seeks the counsel of the Creator will not regret it and whoever seeks the advice of the believers will feel confident about his decisions. \nAllah said in the Qur'an: \"And consult them in the affair. Then when you have taken a decision, put your trust in Allah.\"",
+        "reference": "Al-Bukhari 7/162. and Aal-'Imran 3:159",
+        "transliteration": "Allaahumma 'innee 'astakheeruka bi'ilmika, wa 'astaqdiruka biqudratika, wa 'as'aluka min fadhtikal-'Adheemi, fa'innaka taqdiru wa laa 'aqdiru, wa ta'lamu, wa laa 'a'lamu, wa 'Anta 'Allaamul-Ghuyoobi, Allaahumma 'in kunta ta'lamu 'anna haathal-'amra-[then mention the thing to be decided] Khayrun lee fee deenee wa ma'aashee wa 'aaqibati 'amree - [or say] 'Aajilihi wa 'aajilihi - Faqdurhu lee wa yassirhu lee thumma baarik lee feehi, wa 'in kunta ta'lamu 'anna haathal-'amra sharrun lee fee deenee wa ma'aashee wa 'aaqibati 'amree - [or say] 'Aajilihi wa 'aajilihi - Fasrifhu 'annee wasrifnee 'anhu waqdur liyal-khayra haythu kaana thumma 'ardhinee bihi"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "title": "التمويل والثروة",
+    "items": [
+      {
+        "id": 168,
+        "arabic": "سُبْحَانَ اللهِ وَبِحَمْدِهِ",
+        "translation": "Glorified is Allah and praised is He.",
+        "reference": "Al-Bukhari 7/168, Muslim 4/2071.",
+        "transliteration": "Subhaanallaahi wa bihamdihi"
+      },
+      {
+        "id": 60,
+        "arabic": "اللَّهُمَّ صَلِّ وَسَلَّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ",
+        "translation": "Oh Allah, we ask you for peace and blessings upon our prophet Muhamed.",
+        "reference": "At-Tabrani, Sahih at-Targhib wa at-Tarhib 1/273",
+        "transliteration": "Allahumma salli wa sallim 'alaa nabiyyinaa Muhammadin"
+      },
+      {
+        "id": 51,
+        "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْماً نَافِعاً، وَرِزْقاً طَيِّباً، وَعَمَلاً مُتَقَبَّلاً",
+        "translation": "O Allah, I ask You for knowledge that is of benefit , a good provision , and deeds that will be accepted.",
+        "reference": "Ibn Majah and others. See Al-Albani, Sahih Ibn Majah 1/152 and Majma'uz-Zawd'id 10/111.",
+        "transliteration": "Allaahumma 'innee 'as'aluka 'ilman naafi'an, wa rizqan tayyiban, wa 'amalan mutaqabbalan"
+      },
+      {
+        "id": 62,
+        "arabic": "سُبْحَانَ اللهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ وَمِدَادَ كَلِمَاتِهِ",
+        "translation": "Glory is to Allah and praise is to Him, by the multitude of His creation, by His Pleasure, by the weight of His Throne, and by the extent of His Words.",
+        "reference": "Muslim 4/2090",
+        "transliteration": "Subhaanallaahi wa bihamdihi 'Adada khalqihi, wa ridhaa nafsihi, wa zinata 'arshihi wa midaada kalimaatihi"
+      },
+      {
+        "id": 47,
+        "arabic": "لَا إِلَهَ إِلَّا اللهُ وَحَدْهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ يُحْيِي وَيُمِيتُ، وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ",
+        "translation": "None has the right to be worshipped but Allah alone, Who has no partner. His is the dominion and His is the praise. He brings life and He causes death, and He is Able to do all things.",
+        "reference": "At-Tirmithi 5/515, Ahmad 4/227. See its checking in Ibn Al-Qayyim Al-Jawziyyah's Zddul-Ma'ad 1/300.",
+        "transliteration": "Laa 'ilaaha 'illallaahu wahdahu laa shareeka lahu, lahul-mulku wa lahul-hamdu yuhyee wa yumeetu wa Huwa 'alaa kulli shay'in Qadeer"
+      },
+      {
+        "id": 63,
+        "arabic": "أَصْبَـحْـنا وَأَصْبَـحْ المُـلكُ للهِ رَبِّ العـالَمـين  اللّهُـمَّ إِنِّـي أسْـأَلُـكَ خَـيْرَ هـذا الـيَوْم  فَـتْحَهُ  وَنَصْـرَهُ  وَنـورَهُ وَبَـرَكَتَـهُ  وَهُـداهُ  وَأَعـوذُ بِـكَ مِـنْ شَـرِّ ما فـيهِ وَشَـرِّ ما بَعْـدَه",
+        "translation": "We have entered a new day and with it all the dominion which belongs to Allah, Lord of all that exists. O Allah, I ask You for the goodness of this day, its victory, its help, its light, its blessings, and its guidance. I seek refuge in You from the evil that is in it and from the evil that follows it.",
+        "reference": "Abu Dawud 4/322. Its transmission chain is good (Hasan). See also Ibn Al-Qayyim, Zadul- Ma'ad 2/273",
+        "transliteration": "Asbahna wa-asbahal-mulku lillahi rabbil-AAalameen, allahumma innee as-aluka khayra hathal-yawm, fat-hahu, wanasrahu, wanoorahu, wabarakatahu, wahudahu, wa-aAAoothu bika min sharri ma feehi, washarri ma baAAdah"
+      },
+      {
+        "id": 64,
+        "arabic": "يَا حَيُّ يَا قَيُّومُ بِرَحْمَتِكَ أَسْتَغِيثُ أَصْلِحْ لِي شَأْنِي كُلَّهُ وَلَا تَكِلْنِي إِلَى نَفْسِي طَرْفَةَ عَيْنٍ",
+        "translation": "O Ever Living One, O Eternal One, by Your mercy I call on You to set right all my affairs. Do not place me in charge of my soul even for the blinking of an eye (i.e. a moment).",
+        "reference": "Its chain of transmission is sound (Sahih), Al-Hakim 1/545, see Albani, Sahihut-Targhib wat-Tarhib, 1/273",
+        "transliteration": "Yaa Hayyu yaa Qayyoomu birahmatika 'astagheethu 'aslih lee sha'nee kullahu wa laa takilnee 'ilaa nafsee tarfata 'aynin"
+      },
+      {
+        "id": 65,
+        "arabic": "رَضِيتُ باللهِ رَبَّاً، وَبِالْإِسْلَامِ دِيناً، وَبِمُحَمَّدٍ صَلَى اللهُ عَلِيهِ وَسَلَّمَ نَبِيَّاً",
+        "translation": "I am pleased with Allah as my Lord, with Islam as my religion and with Muhammad (peace and blessings of Allah be upon him) as my Prophet.",
+        "reference": "Ahmad 4/ 337, An-Nasa'i, 'Amalul-Yawm wal-Laylah p. 4, Ibn As-Sunni (no. 68), At-Tirmithi 5/465. Its chain of transmission is good (Hasan), Ibn Baz, p. 39.",
+        "transliteration": "Radheetu billaahi Rabban, wa bil-'Islaami deenan, wa bi-Muhammadin (sallallaahu 'alayhi wa sallama) Nabiyyan"
+      },
+      {
+        "id": 66,
+        "arabic": "بِسْمِ اللهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
+        "translation": "In the Name of Allah, Who with His Name nothing can cause harm in the earth nor in the heavens, and He is the All-Hearing, the All-Knowing.",
+        "reference": "Abu Dawud 4/323, At-Tirmithi 5/465, Ibn Majah 2/332, Ahmad. Ibn Majah's chain of transmission is good (Hasan), Ibn Baz, muka surat 39.",
+        "transliteration": "Bismillaahil-lathee laa yadhurru ma'as-mihi shay'un fil-'ardhi wa laa fis-samaa'i wa Huwas-Samee 'ul- 'Aleem"
+      },
+      {
+        "id": 67,
+        "arabic": "اللَّهُمَّ عَالِمَ الْغَيْبِ وَالشَّهَادَةِ فَاطِرَ السَّماوَاتِ وَالْأَرْضِ، رَبَّ كُلِّ شَيْءٍ وَمَلِيكَهُ، أَشْهَدُ أَنْ لَا إِلَهَ إِلَّا أَنْتَ، أَعُوذُ بِكَ مِنْ شَرِّ نَفْسِي، وَمِنْ شَرِّ الشَّيْطَانِ وَشِرْكِهِ، وَأَنْ أَقْتَرِفَ عَلَى نَفْسِي سُوءاً، أَوْ أَجُرَّهُ إِلَى مُسْلِمٍ",
+        "translation": "O Allah, Knower of the unseen and the evident , Maker of the heavens and the earth , Lord of everything and its Possessor , I bear witness that there is none worthy of worship but You . I seek refuge in You from the evil of my soul and from the evil of Satan and his helpers . (I seek refuge in You) from bringing evil upon my soul and from harming any Muslim.",
+        "reference": "Sahih At-Tirmithi 3/142 and AbuDawud",
+        "transliteration": "Allaahumma 'Aalimal-ghaybi wash-shahaadati faatiras-samaawaati wal'ardhi, Rabba kulli shay 'in wa maleekahu, 'ash-hadu 'an laa 'ilaaha 'illaa 'Anta, 'a'oothu bika min sham nafsee, wa min sharrish-shaytaani wa shirkihi, wa 'an 'aqtarifa 'alaa nafsee soo'an, 'aw 'ajurrahu 'ilaa Muslimin"
+      },
+      {
+        "id": 68,
+        "arabic": "اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ، اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي دِينِي وَدُنْيَايَ وَأَهْللِي، وَمَالِي، اللَّهُمَّ اسْتُرْ عَوْرَاتِي، وَآمِنْ رَوْعَاتِي، اللَّهُمَّ احْفَظْنِي مِنْ بَيْنِ يَدَيَّ، وَمِنْ خَلْفِي، وَعَنْ يَمِينِي، وَعَنْ شِمَالِي، وَمِنْ فَوْقِي، وَأَعُوذُ بِعَظَمَتِكَ أَنْ أُغْتَالَ مِنْ تَحْتِي",
+        "translation": "O Allah, I seek Your forgiveness and Your protection in this world and the next. O Allah, I seek Your forgiveness and Your protection in my religion, in my worldly affairs, in my family and in my wealth. O Allah, conceal my secrets and preserve me from anguish . O Allah , guard me from what is in front of me and behind me , from my left , and from my right , and from above me . I seek refuge in Your Greatness from being struck down from beneath me.",
+        "reference": "Sahih Ibn Majah 2/332 and Abu Dawud",
+        "transliteration": "Allaahumma 'innee 'as'alukal-'afwa wal'aafiyata fid-dunyaa wal'aakhirati, Allaahumma 'innee 'as'alukal-'afwa wal'aafiyata fee deenee wa dunyaaya wa 'ahlee, wa maalee , Allaahum-mastur 'awraatee, wa 'aamin raw'aatee, Allaahum-mahfadhnee min bayni yadayya, wa min khalfee, wa 'an yameenee, wa 'an shimaalee, wa min fawqee, wa 'a'oothu bi'adhamatika 'an 'ughtaala min tahtee"
+      },
+      {
+        "id": 69,
+        "arabic": "حَسْبِيَ اللَّهُ لَا إِلَٰهَ إِلَّا هُوَ ۖ عَلَيْهِ تَوَكَّلْتُ ۖ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ",
+        "translation": "[O Muhammad], say, \"Sufficient for me is Allah ; there is no deity except Him. On Him I have relied, and He is the Lord of the Great Throne.\"",
+        "reference": "Surah At-Tawbah - 9:129",
+        "transliteration": "Hasbiya Allahu la ilaha illa huwa alayhi tawakkaltu wahuwa rabbul arshil adheem"
+      },
+      {
+        "id": 70,
+        "arabic": "اللّهُـمَّ عافِـني في بَدَنـي ، اللّهُـمَّ عافِـني في سَمْـعي ، اللّهُـمَّ عافِـني في بَصَـري ، لا إلهَ إلاّ أَنْـتَ.\nاللّهُـمَّ إِنّـي أَعـوذُبِكَ مِنَ الْكُـفر ، وَالفَـقْر ، وَأَعـوذُبِكَ مِنْ عَذابِ القَـبْر ، لا إلهَ إلاّ أَنْـتَ",
+        "translation": "O Allah, make me healthy in my body. O Allah, preserve for me my hearing. O Allah, preserve for me my sight. There is none worthy of worship but You . \nO Allah , I seek refuge in You from disbelief and poverty and I seek refuge in You from the punishment of the grave . There is none worthy of worship but You.",
+        "reference": "Abu Dawud 4/324, Ahmad 5/42, An-Nasa'i, 'Amalul-Yawm wal-Laylah (no. 22), Ibn As-Sunni (no. 69), Al-Bukhari Al-'Adab Al-Mufrad. Its chain of transmission is good (Hasan), Ibn Baz, p. 26.",
+        "transliteration": "Allaahumma 'aafinee fee badanee, Allaahumma 'aafinee fee sam'ee, Allaahumma 'aafinee fee basaree, laa 'ilaaha 'illaa 'Anta.\nAllaahumma 'innee 'a'oothu bika minal-kufri, walfaqri, wa 'a'oothu bika min 'athaabil-qabri, laa 'ilaaha 'illaa 'Anta."
+      },
+      {
+        "id": 71,
+        "arabic": "اللَّهُمَّ أَنْتَ رَبِّي لّا إِلَهَ إِلَّا أَنْتَ، خَلَقْتَنِي وَأَنَا عَبْدُكَ، وَأَنَا عَلَى عَهْدِكَ وَوَعْدِكَ مَا اسْتَطَعْتَ، أَعُوذُ بِكَ مِنْ شَرِّ مَا صَنَعْتَ، أَبُوءُ لَكَ بِنِعْمَتِكَ عَلَيَّ، وَأَبُوءُ بِذَنْبِي فَاغْفِر لِي فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ",
+        "translation": "O Allah, You are my Lord, there is none worthy of worship but You. You created me and I am your slave. I keep Your covenant, and my pledge to You so far as I am able. I seek refuge in You from the evil of what I have done. I admit to Your blessings upon me, and I admit to my misdeeds. Forgive me, for there is none who may forgive sins but You.",
+        "reference": "Al-Bukhari 7/150. Other reports are in An-Nasa'i and At-Tirmithi.",
+        "transliteration": "Allaahumma 'Anta Rabbee laa 'ilaaha 'illaa 'Anta, khalaqtanee wa 'anaa 'abduka, wa 'anaa 'alaa 'ahdika wa wa'dika mas-tata'tu, 'a'oothu bika min sharri maa sana'tu, 'aboo'u laka bini'matika 'alayya, wa 'aboo'u bithanbee faghfir lee fa'innahu laa yaghfiruth-thunooba 'illaa 'Anta"
+      },
+      {
+        "id": 72,
+        "arabic": "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ وَإِلَيْكَ النُّشُورُ",
+        "translation": "O Allah , by You we enter the morning and by You we enter the evening, by You we live and and by You we die, and to You is the Final Return.\nWhen you say this in the evening you should say: Allaahumma bika 'amsaynaa wa bika 'asbahnaa, wa bika nahyaa, wa bika namoot, wa 'ilaykal-maseer : \"O Allah, You bring us the end of the day as You bring us its beginning, You bring us life and you bring us death, and to You is our fate.\"",
+        "reference": "Sahih At-Tirmithi 3/142.",
+        "transliteration": "Allaahumma bika 'asbahnaa, wa bika 'amsaynaa, wa bika nahyaa, wa bika namootu wa 'ilaykan-nushoor"
+      },
+      {
+        "id": 73,
+        "arabic": "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ للهِ وَالْحَمْدُ للهِ، لَا إِلَهَ إِلَّا اللهُ وَحَدْهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ، ربِّ أَسْأَلُكَ خَيْرَ مَا فِي هَذَا الْيَومِ وَخَيْرَ مَا بَعْدَهُ، وَأَعُوذُ بِكَ مِنْ شَرِّ مَا فِي هَذَا الْيَومِ وَشَرِّ مَا بَعْدَهُ، رَبِّ أَعُوذُ بِكَ مِنَ الْكَسَلِ، وَسُوءِ الكِبَرِ، رَبِّ أَعُوذُ بِكَ مِنْ عَذَابٍ فِي النَّارِ وَعَذَابٍ فِي الْقَبْرِ",
+        "translation": "We have entered a new day and with it all dominion is Allah's. Praise is to Allah. None has the right to be worshipped but Allah alone, Who has no partner. To Allah belongs the dominion, and to Him is the praise and He is Able to do all things. My Lord, I ask You for the goodness of this day and of the days that come after it, and I seek refuge in You from the evil of this day and of the days that come after it. My Lord, I seek refuge in You from laziness and helpless old age. My Lord, I seek refuge in You from the punishment of Hell-fire , and from the punishment of the grave.\nWhen you say this in the evening you should say: 'Amsaynaa wa'amsal-mulku lillaah: \"We have ended another day and with it all dominion is Allah's\" and\nRabbi 'as'aluka khayra maa fee haathihil-laylati, wa khayra maa ba'dahaa, wa 'a'oothu bika min sharri maa fee haathihil-laylati wa sharri maa ba'dahaa: \"I ask You for the good things of this night and of the nights that come after it and I seek refuge in You from the evil of this night and of the nights that come after it.\"",
+        "reference": "Muslim 4/2088",
+        "transliteration": "Asbahnaa wa 'asbahal-mulku lillaahi walhamdu lillaahi, laa 'ilaaha 'illallaahu wahdahu laa shareeka lahu, lahul-mulku wa lahul-hamdu wa Huwa 'alaa kutti shay'in Qadeer. Rabbi 'as'aluka khayra maa fee haathal-yawmi wa khayra maa ba'dahu wa 'a'oothu bika min sharri maa fee haathal-yawmi wa sharri maa ba'dahu, Rabbi 'a'oothu bika minal-kasali, wa soo'il-kibari, Rabbi 'a'oothu bika min 'athaabin fin-naari wa 'athaabin fil-qabri"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "title": "معرفة",
+    "items": [
+      {
+        "id": 74,
+        "arabic": "آمَنَ الرَّسُولُ بِمَا أُنْزِلَ إِلَيْهِ مِنْ رَبِّهِ وَالْمُؤْمِنُونَ كُلٌّ آمَنَ بِاللهِ وَمَلَائِكَتِهِ وَكُتُبِهِ وَرُسُلِهِ لَا نُفَرِّقُ بَيْنَ أَحَدٍ مِنْ رُسُلِهِ وَقَالُوا سَمِعْنَا وَأَطَعْنَا غُفْرَانَكَ رَبَّنَا وَإِلَيْكَ الْمَصِيرُ ۞ لَا يُكَلِّفُ اللهُ نَفْسًا إِلَّا وُسْعَهَا لَهَا مَا كَسَبَتْ وَعَلَيْهَا مَا اكْتَسَبَتْ رَبَّنَا لَا تُؤَاخِذْنَا إِنْ نَسِينَا أَوْ أَخْطَأْنَا رَبَّنَا وَلَا تَحْمِلْ عَلَيْنَا إِصْرًا كَمَا حَمَلْتَهُ عَلَى الَّذِينَ مِنْ قَبْلِنَا رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ وَاعْفُ عَنَّا وَاغْفِرْ لَنَا وَارْحَمْنَا أَنْتَ مَوْلَانَا فَانْصُرْنَا عَلَى الْقَوْمِ الْكَافِرِينَ",
+        "translation": "The Messenger believes in what has been send down to him from his Lord, and so do the believers. Each one believes in Allah, His Angels, His Books, and His Messengers. They say: \"We make no distinction between any of His Messengers,\" and they say: \"We hear, and we obey. (We seek) Your Forgiveness, our Lord, and to You is the return.\" Allah burdens not a person beyond what he can bear. He gets reward for that (good) which he has earned, and he is punished for that (evil) which he has earned. Our Lord! Punish us not if we forget or fall into error. Our Lord! Lay not on us a burden like that which You did lay on those before us. Our Lord! Put not on us a burden greater than we have strength to bear. Pardon us and grant us forgiveness. Have mercy on us. You are our Protector, and help us against the disbelieving people.",
+        "reference": "Surah Al-Baqarah - 2:285-286",
+        "transliteration": "Aamanar-Rasoolu bimaa 'unzila ilaihi mir-Rabbihi walmu'minoon, kullun 'aamana billaahi wa malaa'ikatihi wa Kutubihi wa Rusulihi, laa nufarriqu bayna 'ahadim-mir-Rusulihi, wa qaaloo sami'naa wa 'ata'naa ghufraanaka Rabbanaa wa 'ilaykal-maseer. Laa yukallifullaahu nafsan 'illaa wus'ahaa, lahaa maa kasabat wa 'alayhaa mak-tasabat, Rabbanaa laa tu'aakhithnaa 'in naseenaa 'aw 'akhta'naa, Rabbanaa wa laa tahmil 'alaynaa 'isran kamaa hamaltahu 'alal-latheena min qablinaa, Rabbanaa wa laa tuhammilnaa maa laa taaqata lanaa bihi, wa'fu 'annaa, waghfir lanaa warhamnaa, 'Anta Mawlaanaa fansurnaa 'alal-qawmil-kaafireen"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "title": "قرار",
+    "items": [
+      {
+        "id": 75,
+        "arabic": " اللَّهُمَّ بِاسْمِكَ  أَمُوتُ وَأَحْيَا",
+        "translation": "In Your Name , O Allah , I die and I live.\nHere, dying and living are metaphors for sleep and wakefulness.",
+        "reference": "Surah Al-Baqarah - 2:258",
+        "transliteration": "Allaahumma Bismika 'amootu wa 'ahyaa"
+      },
+      {
+        "id": 76,
+        "arabic": "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا، بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ",
+        "translation": "With Your Name my Lord, I lay myself down and with Your Name I rise. And if my soul You take, have mercy on it, and if You send it back then protect it as You protect Your righteous slaves.",
+        "reference": "Al-Bukhari 1 1/ 126 and Muslim 4/2084",
+        "transliteration": "Bismika Rabbee wadha'tu janbee , wa bika 'arfa'uhu, fa'in 'amsakta nafsee farhamhaa, wa 'in 'arsaltahaa fahfadhhaa, bimaa tahfadhu bihi 'ibaadakas-saaliheen"
+      },
+      {
+        "id": 77,
+        "arabic": "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",
+        "translation": "O Allah, save me from Your punishment on the Day that You resurrect Your slaves.",
+        "reference": "Abu Dawud 4/311. See also Al-Albani, Sahih At-Tirmithi 3/143",
+        "transliteration": "Allaahumma qinee 'athaabaka yawma tab'athu 'ibaadaka"
+      },
+      {
+        "id": 78,
+        "arabic": "سُبْحَانَ اللهِ ، والْحَمْدُ للهِ ، وَاللهُ أَكْبَرُ",
+        "translation": "Glory is to Allah, praise is to Allah, Allah is the Most Great!",
+        "reference": "Al-Bukhari, cf. Al-Asqalani, Fathul-Bari 7/71, Muslim 4/2091",
+        "transliteration": "Subhaanallaahi, Walhamdu lillaahi, Wallaahu 'Akbar"
+      },
+      {
+        "id": 79,
+        "arabic": "الْحَمْدُ للهِ الَّذِي أَطْعَمَنَا وَسَقَانَا، وَكَفَانَا، وَآوَانَا، فَكَمْ مِمَّنْ لَا كَافِيَ لَهُ وَلَا مُؤْويَ",
+        "translation": "Praise is to Allah Who has provided us with food and with drink, sufficed us and gave us an abode for how many are there with no provision and no home.",
+        "reference": "Muslim 4/2085",
+        "transliteration": "Alhamdu lillaahil-lathee 'at'amanaa wa saqaanaa, wa kafaanaa, wa 'aawaanaa, fakam mimman laa kaafiya lahu wa laa mu'wiya"
+      },
+      {
+        "id": 55,
+        "arabic": "اللهُ لَا إِلَهَ إِلَّا هُوَ الْحَيُّ الْقَيُّومُ لَا تَأْخُذُهُ سِنَةٌ وَلَا نَوْمٌ لَهُ مَا فِي السَّمَاوَاتِ وَمَا فِي الْأَرْضِ مَنْ ذَا الَّذِي يَشْفَعُ عِنْدَهُ إِلَّا بِإِذْنِهِ يَعْلَمُ مَا بَيْنَ أَيْدِيهِمْ وَمَا خَلْفَهُمْ وَلَا يُحِيطُونَ بِشَيْءٍ مِنْ عِلْمِهِ إِلَّا بِمَا شَاءَ وَسِعَ كُرْسِيُّهُ السَّمَاوَاتِ وَالْأَرْضَ وَلَا يَئُودُهُ حِفْظُهُمَا وَهُوَ الْعَلِيُّ الْعَظِيمُ",
+        "translation": "Allah! There is none worthy of worship but He, the Ever Living, the One Who sustains and protects all that exists. Neither slumber nor sleep overtakes Him. To Him belongs whatever is in the heavens and whatever is on the earth. Who is he that can intercede with Him except with His Permission? He knows what happens to them in this world, and what will happen to them in the Hereafter. And they will never compass anything of His Knowledge except that which He wills. His Throne extends over the heavens and the earth, and He feels no fatigue in guarding and preserving them. And He is the Most High, the Most Great.",
+        "reference": "Surah Al-Baqarah - 2:255, Al-Quran",
+        "transliteration": "Allaahu laa 'ilaaha 'illaa Huwal-Hayyul-Qayyoom, laa ta'khuthuhu sinatun wa laa nawm, lahu maa fis-samaawaati wa maafil-'ardh, man thal-lathee yashfa'u 'indahu 'illaa bi'ithnih, ya'lamu maa bayna 'aydeehim wa maa khalfahum, wa laa yuheetoona bishay'im-min 'ilmihi 'illaa bimaa shaa'a, wasi'a kursiyyuhus-samaawaati wal'ardh, wa laa ya'ooduhu hifdhuhumaa, wa Huwal-'Aliyyul- 'Adheem"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "title": "رمضان",
+    "items": [
+      {
+        "id": 80,
+        "arabic": "لَا إِلَهَ إِلَّا اللهُ الْوَاحِدُ اْقَهَّارُ، رَبُّ السَّمَاوَاتِ وَالْأَرْضِ وَمَا بَيْنَهُمَا الْعَزِيزُ الْغَفَّارُ",
+        "translation": "There is none worthy of worship but Allah, the One, the Victorious, Lord of the heavens and the earth and all that is between them, the All-Mighty, the All-Forgiving.",
+        "reference": "Al-Hakim graded it authentic and Ath-Thahabi agreed 1/540. Also see An-Nasa'i, 'Amalul-Yawm wal-Laylah, and Ibn As-Sunni. See also Al-Albani, Sahihul-Jami' As-Saghir 4/ 213.",
+        "transliteration": "Laa 'ilaaha 'illallaahul-Waahidul-Qahhaaru, Rabbus-samaawaati wal'ardhi wa maa baynahumal-'Azeezul-Ghaffaaru"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "title": "الحج والعمرة",
+    "items": [
+      {
+        "id": 81,
+        "arabic": "اللَّهُمَّ اهْدِنِي فِيمَنْ هَدَيْتَ، وَعَافِنِي فِيمَنْ عَافَيْتَ، وَتَوَلَّنِي فِيمَنْ تَوَلَّيْتَ، وَبَارِكْ لِي فِيمَا أَعطَيْتَ، وَقِنِي شَرَّ مَا قَضَيْتَ، فَإِنَّكَ تَقْضِي وَلَا يُقْضَى عَلَيْكَ، إِنَّهُ لَا يَذِلُّ مَنْ وَالَيْتَ، [وَلَا يَعِزُّ مَنْ عَادَيْتَ]، تَبَارَكْتَ رَبَّنَا وَتَعَالَيْتَ",
+        "translation": "O Allah, guide me with those whom You have guided, and strengthen me with those whom You have given strength. Take me to Your care with those whom You have taken to Your care. Bless me in what You have given me. Protect me from the evil You have ordained. Surely, You command and are not commanded, and none whom You have committed to Your care shall be humiliated [and none whom You have taken as an enemy shall taste glory]. You are Blessed, Our Lord, and Exalted.",
+        "reference": "Abu Dawud, Ibn Majah, An-Nasa'i, At-Tirmithi, Ahmad, Ad-Darimi, Al-Hakim, and Al-Bayhaqi. See also Al-Albani, Sahih At-Tirmithi 1/144, Sahih Ibn Majah 1/194, and 'Irwa'ul-GhaW. 2/ 172.",
+        "transliteration": "Allaahum-mahdinee feeman hadayta, wa 'aafinee feeman 'aafayta, wa tawallanee feeman tawallayta, wa baarik lee feemaa 'a'atayta, wa qinee sharra maa qadhayta, fa'innaka taqdhee wa laa yuqdhaa 'alayka, 'innahu laa yathillu man waalayta, [wa laa ya 'izzu man 'aadayta] , tabaarakta Rabbanaa wa ta'aalayta"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "title": "فقيد",
+    "items": [
+      {
+        "id": 82,
+        "arabic": "اللّهُـمَّ إِنِّي أَعْوذُ بِكَ مِنَ الهَـمِّ وَ الْحُـزْنِ، والعًجْـزِ والكَسَلِ والبُخْـلِ والجُـبْنِ، وضَلْـعِ الـدَّيْنِ وغَلَبَـةِ الرِّجال",
+        "translation": "O Allah, I seek refuge in you from grief and sadness, from weakness and from laziness, from miserliness and from cowardice, from being overcome by debt and overpowered by men (i .e . others).",
+        "reference": "Al-Bukhari 7/158. See also Al-Asqalani, Fathul-Bari 11/173",
+        "transliteration": "Allaahumma 'innee 'a'oothu bika minal-hammi walhazani, wal'ajzi walkasali, walbukhli waljubni, wa dhala'id-dayni wa ghalabatir-rijaal"
+      }
+    ]
+  }
+]
